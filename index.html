@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ComprasAI — Distribuidora</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;color:#1e293b;display:flex;min-height:100vh;font-size:14px;}
+/* SIDEBAR */
+.sb{width:210px;background:#1e293b;min-height:100vh;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;}
+.sb-logo{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sb-logo-n{color:#f59e0b;font-size:16px;font-weight:700;}
+.sb-logo-s{color:#94a3b8;font-size:11px;margin-top:2px;}
+.sb-nav{padding:10px 8px;flex:1;}
+.sb-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border:none;border-radius:7px;background:none;cursor:pointer;color:#94a3b8;font-size:13px;font-weight:500;text-align:left;margin-bottom:2px;transition:all .15s;}
+.sb-btn:hover{background:rgba(255,255,255,0.06);color:#e2e8f0;}
+.sb-btn.ativo{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
+.sb-bot{padding:12px;border-top:1px solid rgba(255,255,255,0.08);}
+.sb-pill{padding:8px 10px;border-radius:7px;text-align:center;font-size:12px;font-weight:700;background:rgba(255,255,255,0.05);color:#94a3b8;}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 22px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-size:15px;font-weight:600;color:#1e293b;}
+.pages{padding:20px;overflow-y:auto;}
+.pg{display:none;} .pg.ativo{display:block;}
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:18px;}
+.kpi{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;}
+.kpi-l{font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.kpi-v{font-size:20px;font-weight:700;margin-bottom:3px;}
+.kpi-s{font-size:11px;color:#cbd5e1;}
+/* CARDS */
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.card-h{padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;}
+.card-t{font-size:13px;font-weight:600;color:#1e293b;}
+.card-b{padding:16px;}
+.col2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+/* FORMS */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;}
+input,select{padding:8px 11px;border:1.5px solid #e2e8f0;border-radius:7px;font-size:13px;color:#1e293b;background:#fff;outline:none;transition:border-color .15s;width:100%;}
+input:focus,select:focus{border-color:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,0.1);}
+input::placeholder{color:#cbd5e1;}
+.btn-add{padding:8px 18px;border-radius:7px;border:none;background:#f59e0b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-add:hover{background:#d97706;}
+.btn-sec{padding:8px 18px;border-radius:7px;border:1.5px solid #e2e8f0;background:#fff;color:#64748b;font-size:13px;font-weight:500;cursor:pointer;}
+.btn-sec:hover{border-color:#94a3b8;}
+/* BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700;}
+.b-green{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+.b-red{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+.b-amber{background:#fffbeb;color:#d97706;border:1px solid #fcd34d;}
+.b-gray{background:#f8fafc;color:#94a3b8;border:1px solid #e2e8f0;}
+.b-purple{background:#f5f3ff;color:#7c3aed;border:1px solid #c4b5fd;}
+/* TABLES */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:#f8fafc;font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em;padding:9px 14px;text-align:left;border-bottom:1px solid #f1f5f9;}
+tbody tr{border-bottom:1px solid #f8fafc;transition:background .1s;}
+tbody tr:hover{background:#fafafa;}
+td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
+.td-m{color:#94a3b8;font-size:12px;}
+.btn-del{background:none;border:none;cursor:pointer;color:#cbd5e1;font-size:14px;border-radius:4px;padding:2px 6px;transition:all .15s;}
+.btn-del:hover{background:#fef2f2;color:#dc2626;}
+.empty-row td{text-align:center;color:#cbd5e1;padding:32px;font-size:13px;}
+/* CALENDAR */
+.cal-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.cal-mes{font-size:17px;font-weight:700;color:#1e293b;}
+.cal-nav{padding:5px 14px;border:1.5px solid #e2e8f0;border-radius:7px;background:#fff;cursor:pointer;font-size:13px;color:#64748b;transition:all .15s;}
+.cal-nav:hover{border-color:#f59e0b;color:#f59e0b;}
+.cal-layout{display:grid;grid-template-columns:1fr 260px;gap:14px;align-items:start;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-dow{text-align:center;font-size:10px;font-weight:700;color:#94a3b8;padding:5px 0;text-transform:uppercase;}
+/* CALENDAR DAY CELLS */
+.cdia{border:1.5px solid #e2e8f0;border-radius:8px;min-height:80px;padding:6px;cursor:pointer;display:flex;flex-direction:column;transition:all .12s;background:#fff;}
+.cdia:hover{border-color:#94a3b8;}
+.cdia.vazio{background:transparent;border-color:transparent;cursor:default;}
+.cdia.dia-verde{background:#f0fdf4;border-color:#86efac;}
+.cdia.dia-vermelho{background:#fef2f2;border-color:#fca5a5;}
+.cdia.dia-amarelo{background:#fffbeb;border-color:#fcd34d;}
+.cdia.dia-neutro{background:#f8fafc;border-color:#e2e8f0;}
+.cdia.hoje{border:2px solid #f59e0b !important;}
+.cdia.com-parcela{outline:2px solid #7c3aed;}
+.cdia.selecionado{border-color:#2563eb !important;box-shadow:0 0 0 2px rgba(37,99,235,0.15);}
+.cdia-num{font-size:11px;font-weight:700;margin-bottom:3px;}
+.cdia.dia-verde .cdia-num{color:#16a34a;}
+.cdia.dia-vermelho .cdia-num{color:#dc2626;}
+.cdia.dia-amarelo .cdia-num{color:#d97706;}
+.cdia.dia-neutro .cdia-num{color:#94a3b8;}
+.cdia.hoje .cdia-num{color:#f59e0b;}
+.cdia-eventos{display:flex;flex-direction:column;gap:2px;flex:1;}
+.cev{font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cev-r{background:#f0fdf4;color:#16a34a;}
+.cev-p{background:#fef2f2;color:#dc2626;}
+.cev-s{background:#f5f3ff;color:#7c3aed;}
+.cdia-label{font-size:9px;font-weight:700;text-align:center;padding:2px 3px;border-radius:3px;margin-top:auto;}
+.lbl-bom{background:#dcfce7;color:#16a34a;}
+.lbl-ruim{background:#fee2e2;color:#dc2626;}
+.lbl-ok{background:#fef9c3;color:#ca8a04;}
+/* LEGEND */
+.legenda{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:#64748b;}
+.leg-q{width:12px;height:12px;border-radius:3px;border:1.5px solid;}
+/* DAY DETAIL */
+.detail{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;position:sticky;top:0;}
+.detail-title{font-size:13px;font-weight:700;color:#f59e0b;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f1f5f9;}
+.detail-sec{margin-bottom:12px;}
+.detail-sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
+.detail-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f8fafc;font-size:12px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-tot{display:flex;justify-content:space-between;padding:8px 0;border-top:1.5px solid #e2e8f0;font-size:13px;font-weight:700;margin-top:4px;}
+.detail-empty{color:#cbd5e1;font-size:12px;text-align:center;padding:12px 0;}
+/* SIMULATOR */
+.sim-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.prazo-btns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.pb{padding:6px 12px;border-radius:7px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;transition:all .15s;}
+.pb:hover{border-color:#f59e0b;color:#f59e0b;}
+.pb.sel{background:#fffbeb;border-color:#f59e0b;color:#d97706;}
+.res-box{background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:16px;margin-bottom:12px;}
+.res-l{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8;margin-bottom:5px;}
+.res-v{font-size:28px;font-weight:700;color:#f59e0b;margin-bottom:8px;}
+.barra-fundo{height:8px;background:#f1f5f9;border-radius:4px;margin-bottom:5px;overflow:hidden;}
+.barra-fill{height:100%;border-radius:4px;transition:width .5s,background .3s;}
+.res-status{font-size:13px;font-weight:700;}
+.max-box{background:#fffbeb;border:1.5px solid #fcd34d;border-radius:10px;padding:13px 16px;margin-bottom:12px;}
+.max-l{font-size:10px;font-weight:700;text-transform:uppercase;color:#d97706;margin-bottom:3px;}
+.max-v{font-size:24px;font-weight:700;color:#d97706;}
+/* INSTALLMENT CARDS */
+.inst{border-radius:8px;padding:11px 13px;margin-bottom:8px;border-left:3px solid;}
+.inst-ok{background:#f0fdf4;border-color:#16a34a;}
+.inst-warn{background:#fffbeb;border-color:#d97706;}
+.inst-n{font-size:11px;font-weight:700;color:#64748b;margin-bottom:2px;}
+.inst-data{font-size:14px;font-weight:700;margin-bottom:2px;}
+.inst-dia{font-size:12px;}
+/* BANNERS */
+.banner{border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.ban-purple{background:#f5f3ff;border:1.5px solid #c4b5fd;}
+/* ALERTS */
+.alerta{border-radius:10px;padding:12px 16px;margin-bottom:10px;border-left:3px solid;}
+.alerta h4{font-size:13px;font-weight:700;margin-bottom:3px;}
+.alerta p{font-size:12px;opacity:.85;line-height:1.5;}
+.al-red{background:#fef2f2;border-color:#dc2626;color:#dc2626;}
+.al-amber{background:#fffbeb;border-color:#d97706;color:#d97706;}
+.al-blue{background:#eff6ff;border-color:#2563eb;color:#2563eb;}
+.al-green{background:#f0fdf4;border-color:#16a34a;color:#16a34a;}
+/* CLIENT BARS */
+.cli-bar-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f1f5f9;}
+.cli-bar-row:last-child{border-bottom:none;}
+.cli-bar-name{width:150px;font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cli-bar-track{flex:1;height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden;}
+.cli-bar-fill{height:100%;border-radius:3px;}
+.cli-bar-val{width:65px;text-align:right;font-size:12px;font-weight:700;}
+/* CHIP */
+.chip{background:#f1f5f9;border-radius:12px;padding:2px 9px;font-size:11px;color:#64748b;}
+@media(max-width:860px){
+  .sb{display:none;}
+  .col2,.sim-layout,.cal-layout{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-logo">
+    <div class="sb-logo-n">ComprasAI</div>
+    <div class="sb-logo-s">Distribuidora de Peças</div>
+  </div>
+  <nav class="sb-nav">
+    <button class="sb-btn ativo" onclick="irPara('painel',this)">◈ Painel</button>
+    <button class="sb-btn" onclick="irPara('calendario',this)">📅 Calendário</button>
+    <button class="sb-btn" onclick="irPara('receber',this)">↓ A Receber</button>
+    <button class="sb-btn" onclick="irPara('pagar',this)">↑ A Pagar</button>
+    <button class="sb-btn" onclick="irPara('clientes',this)">◎ Clientes</button>
+    <button class="sb-btn" onclick="irPara('simulador',this)">✦ Simulador</button>
+    <button class="sb-btn" onclick="irPara('alertas',this)">⚑ Alertas <span id="qtdAlertas" style="margin-left:auto;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;display:none;">0</span></button>
+    <button class="sb-btn" onclick="irPara('config',this)">⚙ Configurações</button>
+  </nav>
+  <div class="sb-bot">
+    <div id="saudePill" class="sb-pill">Sem dados</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="tituloPagina">Painel</span>
+    <span style="font-size:12px;color:#94a3b8;" id="dataHoje"></span>
+  </div>
+  <div class="pages">
+
+    <!-- PAINEL -->
+    <div class="pg ativo" id="pg-painel">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-l">Total a Receber</div><div class="kpi-v" id="kpiRec" style="color:#16a34a">R$ 0,00</div><div class="kpi-s" id="kpiRecS">0 títulos</div></div>
+        <div class="kpi"><div class="kpi-l">Total a Pagar</div><div class="kpi-v" id="kpiPag" style="color:#dc2626">R$ 0,00</div><div class="kpi-s" id="kpiPagS">0 títulos</div></div>
+        <div class="kpi"><div class="kpi-l">Margem Operacional</div><div class="kpi-v" id="kpiMarg" style="color:#d97706">R$ 0,00</div><div class="kpi-s">Receber − Pagar</div></div>
+        <div class="kpi"><div class="kpi-l">Em Atraso (Receber)</div><div class="kpi-v" id="kpiAtr" style="color:#dc2626">R$ 0,00</div><div class="kpi-s" id="kpiAtrS">0 vencidos</div></div>
+        <div class="kpi"><div class="kpi-l">Compra Máx. Segura</div><div class="kpi-v" id="kpiMax" style="color:#1e293b">R$ 0,00</div><div class="kpi-s">Parcela ≤ 20% da margem</div></div>
+        <div class="kpi"><div class="kpi-l">Melhor Período p/ Comprar</div><div class="kpi-v" id="kpiDia" style="color:#2563eb;font-size:14px;padding-top:3px;">—</div><div class="kpi-s" id="kpiDiaS">Cadastre lançamentos</div></div>
+      </div>
+      <div class="col2">
+        <div class="card">
+          <div class="card-h"><span class="card-t">Próximos 10 dias</span></div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th></tr></thead>
+            <tbody id="tbProximos"><tr class="empty-row"><td colspan="4">Nenhum lançamento nos próximos 10 dias</td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><span class="card-t">Receber vs Pagar por semana</span></div>
+          <div class="card-b"><div style="position:relative;height:190px;"><canvas id="grafPainel"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDÁRIO -->
+    <div class="pg" id="pg-calendario">
+      <div id="bannerSim" class="banner ban-purple" style="display:none;">
+        <span style="font-size:20px;">🛒</span>
+        <div style="flex:1;"><div id="bannerSimT" style="font-size:13px;font-weight:700;color:#7c3aed;"></div><div id="bannerSimS" style="font-size:12px;color:#7c3aed;opacity:.8;margin-top:2px;"></div></div>
+        <button onclick="limparSim()" style="padding:5px 12px;border-radius:6px;border:1px solid #c4b5fd;background:transparent;color:#7c3aed;cursor:pointer;font-size:12px;font-weight:600;">Limpar</button>
+      </div>
+
+      <div class="legenda">
+        <div class="leg"><div class="leg-q" style="background:#f0fdf4;border-color:#86efac;"></div>Bom para comprar</div>
+        <div class="leg"><div class="leg-q" style="background:#fef2f2;border-color:#fca5a5;"></div>Ruim para comprar</div>
+        <div class="leg"><div class="leg-q" style="background:#fffbeb;border-color:#fcd34d;"></div>Atenção</div>
+        <div class="leg"><div class="leg-q" style="background:#f5f3ff;border-color:#c4b5fd;"></div>Parcela simulada</div>
+        <div class="leg"><div class="leg-q" style="background:#f0fdf4;border-color:#86efac;"></div>↓ Receber</div>
+        <div class="leg"><div class="leg-q" style="background:#fef2f2;border-color:#fca5a5;"></div>📄 Boleto</div>
+      </div>
+
+      <div class="cal-layout">
+        <div>
+          <div class="cal-header">
+            <button class="cal-nav" onclick="mudarMes(-1)">‹ Anterior</button>
+            <span class="cal-mes" id="calMesLabel"></span>
+            <button class="cal-nav" onclick="mudarMes(1)">Próximo ›</button>
+          </div>
+          <div class="cal-grid" id="calDow"></div>
+          <div class="cal-grid" id="calDias" style="margin-top:3px;"></div>
+          <p id="calSemDados" style="text-align:center;color:#cbd5e1;font-size:12px;margin-top:10px;display:none;">Cadastre contas a receber e a pagar para colorir o calendário.</p>
+        </div>
+        <div class="detail" id="painelDia">
+          <div class="detail-title">📅 Selecione um dia</div>
+          <div class="detail-empty">Clique em qualquer dia do calendário para ver os recebimentos, boletos e recomendação de compra.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A RECEBER -->
+    <div class="pg" id="pg-receber">
+      <div class="card">
+        <div class="card-h"><span class="card-t">Cadastrar Recebimento</span></div>
+        <div class="card-b">
+          <div class="fgrid">
+            <div class="fg"><label>Cliente *</label><input id="rCli" placeholder="Nome do cliente"></div>
+            <div class="fg"><label>Valor Total R$ *</label><input id="rVal" type="number" placeholder="0,00" min="0" step="0.01"></div>
+            <div class="fg"><label>Data da venda *</label><input id="rDataBase" type="date"></div>
+            <div class="fg"><label>Prazo de recebimento *</label><input id="rPrazo" placeholder="Ex: 30  ou  30/60  ou  30/60/90" oninput="previewParcelasRec()"></div>
+            <div class="fg"><label>Nº NF / Descrição</label><input id="rDesc" placeholder="NF 1234, venda..."></div>
+          </div>
+          <div class="prazo-btns" style="margin-bottom:12px;">
+            <button class="pb" onclick="setPrazoRec('30')">30d</button>
+            <button class="pb" onclick="setPrazoRec('60')">60d</button>
+            <button class="pb" onclick="setPrazoRec('30/60')">30/60d</button>
+            <button class="pb" onclick="setPrazoRec('30/60/90')">30/60/90d</button>
+            <button class="pb" onclick="setPrazoRec('60/90/120')">60/90/120d</button>
+          </div>
+          <div id="previewRec" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:8px;"><button class="btn-add" onclick="adicionarReceber()">+ Adicionar Parcelas</button><button class="btn-sec" onclick="limparFormRec()">Limpar</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="card-t">Contas a Receber</span><span class="chip" id="cntRec">0</span></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Dias</th><th>Status</th><th>Descrição</th><th></th></tr></thead>
+          <tbody id="tbRec"><tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- A PAGAR -->
+    <div class="pg" id="pg-pagar">
+      <div class="card">
+        <div class="card-h"><span class="card-t">Cadastrar Conta a Pagar</span></div>
+        <div class="card-b">
+          <div class="fgrid">
+            <div class="fg"><label>Fornecedor *</label><input id="pFor" placeholder="Nome do fornecedor"></div>
+            <div class="fg"><label>Valor Total R$ *</label><input id="pVal" type="number" placeholder="0,00" min="0" step="0.01"></div>
+            <div class="fg"><label>Data da compra *</label><input id="pDataBase" type="date"></div>
+            <div class="fg"><label>Prazo do fornecedor *</label><input id="pPrazo" placeholder="Ex: 30  ou  30/60  ou  30/60/90" oninput="previewParcelasPag()"></div>
+            <div class="fg"><label>Categoria</label><select id="pCat"><option>Fornecedor de Peças</option><option>Aluguel</option><option>Folha de Pagamento</option><option>Impostos</option><option>Energia / Água</option><option>Outro</option></select></div>
+          </div>
+          <div class="prazo-btns" style="margin-bottom:12px;">
+            <button class="pb" onclick="setPrazoPag('30')">30d</button>
+            <button class="pb" onclick="setPrazoPag('60')">60d</button>
+            <button class="pb" onclick="setPrazoPag('30/60')">30/60d</button>
+            <button class="pb" onclick="setPrazoPag('30/60/90')">30/60/90d</button>
+            <button class="pb" onclick="setPrazoPag('45/90')">45/90d</button>
+            <button class="pb" onclick="setPrazoPag('60/90/120')">60/90/120d</button>
+          </div>
+          <div id="previewPag" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:8px;"><button class="btn-add" onclick="adicionarPagar()">+ Adicionar Parcelas</button><button class="btn-sec" onclick="limparFormPag()">Limpar</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h"><span class="card-t">Contas a Pagar</span><span class="chip" id="cntPag">0</span></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Fornecedor</th><th>Valor</th><th>Vencimento</th><th>Dias</th><th>Categoria</th><th>Status</th><th></th></tr></thead>
+          <tbody id="tbPag"><tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="pg" id="pg-clientes">
+      <div class="card">
+        <div class="card-h"><span class="card-t">Cadastrar Cliente</span></div>
+        <div class="card-b">
+          <div class="fgrid">
+            <div class="fg"><label>Nome *</label><input id="cNome" placeholder="Nome do cliente"></div>
+            <div class="fg"><label>Limite de Crédito R$</label><input id="cLim" type="number" placeholder="0,00"></div>
+            <div class="fg"><label>Prazo usual</label><select id="cPrazo"><option value="0">À vista</option><option value="30">30 dias</option><option value="60">60 dias</option><option value="90">90 dias</option></select></div>
+            <div class="fg"><label>Média de atraso (dias)</label><input id="cAtr" type="number" placeholder="0" min="0"></div>
+            <div class="fg"><label>Telefone</label><input id="cTel" placeholder="(11) 9 9999-9999"></div>
+          </div>
+          <div style="display:flex;gap:8px;"><button class="btn-add" onclick="adicionarCliente()">+ Adicionar</button><button class="btn-sec" onclick="limparFormCli()">Limpar</button></div>
+        </div>
+      </div>
+      <div class="col2">
+        <div class="card">
+          <div class="card-h"><span class="card-t">Análise de Atraso</span><span class="chip" id="cntCli">0</span></div>
+          <div class="card-b" id="cliBarras"></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><span class="card-t">Todos os Clientes</span></div>
+          <div class="tbl-wrap">
+            <table><thead><tr><th>Cliente</th><th>Limite</th><th>Prazo</th><th>Atraso Médio</th><th>Risco</th><th>Telefone</th><th></th></tr></thead>
+            <tbody id="tbCli"><tr class="empty-row"><td colspan="7">Nenhum cliente cadastrado.</td></tr></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIMULADOR -->
+    <div class="pg" id="pg-simulador">
+      <div class="sim-layout">
+        <div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">Parâmetros da Compra</span></div>
+            <div class="card-b">
+              <div class="fg" style="margin-bottom:14px;">
+                <label>Valor total da compra (R$)</label>
+                <input id="simValor" type="number" placeholder="Ex: 5.000,00" oninput="calcularSim()" style="font-size:18px;font-weight:700;margin-top:4px;">
+              </div>
+              <div class="fg" style="margin-bottom:10px;">
+                <label>Prazo do fornecedor — como ele cobrou?</label>
+                <input id="simPrazo" placeholder="Ex: 30  /  60  /  30/60  /  30/60/90" oninput="calcularSim()" style="margin-top:4px;">
+                <span style="font-size:11px;color:#cbd5e1;margin-top:4px;">Digite os dias separados por barra: 30, 60, 45, 30/60, 30/60/90...</span>
+              </div>
+              <div class="prazo-btns">
+                <button class="pb" onclick="definirPrazo('30')">30d</button>
+                <button class="pb" onclick="definirPrazo('45')">45d</button>
+                <button class="pb" onclick="definirPrazo('60')">60d</button>
+                <button class="pb" onclick="definirPrazo('30/60')">30/60d</button>
+                <button class="pb" onclick="definirPrazo('30/60/90')">30/60/90d</button>
+                <button class="pb" onclick="definirPrazo('90')">90d</button>
+                <button class="pb" onclick="definirPrazo('120')">120d</button>
+              </div>
+              <div class="res-box">
+                <div class="res-l">Parcela mensal estimada</div>
+                <div id="simParcela" class="res-v">R$ —</div>
+                <div class="barra-fundo"><div id="simBarra" class="barra-fill" style="width:0%;background:#16a34a;"></div></div>
+                <div id="simPct" style="font-size:11px;color:#94a3b8;margin-bottom:6px;">Preencha valor e prazo acima</div>
+                <div id="simStatus" class="res-status" style="color:#94a3b8;">—</div>
+              </div>
+              <div class="max-box">
+                <div class="max-l">Valor máximo seguro neste prazo</div>
+                <div id="simMax" class="max-v">R$ —</div>
+              </div>
+              <button onclick="marcarNoCal()" style="width:100%;padding:10px;border-radius:8px;border:1.5px solid #c4b5fd;background:#f5f3ff;color:#7c3aed;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:12px;">📅 Marcar parcelas no Calendário</button>
+              <div id="simDica" style="background:#f8fafc;border-radius:8px;padding:12px;font-size:12px;color:#64748b;line-height:1.6;">Preencha o valor e o prazo para ver a análise completa.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-h"><span class="card-t">Vencimentos e Dias da Semana</span></div>
+            <div class="card-b" id="simParcelas"><div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Preencha valor e prazo para ver os vencimentos.</div></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><span class="card-t">Impacto no Fluxo de Caixa</span></div>
+            <div class="card-b"><div style="position:relative;height:220px;"><canvas id="grafSim"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="pg" id="pg-alertas">
+      <div id="listaAlertas"><div style="text-align:center;color:#cbd5e1;padding:48px;"><div style="font-size:32px;margin-bottom:10px;">⚑</div>Cadastre dados para ver os alertas personalizados.</div></div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="pg" id="pg-config">
+      <!-- BLING -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h"><span class="card-t">🔗 Integração com Bling</span></div>
+        <div class="card-b">
+          <div id="avisoModoBling" style="padding:10px 14px;border-radius:8px;border:1.5px solid;font-size:12px;margin-bottom:14px;line-height:1.6;"></div>
+          <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6;">Cole o token da API do Bling para importar automaticamente suas contas a receber e a pagar. O sistema buscará os dados diretamente do Bling.</p>
+          <div class="fgrid" style="margin-bottom:12px;">
+            <div class="fg" style="grid-column:span 2;">
+              <label>Token de API do Bling (v3)</label>
+              <input id="blingToken" type="password" placeholder="Cole aqui o Bearer token do Bling..." style="font-family:monospace;font-size:12px;">
+            </div>
+          </div>
+          <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:8px;padding:12px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.7;">
+            <strong>Como obter o token:</strong><br>
+            1. Acesse <strong>bling.com.br</strong> → faça login<br>
+            2. Clique no seu usuário (canto superior direito) → <strong>Preferências</strong><br>
+            3. Vá em <strong>API</strong> → <strong>Gerar token</strong><br>
+            4. Copie o token e cole no campo acima
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-add" onclick="sincronizarBling()">🔄 Sincronizar com Bling</button>
+            <button class="btn-sec" onclick="testarConexaoBling()">Testar conexão</button>
+          </div>
+          <div id="blingStatus" style="margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;"></div>
+        </div>
+      </div>
+
+      <!-- BACKUP -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h"><span class="card-t">☁️ Backup e Sincronização entre dispositivos</span></div>
+        <div class="card-b">
+          <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6;">Exporte seus dados para um arquivo e importe em qualquer computador ou celular para manter tudo sincronizado.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;">
+            <button class="btn-add" onclick="exportarDados()">⬇ Exportar todos os dados (.json)</button>
+            <button class="btn-sec" onclick="document.getElementById('importFile').click()">⬆ Importar dados</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importarDados(event)">
+          </div>
+          <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.7;">
+            <strong>Como usar em outro computador:</strong><br>
+            1. Clique em <strong>Exportar</strong> — salva um arquivo .json com todos seus dados<br>
+            2. Leve esse arquivo (pendrive, e-mail, WhatsApp) para o outro dispositivo<br>
+            3. Abra o sistema lá e clique em <strong>Importar dados</strong><br>
+            4. Selecione o arquivo .json — tudo será restaurado automaticamente
+          </div>
+        </div>
+      </div>
+
+      <!-- LIMPAR -->
+      <div class="card">
+        <div class="card-h"><span class="card-t">⚠ Zona de Perigo</span></div>
+        <div class="card-b">
+          <button onclick="limparTodosDados()" style="padding:9px 20px;border-radius:8px;border:1.5px solid #dc2626;background:#fef2f2;color:#dc2626;font-size:13px;font-weight:700;cursor:pointer;">🗑 Apagar todos os dados do sistema</button>
+          <p style="font-size:11px;color:#94a3b8;margin-top:8px;">Esta ação não pode ser desfeita. Faça um backup antes.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============================================================
+// ESTADO GLOBAL — todos os nomes únicos
+// ============================================================
+const DIAS_SEM = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const MESES_ANO = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const HOJE = new Date(); HOJE.setHours(0,0,0,0);
+
+let listaReceber  = lerLS('rec')  || [];
+let listaPagar    = lerLS('pag')  || [];
+let listaClientes = lerLS('cli')  || [];
+let parcelasAtivas = [];
+let calAno  = HOJE.getFullYear();
+let calMes  = HOJE.getMonth();
+let diaEscolhido = null;
+let objGrafPainel = null;
+let objGrafSim    = null;
+
+// ============================================================
+// PERSISTÊNCIA
+// ============================================================
+function lerLS(k){ try{ return JSON.parse(localStorage.getItem('cai5_'+k)); }catch(e){ return null; } }
+function gravarLS(k,v){ localStorage.setItem('cai5_'+k, JSON.stringify(v)); }
+function novoID(){ return Date.now() + Math.floor(Math.random()*10000); }
+
+// ============================================================
+// FORMATAÇÃO
+// ============================================================
+function brl(v){ return 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtData(s){ return new Date(s+'T00:00:00').toLocaleDateString('pt-BR'); }
+function diasAte(s){ return Math.round((new Date(s+'T00:00:00')-HOJE)/86400000); }
+function chaveData(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+// ============================================================
+// CÁLCULOS
+// ============================================================
+function totalRec(){ return listaReceber.filter(r=>r.status!=='recebido').reduce((s,r)=>s+parseFloat(r.valor),0); }
+function totalPag(){ return listaPagar.filter(p=>p.status!=='pago').reduce((s,p)=>s+parseFloat(p.valor),0); }
+function margem(){ return Math.max(0, totalRec()-totalPag()); }
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+const titulosPagina = {painel:'Painel',calendario:'Calendário',receber:'A Receber',pagar:'A Pagar',clientes:'Clientes',simulador:'Simulador de Compra',alertas:'Alertas',config:'Configurações'};
+function irPara(nome, btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('ativo'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('ativo'));
+  document.getElementById('pg-'+nome).classList.add('ativo');
+  btn.classList.add('ativo');
+  document.getElementById('tituloPagina').textContent = titulosPagina[nome]||nome;
+  if(nome==='painel') renderPainel();
+  if(nome==='calendario') renderCalendario();
+  if(nome==='simulador'){ iniciarGrafSim(); calcularSim(); }
+  if(nome==='alertas') renderAlertas();
+  if(nome==='clientes') renderClientes();
+}
+
+// ============================================================
+// CALENDÁRIO — COR DO DIA
+// ============================================================
+function corDoDia(ano, mes, dia){
+  var dt = new Date(ano, mes, dia);
+  var dow = dt.getDay();
+  var wStart = dia - dow;
+  var wEnd = wStart + 6;
+  var wRec = 0, wPag = 0;
+  listaReceber.filter(function(r){ return r.status !== 'recebido'; }).forEach(function(r){
+    var d = new Date(r.vencimento+'T00:00:00');
+    if(d.getFullYear()===ano && d.getMonth()===mes){
+      var dd = d.getDate();
+      if(dd >= wStart && dd <= wEnd) wRec += parseFloat(r.valor);
+    }
+  });
+  listaPagar.filter(function(p){ return p.status !== 'pago'; }).forEach(function(p){
+    var d = new Date(p.vencimento+'T00:00:00');
+    if(d.getFullYear()===ano && d.getMonth()===mes){
+      var dd = d.getDate();
+      if(dd >= wStart && dd <= wEnd) wPag += parseFloat(p.valor);
+    }
+  });
+  // Sem dados em nenhum dos lados: neutro
+  if(wRec === 0 && wPag === 0) return 'neutro';
+  // Só tem a pagar, sem nada a receber: vermelho apenas no dia do boleto, resto neutro
+  if(wRec === 0 && wPag > 0){
+    // Verificar se este DIA específico tem boleto
+    var chDia = chaveData(new Date(ano, mes, dia));
+    var temBoleto = listaPagar.some(function(p){
+      return p.status !== 'pago' && p.vencimento === chDia;
+    });
+    return temBoleto ? 'vermelho' : 'neutro';
+  }
+  // Só tem a receber, sem nada a pagar: verde
+  if(wRec > 0 && wPag === 0) return 'verde';
+  // Tem os dois: comparar
+  var ratio = wRec / wPag;
+  if(ratio >= 1.4) return 'verde';
+  if(ratio >= 0.85) return 'amarelo';
+  return 'vermelho';
+}
+
+// ============================================================
+// CALENDÁRIO — RENDER
+// ============================================================
+function mudarMes(dir){
+  calMes += dir;
+  if(calMes > 11){ calMes = 0; calAno++; }
+  else if(calMes < 0){ calMes = 11; calAno--; }
+  renderCalendario();
+}
+
+function renderCalendario(){
+  document.getElementById('calMesLabel').textContent = MESES_ANO[calMes]+' '+calAno;
+  var diasNoMes = new Date(calAno, calMes+1, 0).getDate();
+  var primeiroDow = new Date(calAno, calMes, 1).getDay();
+  var temDados = listaReceber.length > 0 || listaPagar.length > 0;
+  document.getElementById('calSemDados').style.display = temDados ? 'none' : 'block';
+
+  // Indexar eventos por dia
+  var recPorDia = {};
+  var pagPorDia = {};
+  listaReceber.filter(function(r){ return r.status !== 'recebido'; }).forEach(function(r){
+    var d = new Date(r.vencimento+'T00:00:00');
+    if(d.getFullYear()===calAno && d.getMonth()===calMes){
+      var k = d.getDate();
+      if(!recPorDia[k]) recPorDia[k] = [];
+      recPorDia[k].push(r);
+    }
+  });
+  listaPagar.filter(function(p){ return p.status !== 'pago'; }).forEach(function(p){
+    var d = new Date(p.vencimento+'T00:00:00');
+    if(d.getFullYear()===calAno && d.getMonth()===calMes){
+      var k = d.getDate();
+      if(!pagPorDia[k]) pagPorDia[k] = [];
+      pagPorDia[k].push(p);
+    }
+  });
+
+  // Parcelas simuladas deste mês
+  var simPorDia = {};
+  parcelasAtivas.forEach(function(p){
+    var d = new Date(p.data);
+    if(d.getFullYear()===calAno && d.getMonth()===calMes){
+      simPorDia[d.getDate()] = p;
+    }
+  });
+
+  // DOW headers
+  var dowEl = document.getElementById('calDow');
+  dowEl.innerHTML = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].map(function(d){ return '<div class="cal-dow">'+d+'</div>'; }).join('');
+
+  // Days
+  var html = '';
+  for(var i=0; i<primeiroDow; i++) html += '<div class="cdia vazio"></div>';
+  for(var dia=1; dia<=diasNoMes; dia++){
+    var isHoje = (dia===HOJE.getDate() && calMes===HOJE.getMonth() && calAno===HOJE.getFullYear());
+    var isSel = (dia === diaEscolhido);
+    var temSim = !!simPorDia[dia];
+    var recs = recPorDia[dia] || [];
+    var pags = pagPorDia[dia] || [];
+    var cor = temDados ? corDoDia(calAno, calMes, dia) : 'neutro';
+    var classes = 'cdia';
+    if(cor === 'verde') classes += ' dia-verde';
+    else if(cor === 'vermelho') classes += ' dia-vermelho';
+    else if(cor === 'amarelo') classes += ' dia-amarelo';
+    else classes += ' dia-neutro';
+    // Dias com boleto SEMPRE ficam com fundo levemente vermelho mesmo se neutro
+    if(cor === 'neutro' && pags.length > 0) classes = classes.replace('dia-neutro', 'dia-vermelho');
+    if(isHoje) classes += ' hoje';
+    if(temSim) classes += ' com-parcela';
+    if(isSel) classes += ' selecionado';
+
+    var eventos = '';
+    recs.slice(0,2).forEach(function(r){ eventos += '<div class="cev cev-r">↓ '+r.cliente+'</div>'; });
+    pags.slice(0,2).forEach(function(p){ eventos += '<div class="cev cev-p">📄 '+p.fornecedor+'</div>'; });
+    if(temSim) eventos += '<div class="cev cev-s">★ Parcela '+brl(simPorDia[dia].valor)+'</div>';
+
+    var lbl = '';
+    var temEventoNoDia = recs.length > 0 || pags.length > 0 || temSim;
+    if(temDados && cor !== 'neutro'){
+      if(cor==='verde') lbl = '<div class="cdia-label lbl-bom">✓ BOM</div>';
+      else if(cor==='vermelho') lbl = '<div class="cdia-label lbl-ruim">✗ RUIM</div>';
+      else if(cor==='amarelo') lbl = '<div class="cdia-label lbl-ok">~ OK</div>';
+    }
+
+    html += '<div class="'+classes+'" onclick="clicarNoDia('+dia+')">';
+    html += '<div class="cdia-num">'+dia+(isHoje?' ·':'')+'</div>';
+    html += '<div class="cdia-eventos">'+eventos+'</div>';
+    html += lbl;
+    html += '</div>';
+  }
+  document.getElementById('calDias').innerHTML = html;
+
+  // Banner simulação
+  var banner = document.getElementById('bannerSim');
+  if(parcelasAtivas.length > 0){
+    var totSim = parcelasAtivas.reduce(function(s,p){ return s+p.valor; }, 0);
+    document.getElementById('bannerSimT').textContent = 'Simulação ativa: '+parcelasAtivas.length+' parcela(s) — Total '+brl(totSim);
+    document.getElementById('bannerSimS').textContent = 'As datas de vencimento estão marcadas em roxo no calendário';
+    banner.style.display = 'flex';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function clicarNoDia(dia){
+  diaEscolhido = dia;
+  var dataObj = new Date(calAno, calMes, dia);
+  var chave = chaveData(dataObj);
+  var cor = corDoDia(calAno, calMes, dia);
+  var isHoje = (dia===HOJE.getDate() && calMes===HOJE.getMonth() && calAno===HOJE.getFullYear());
+  var isWE = (dataObj.getDay()===0 || dataObj.getDay()===6);
+  var wdayNome = DIAS_SEM[dataObj.getDay()];
+
+  var recs = listaReceber.filter(function(r){ return r.status!=='recebido' && r.vencimento===chave; });
+  var pags = listaPagar.filter(function(p){ return p.status!=='pago' && p.vencimento===chave; });
+  var simItem = parcelasAtivas.find(function(p){ return chaveData(new Date(p.data))===chave; });
+  var totR = recs.reduce(function(s,r){ return s+parseFloat(r.valor); }, 0);
+  var totP = pags.reduce(function(s,p){ return s+parseFloat(p.valor); }, 0);
+  var saldo = totR - totP;
+
+  var corTexto = {verde:'<span style="color:#16a34a;font-weight:700;">✓ Bom dia para comprar</span>',vermelho:'<span style="color:#dc2626;font-weight:700;">✗ Dia ruim para comprar</span>',amarelo:'<span style="color:#d97706;font-weight:700;">~ Atenção ao caixa neste dia</span>',neutro:'<span style="color:#94a3b8;">Sem dados suficientes para análise</span>'};
+
+  var recsHtml = recs.length > 0
+    ? recs.map(function(r){ return '<div class="detail-row"><span style="color:#64748b">'+r.cliente+'</span><span style="color:#16a34a;font-weight:700;">'+brl(r.valor)+'</span></div>'; }).join('')
+    : '<div class="detail-empty">Sem recebimentos neste dia</div>';
+
+  var pagsHtml = pags.length > 0
+    ? pags.map(function(p){ return '<div class="detail-row"><span style="color:#64748b">📄 '+p.fornecedor+'</span><span style="color:#dc2626;font-weight:700;">'+brl(p.valor)+'</span></div>'; }).join('')
+    : '<div class="detail-empty">Sem boletos neste dia</div>';
+
+  var saldoHtml = (totR > 0 || totP > 0)
+    ? '<div class="detail-tot"><span>Saldo do dia</span><span style="color:'+(saldo>=0?'#16a34a':'#dc2626')+';">'+brl(saldo)+'</span></div>'
+    : '';
+
+  var simHtml = simItem
+    ? '<div style="background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:7px;padding:10px;margin-top:10px;font-size:12px;color:#7c3aed;font-weight:700;">★ Parcela simulada: '+brl(simItem.valor)+'</div>'
+    : '';
+
+  var wkndHtml = isWE
+    ? '<div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:7px;padding:8px 10px;margin-top:8px;font-size:12px;color:#d97706;">⚠ Fim de semana — boletos compensam na 2ª-feira</div>'
+    : '';
+
+  document.getElementById('painelDia').innerHTML =
+    '<div class="detail-title">📅 '+wdayNome+', '+dia+' de '+MESES_ANO[calMes]+(isHoje?' (hoje)':'')+'</div>'+
+    '<div style="margin-bottom:12px;">'+(corTexto[cor]||corTexto.neutro)+'</div>'+
+    '<div class="detail-sec"><div class="detail-sl" style="color:#16a34a;">↓ A Receber</div>'+recsHtml+(totR>0?'<div class="detail-tot"><span>Total</span><span style="color:#16a34a;">'+brl(totR)+'</span></div>':'')+'</div>'+
+    '<div class="detail-sec"><div class="detail-sl" style="color:#dc2626;">📄 Boletos a Pagar</div>'+pagsHtml+(totP>0?'<div class="detail-tot"><span>Total</span><span style="color:#dc2626;">'+brl(totP)+'</span></div>':'')+'</div>'+
+    saldoHtml+simHtml+wkndHtml;
+
+  renderCalendario();
+}
+
+// ============================================================
+// SIMULADOR
+// ============================================================
+function definirPrazo(val){
+  document.getElementById('simPrazo').value = val;
+  document.querySelectorAll('.pb').forEach(function(b){ b.classList.remove('sel'); });
+  event.target.classList.add('sel');
+  calcularSim();
+}
+
+function parsearPrazo(str, valor){
+  if(!str || !str.trim()) return [];
+  var partes = str.trim().split('/').map(function(s){ return parseInt(s.trim()); }).filter(function(n){ return !isNaN(n) && n > 0; });
+  if(!partes.length) return [];
+  var valParcela = valor / partes.length;
+  return partes.map(function(dias){
+    var d = new Date(HOJE);
+    d.setDate(d.getDate() + dias);
+    var dow = d.getDay();
+    var isWE = (dow===0 || dow===6);
+    return { dias: dias, data: new Date(d), valor: valParcela, diaSem: DIAS_SEM[dow], isWE: isWE };
+  });
+}
+
+function calcularSim(){
+  var valor = parseFloat(document.getElementById('simValor').value) || 0;
+  var prazoStr = document.getElementById('simPrazo').value || '';
+  var mg = margem();
+  var parcelas = parsearPrazo(prazoStr, valor);
+  var maxParcela = parcelas.length > 0 ? valor / parcelas.length : valor;
+  var pct = (mg > 0 && maxParcela > 0) ? (maxParcela / mg) * 100 : 0;
+  var prazoMax = parcelas.length > 0 ? Math.max.apply(null, parcelas.map(function(p){ return p.dias; })) : 30;
+  var maxSeguro = mg * 0.20 * (prazoMax / 30);
+
+  document.getElementById('simMax').textContent = mg > 0 ? brl(maxSeguro) : '— (cadastre seus dados)';
+
+  if(!valor || !parcelas.length){
+    document.getElementById('simParcela').textContent = 'R$ —';
+    document.getElementById('simBarra').style.width = '0%';
+    document.getElementById('simPct').textContent = 'Digite o valor e o prazo acima';
+    document.getElementById('simStatus').textContent = '—';
+    document.getElementById('simStatus').style.color = '#94a3b8';
+    document.getElementById('simParcelas').innerHTML = '<div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Preencha valor e prazo para ver os vencimentos.</div>';
+    document.getElementById('simDica').textContent = 'O simulador usa sua margem real (A Receber − A Pagar) para calcular o impacto de cada compra no seu caixa.';
+    atualizarGrafSim(0,0,0,0);
+    return;
+  }
+
+  document.getElementById('simParcela').textContent = brl(maxParcela) + (parcelas.length > 1 ? ' / parcela' : '');
+  var largura = Math.min(pct, 100);
+  var cor, status, dica;
+  if(pct > 40){
+    cor = '#dc2626'; status = '✕ Risco alto — pode comprometer o fluxo de caixa';
+    dica = 'A parcela representa '+pct.toFixed(1)+'% da sua margem. Acima do limite seguro de 40%. Reduza o valor para até '+brl(maxSeguro)+' ou negocie um prazo maior.';
+  } else if(pct > 20){
+    cor = '#d97706'; status = '⚠ Atenção — próximo do limite recomendado';
+    dica = 'Parcela em '+pct.toFixed(1)+'% da margem. Acima dos 20% ideais. Você pode fechar mas monitore os recebimentos de perto.';
+  } else {
+    cor = '#16a34a'; status = '✓ Compra saudável para o seu fluxo de caixa';
+    dica = 'Parcela de '+pct.toFixed(1)+'% da margem — dentro do limite saudável de 20%. Você ainda tem capacidade de mais '+brl(maxSeguro - valor)+' nesse prazo.';
+  }
+
+  document.getElementById('simBarra').style.width = largura+'%';
+  document.getElementById('simBarra').style.background = cor;
+  document.getElementById('simPct').textContent = pct.toFixed(1)+'% da margem operacional  |  Limite recomendado: 20%';
+  document.getElementById('simStatus').textContent = status;
+  document.getElementById('simStatus').style.color = cor;
+  document.getElementById('simDica').textContent = dica;
+
+  // Render installment cards
+  var html = parcelas.map(function(p, i){
+    var df = p.data.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+    var cls = p.isWE ? 'inst inst-warn' : 'inst inst-ok';
+    var dCor = p.isWE ? '#d97706' : '#16a34a';
+    var dIcon = p.isWE ? '⚠' : '✓';
+    var warnExtra = p.isWE ? ' — fim de semana, compensação na 2ª-feira' : '';
+    return '<div class="'+cls+'">'
+      +'<div class="inst-n">Parcela '+(i+1)+' de '+parcelas.length+'</div>'
+      +'<div class="inst-data" style="color:#1e293b;">'+brl(p.valor)+'</div>'
+      +'<div style="font-size:13px;font-weight:600;color:#1e293b;margin:2px 0;">📅 '+df+'</div>'
+      +'<div class="inst-dia" style="color:'+dCor+';">'+dIcon+' '+p.diaSem+warnExtra+'</div>'
+      +'</div>';
+  }).join('');
+  document.getElementById('simParcelas').innerHTML = html;
+  atualizarGrafSim(totalRec(), totalPag(), mg, Math.max(0, mg - maxParcela));
+}
+
+function marcarNoCal(){
+  var valor = parseFloat(document.getElementById('simValor').value) || 0;
+  var prazoStr = document.getElementById('simPrazo').value || '';
+  var parcelas = parsearPrazo(prazoStr, valor);
+  if(!parcelas.length){ alert('Preencha o valor e prazo no Simulador primeiro.'); return; }
+  parcelasAtivas = parcelas;
+  var primeira = new Date(parcelas[0].data);
+  calAno = primeira.getFullYear();
+  calMes = primeira.getMonth();
+  document.querySelectorAll('.pg').forEach(function(p){ p.classList.remove('ativo'); });
+  document.querySelectorAll('.sb-btn').forEach(function(b){ b.classList.remove('ativo'); });
+  document.getElementById('pg-calendario').classList.add('ativo');
+  document.querySelector('[onclick*="calendario"]').classList.add('ativo');
+  document.getElementById('tituloPagina').textContent = 'Calendário';
+  renderCalendario();
+}
+
+function limparSim(){ parcelasAtivas = []; renderCalendario(); }
+
+function iniciarGrafSim(){
+  if(objGrafSim) return;
+  objGrafSim = new Chart(document.getElementById('grafSim'), {
+    type: 'bar',
+    data: {
+      labels: ['A Receber','A Pagar','Margem atual','Margem após compra'],
+      datasets: [{ data:[0,0,0,0], backgroundColor:['#16a34a','#dc2626','#2563eb','#d97706'], borderRadius:6 }]
+    },
+    options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+      scales:{ y:{ticks:{callback:function(v){ return 'R$'+Math.round(v/1000)+'k'; }},grid:{color:'rgba(0,0,0,0.05)'}},
+               x:{grid:{display:false}} } }
+  });
+}
+
+function atualizarGrafSim(r,p,mg,mapos){
+  if(!objGrafSim) return;
+  var c = mapos < mg*0.1 ? '#dc2626' : mapos < mg*0.2 ? '#d97706' : '#16a34a';
+  objGrafSim.data.datasets[0].data = [r,p,mg,mapos];
+  objGrafSim.data.datasets[0].backgroundColor = ['#16a34a','#dc2626','#2563eb',c];
+  objGrafSim.update();
+}
+
+// ============================================================
+// A RECEBER
+// ============================================================
+function gerarDatasParceladas(dataBase, prazoStr){
+  var partes = prazoStr.trim().split('/').map(function(s){ return parseInt(s.trim()); }).filter(function(n){ return !isNaN(n) && n>0; });
+  return partes.map(function(dias){
+    var d = new Date(dataBase+'T00:00:00');
+    d.setDate(d.getDate()+dias);
+    return chaveData(d);
+  });
+}
+
+function setPrazoRec(v){ document.getElementById('rPrazo').value=v; previewParcelasRec(); }
+function setPrazoPag(v){ document.getElementById('pPrazo').value=v; previewParcelasPag(); }
+
+function previewParcelasRec(){
+  var val = parseFloat(document.getElementById('rVal').value)||0;
+  var db  = document.getElementById('rDataBase').value;
+  var prz = document.getElementById('rPrazo').value;
+  if(!val||!db||!prz){ document.getElementById('previewRec').innerHTML=''; return; }
+  var datas = gerarDatasParceladas(db, prz);
+  if(!datas.length){ document.getElementById('previewRec').innerHTML=''; return; }
+  var valParc = val/datas.length;
+  var html = '<div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:12px;font-size:12px;">'
+    +'<div style="font-weight:700;color:#16a34a;margin-bottom:8px;">'+datas.length+' parcela(s) de '+brl(valParc)+'</div>'
+    +datas.map(function(d,i){
+      var dt = new Date(d+'T00:00:00');
+      var dow = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dt.getDay()];
+      var isWE = dt.getDay()===0||dt.getDay()===6;
+      return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #dcfce7;">'
+        +'<span style="color:#64748b;">Parcela '+(i+1)+'/'+datas.length+'</span>'
+        +'<span style="font-weight:600;color:#1e293b;">'+brl(valParc)+'</span>'
+        +'<span style="color:'+(isWE?'#d97706':'#16a34a')+';">'+dow+', '+fmtData(d)+(isWE?' ⚠':'')+'</span>'
+        +'</div>';
+    }).join('')+'</div>';
+  document.getElementById('previewRec').innerHTML = html;
+}
+
+function adicionarReceber(){
+  var cli  = document.getElementById('rCli').value.trim();
+  var val  = parseFloat(document.getElementById('rVal').value);
+  var db   = document.getElementById('rDataBase').value;
+  var prz  = document.getElementById('rPrazo').value.trim();
+  var desc = document.getElementById('rDesc').value.trim();
+  if(!cli||!val||!db||!prz){ alert('Preencha: Cliente, Valor Total, Data da venda e Prazo.'); return; }
+  var datas = gerarDatasParceladas(db, prz);
+  if(!datas.length){ alert('Prazo inválido. Use: 30  ou  30/60  ou  30/60/90'); return; }
+  var valParc = val/datas.length;
+  var grupoId = novoID();
+  datas.forEach(function(venc, i){
+    var ds = diasAte(venc);
+    var sf = ds<0 ? 'atrasado' : 'aberto';
+    listaReceber.push({ id:novoID(), grupoId:grupoId, cliente:cli, valor:valParc,
+      vencimento:venc, status:sf, descricao:desc,
+      parcelaNum:i+1, totalParcelas:datas.length });
+  });
+  gravarLS('rec', listaReceber);
+  renderReceber();
+  limparFormRec();
+  atualizarGlobal();
+}
+
+function excluirReceber(id){
+  listaReceber = listaReceber.filter(function(r){ return r.id !== id; });
+  gravarLS('rec', listaReceber);
+  renderReceber();
+  atualizarGlobal();
+}
+
+function excluirGrupoRec(grupoId){
+  if(!confirm('Excluir todas as parcelas deste lançamento?')) return;
+  listaReceber = listaReceber.filter(function(r){ return r.grupoId !== grupoId; });
+  gravarLS('rec', listaReceber);
+  renderReceber();
+  atualizarGlobal();
+}
+
+function limparFormRec(){
+  ['rCli','rVal','rDataBase','rPrazo','rDesc'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('previewRec').innerHTML='';
+}
+
+function renderReceber(){
+  document.getElementById('cntRec').textContent = listaReceber.length;
+  var tb = document.getElementById('tbRec');
+  if(!listaReceber.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhum registro. Adicione acima.</td></tr>'; return; }
+  var slMap = {atrasado:'Atrasado',recebido:'Recebido',aberto:'Em aberto'};
+  // Group by grupoId for display
+  var seen = {};
+  tb.innerHTML = listaReceber.map(function(r){
+    var ds = diasAte(r.vencimento);
+    var sf = r.status==='recebido' ? r.status : (ds<0 ? 'atrasado' : r.status);
+    var dt = r.status==='recebido' ? '—' : (ds<0 ? Math.abs(ds)+'d atrás' : ds===0 ? 'Hoje' : '+'+ds+'d');
+    var bc = sf==='atrasado' ? 'b-red' : sf==='recebido' ? 'b-green' : 'b-gray';
+    var dsCor = (ds<0&&r.status!=='recebido') ? 'color:#dc2626;font-weight:700;' : '';
+    var parc = r.totalParcelas>1 ? '<span class="badge b-gray" style="margin-left:4px;">'+r.parcelaNum+'/'+r.totalParcelas+'</span>' : '';
+    var isFirstOfGroup = r.grupoId && !seen[r.grupoId];
+    if(r.grupoId) seen[r.grupoId]=true;
+    var delBtn = (r.totalParcelas>1 && isFirstOfGroup)
+      ? '<button class="btn-del" onclick="excluirGrupoRec('+r.grupoId+')" title="Excluir todas as parcelas" style="color:#dc2626;">🗑</button>'
+      : '<button class="btn-del" onclick="excluirReceber('+r.id+')" title="Excluir esta parcela">✕</button>';
+    var borderTop = (isFirstOfGroup && r.totalParcelas>1) ? 'border-top:2px solid #86efac;' : '';
+    return '<tr style="'+borderTop+'">'
+      +'<td><strong>'+r.cliente+'</strong>'+parc+'</td>'
+      +'<td style="color:#16a34a;font-weight:700;">'+brl(r.valor)+'</td>'
+      +'<td class="td-m">'+fmtData(r.vencimento)+'</td>'
+      +'<td class="td-m" style="'+dsCor+'">'+dt+'</td>'
+      +'<td><span class="badge '+bc+'">'+slMap[sf]+'</span></td>'
+      +'<td class="td-m">'+(r.descricao||'—')+'</td>'
+      +'<td>'+delBtn+'</td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// A PAGAR
+// ============================================================
+function previewParcelasPag(){
+  var val = parseFloat(document.getElementById('pVal').value)||0;
+  var db  = document.getElementById('pDataBase').value;
+  var prz = document.getElementById('pPrazo').value;
+  if(!val||!db||!prz){ document.getElementById('previewPag').innerHTML=''; return; }
+  var datas = gerarDatasParceladas(db, prz);
+  if(!datas.length){ document.getElementById('previewPag').innerHTML=''; return; }
+  var valParc = val/datas.length;
+  var html = '<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:12px;font-size:12px;">'
+    +'<div style="font-weight:700;color:#dc2626;margin-bottom:8px;">'+datas.length+' parcela(s) de '+brl(valParc)+'</div>'
+    +datas.map(function(d,i){
+      var dt = new Date(d+'T00:00:00');
+      var dow = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][dt.getDay()];
+      var isWE = dt.getDay()===0||dt.getDay()===6;
+      return '<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #fee2e2;">'
+        +'<span style="color:#64748b;">Parcela '+(i+1)+'/'+datas.length+'</span>'
+        +'<span style="font-weight:600;color:#1e293b;">'+brl(valParc)+'</span>'
+        +'<span style="color:'+(isWE?'#d97706':'#dc2626')+';">'+dow+', '+fmtData(d)+(isWE?' ⚠':'')+'</span>'
+        +'</div>';
+    }).join('')+'</div>';
+  document.getElementById('previewPag').innerHTML = html;
+}
+
+function adicionarPagar(){
+  var forn = document.getElementById('pFor').value.trim();
+  var val  = parseFloat(document.getElementById('pVal').value);
+  var db   = document.getElementById('pDataBase').value;
+  var prz  = document.getElementById('pPrazo').value.trim();
+  var cat  = document.getElementById('pCat').value;
+  if(!forn||!val||!db||!prz){ alert('Preencha: Fornecedor, Valor Total, Data da compra e Prazo.'); return; }
+  var datas = gerarDatasParceladas(db, prz);
+  if(!datas.length){ alert('Prazo inválido. Use: 30  ou  30/60  ou  30/60/90'); return; }
+  var valParc = val/datas.length;
+  var grupoId = novoID();
+  datas.forEach(function(venc, i){
+    var ds = diasAte(venc);
+    var sf = ds<0 ? 'atrasado' : 'aberto';
+    listaPagar.push({ id:novoID(), grupoId:grupoId, fornecedor:forn, valor:valParc,
+      vencimento:venc, categoria:cat, status:sf,
+      parcelaNum:i+1, totalParcelas:datas.length });
+  });
+  gravarLS('pag', listaPagar);
+  renderPagar();
+  limparFormPag();
+  atualizarGlobal();
+}
+
+function excluirPagar(id){
+  listaPagar = listaPagar.filter(function(p){ return p.id !== id; });
+  gravarLS('pag', listaPagar);
+  renderPagar();
+  atualizarGlobal();
+}
+
+function excluirGrupoPag(grupoId){
+  if(!confirm('Excluir todas as parcelas deste lançamento?')) return;
+  listaPagar = listaPagar.filter(function(p){ return p.grupoId !== grupoId; });
+  gravarLS('pag', listaPagar);
+  renderPagar();
+  atualizarGlobal();
+}
+
+function limparFormPag(){
+  ['pFor','pVal','pDataBase','pPrazo'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('pCat').value = 'Fornecedor de Peças';
+  document.getElementById('previewPag').innerHTML='';
+}
+
+function renderPagar(){
+  document.getElementById('cntPag').textContent = listaPagar.length;
+  var tb = document.getElementById('tbPag');
+  if(!listaPagar.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr>'; return; }
+  var slMap = {atrasado:'Atrasado',pago:'Pago',aberto:'Em aberto'};
+  var seen = {};
+  tb.innerHTML = listaPagar.map(function(p){
+    var ds = diasAte(p.vencimento);
+    var sf = p.status==='pago' ? p.status : (ds<0 ? 'atrasado' : p.status);
+    var dt = p.status==='pago' ? '—' : (ds<0 ? Math.abs(ds)+'d atraso' : ds===0 ? 'Hoje' : '+'+ds+'d');
+    var bc = sf==='atrasado' ? 'b-red' : sf==='pago' ? 'b-green' : 'b-gray';
+    var dsCor = (ds<0&&p.status!=='pago') ? 'color:#dc2626;font-weight:700;' : '';
+    var parc = p.totalParcelas>1 ? '<span class="badge b-gray" style="margin-left:4px;">'+p.parcelaNum+'/'+p.totalParcelas+'</span>' : '';
+    var isFirstOfGroup = p.grupoId && !seen[p.grupoId];
+    if(p.grupoId) seen[p.grupoId]=true;
+    var delBtn = (p.totalParcelas>1 && isFirstOfGroup)
+      ? '<button class="btn-del" onclick="excluirGrupoPag('+p.grupoId+')" title="Excluir todas as parcelas" style="color:#dc2626;">🗑</button>'
+      : '<button class="btn-del" onclick="excluirPagar('+p.id+')" title="Excluir esta parcela">✕</button>';
+    var borderTop = (isFirstOfGroup && p.totalParcelas>1) ? 'border-top:2px solid #fca5a5;' : '';
+    return '<tr style="'+borderTop+'">'
+      +'<td><strong>'+p.fornecedor+'</strong>'+parc+'</td>'
+      +'<td style="color:#dc2626;font-weight:700;">'+brl(p.valor)+'</td>'
+      +'<td class="td-m">'+fmtData(p.vencimento)+'</td>'
+      +'<td class="td-m" style="'+dsCor+'">'+dt+'</td>'
+      +'<td class="td-m">'+p.categoria+'</td>'
+      +'<td><span class="badge '+bc+'">'+slMap[sf]+'</span></td>'
+      +'<td>'+delBtn+'</td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// CLIENTES
+// ============================================================
+function adicionarCliente(){
+  var nome = document.getElementById('cNome').value.trim();
+  if(!nome){ alert('Informe o nome do cliente.'); return; }
+  var lim  = parseFloat(document.getElementById('cLim').value) || 0;
+  var prz  = parseInt(document.getElementById('cPrazo').value) || 0;
+  var atr  = parseInt(document.getElementById('cAtr').value) || 0;
+  var tel  = document.getElementById('cTel').value.trim();
+  listaClientes = listaClientes.filter(function(c){ return c.nome.toLowerCase() !== nome.toLowerCase(); });
+  listaClientes.push({ id:novoID(), nome:nome, limite:lim, prazo:prz, atraso:atr, telefone:tel });
+  gravarLS('cli', listaClientes);
+  renderClientes();
+  limparFormCli();
+}
+
+function excluirCliente(id){
+  listaClientes = listaClientes.filter(function(c){ return c.id !== id; });
+  gravarLS('cli', listaClientes);
+  renderClientes();
+}
+
+function limparFormCli(){
+  ['cNome','cLim','cAtr','cTel'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('cPrazo').value = '30';
+}
+
+function riscoCliente(atr){ return atr===0 ? {cls:'b-green',l:'Pontual',c:'#16a34a'} : atr<=10 ? {cls:'b-green',l:'Baixo',c:'#16a34a'} : atr<=20 ? {cls:'b-amber',l:'Médio',c:'#d97706'} : {cls:'b-red',l:'Alto',c:'#dc2626'}; }
+
+function renderClientes(){
+  document.getElementById('cntCli').textContent = listaClientes.length;
+  var tb = document.getElementById('tbCli');
+  var barras = document.getElementById('cliBarras');
+  if(!listaClientes.length){
+    tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum cliente cadastrado.</td></tr>';
+    barras.innerHTML='<div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum cliente cadastrado.</div>';
+    return;
+  }
+  var maxAtr = Math.max.apply(null, listaClientes.map(function(c){ return c.atraso; }).concat([1]));
+  barras.innerHTML = listaClientes.map(function(c){
+    var ri = riscoCliente(c.atraso);
+    var pct = c.atraso===0 ? 2 : Math.max(5, (c.atraso/maxAtr)*100);
+    return '<div class="cli-bar-row">'
+      +'<div class="cli-bar-name">'+c.nome+'</div>'
+      +'<div class="cli-bar-track"><div class="cli-bar-fill" style="width:'+pct+'%;background:'+ri.c+';"></div></div>'
+      +'<div class="cli-bar-val" style="color:'+ri.c+';">'+(c.atraso===0?'Pontual':c.atraso+' dias')+'</div>'
+      +'</div>';
+  }).join('');
+  tb.innerHTML = listaClientes.map(function(c){
+    var ri = riscoCliente(c.atraso);
+    return '<tr><td><strong>'+c.nome+'</strong></td>'
+      +'<td>'+(c.limite?brl(c.limite):'—')+'</td>'
+      +'<td>'+(c.prazo?c.prazo+'d':'Vista')+'</td>'
+      +'<td style="color:'+ri.c+';font-weight:700;">'+(c.atraso?c.atraso+' dias':'Pontual')+'</td>'
+      +'<td><span class="badge '+ri.cls+'">'+ri.l+'</span></td>'
+      +'<td class="td-m">'+(c.telefone||'—')+'</td>'
+      +'<td><button class="btn-del" onclick="excluirCliente('+c.id+')">✕</button></td></tr>';
+  }).join('');
+}
+
+// ============================================================
+// PAINEL
+// ============================================================
+function renderPainel(){
+  var tr = totalRec(), tp = totalPag(), mg = margem();
+  var atrR = listaReceber.filter(function(r){ return r.status!=='recebido' && diasAte(r.vencimento)<0; });
+  var totAtr = atrR.reduce(function(s,r){ return s+parseFloat(r.valor); }, 0);
+  document.getElementById('kpiRec').textContent  = brl(tr);
+  document.getElementById('kpiRecS').textContent = listaReceber.filter(function(r){ return r.status!=='recebido'; }).length+' em aberto';
+  document.getElementById('kpiPag').textContent  = brl(tp);
+  document.getElementById('kpiPagS').textContent = listaPagar.filter(function(p){ return p.status!=='pago'; }).length+' em aberto';
+  document.getElementById('kpiMarg').textContent = brl(mg);
+  document.getElementById('kpiAtr').textContent  = brl(totAtr);
+  document.getElementById('kpiAtrS').textContent = atrR.length+' vencidos';
+  document.getElementById('kpiMax').textContent  = brl(mg*0.20);
+
+  // Melhor semana
+  var ano = HOJE.getFullYear(), mes = HOJE.getMonth();
+  var sR=[0,0,0,0], sP=[0,0,0,0];
+  listaReceber.filter(function(r){ return r.status!=='recebido'; }).forEach(function(r){
+    var d = new Date(r.vencimento+'T00:00:00');
+    if(d.getFullYear()===ano && d.getMonth()===mes){ var dd=d.getDate(); sR[dd<=7?0:dd<=14?1:dd<=21?2:3]+=parseFloat(r.valor); }
+  });
+  listaPagar.filter(function(p){ return p.status!=='pago'; }).forEach(function(p){
+    var d = new Date(p.vencimento+'T00:00:00');
+    if(d.getFullYear()===ano && d.getMonth()===mes){ var dd=d.getDate(); sP[dd<=7?0:dd<=14?1:dd<=21?2:3]+=parseFloat(p.valor); }
+  });
+  var saldoSem = sR.map(function(v,i){ return v - sP[i]; });
+  var melhor = saldoSem.indexOf(Math.max.apply(null, saldoSem));
+  var nomeSem = ['Dias 1–7','Dias 8–14','Dias 15–21','Dias 22–31'];
+  var proxSem = ['Dias 8–14','Dias 15–21','Dias 22–31','Dias 1–7 (próx. mês)'];
+  if(Math.max.apply(null, sR) > 0){
+    document.getElementById('kpiDia').textContent  = proxSem[melhor];
+    document.getElementById('kpiDiaS').textContent = 'Após pico de recebimentos: '+nomeSem[melhor];
+  }
+
+  // Próximos 10 dias
+  var lim10 = new Date(HOJE); lim10.setDate(lim10.getDate()+10);
+  var prox = [];
+  listaReceber.filter(function(r){ return r.status!=='recebido'; }).forEach(function(r){
+    var d = new Date(r.vencimento+'T00:00:00');
+    if(d >= HOJE && d <= lim10) prox.push({d:d, tipo:'R', desc:r.cliente, val:r.valor});
+  });
+  listaPagar.filter(function(p){ return p.status!=='pago'; }).forEach(function(p){
+    var d = new Date(p.vencimento+'T00:00:00');
+    if(d >= HOJE && d <= lim10) prox.push({d:d, tipo:'P', desc:p.fornecedor, val:p.valor});
+  });
+  prox.sort(function(a,b){ return a.d-b.d; });
+  document.getElementById('tbProximos').innerHTML = prox.length
+    ? prox.map(function(x){ return '<tr><td class="td-m">'+x.d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'})+'</td><td><span class="badge '+(x.tipo==='R'?'b-green':'b-red')+'">'+(x.tipo==='R'?'Receber':'Boleto')+'</span></td><td>'+x.desc+'</td><td style="color:'+(x.tipo==='R'?'#16a34a':'#dc2626')+';font-weight:700;">'+brl(x.val)+'</td></tr>'; }).join('')
+    : '<tr class="empty-row"><td colspan="4">Nenhum nos próximos 10 dias</td></tr>';
+
+  // Chart
+  var dadosGraf = {
+    labels: ['Sem 1 (1–7)','Sem 2 (8–14)','Sem 3 (15–21)','Sem 4 (22–31)'],
+    datasets: [
+      { label:'Receber', data:sR, backgroundColor:'rgba(22,163,74,0.65)', borderRadius:4 },
+      { label:'Pagar',   data:sP, backgroundColor:'rgba(220,38,38,0.65)', borderRadius:4 }
+    ]
+  };
+  if(objGrafPainel){ objGrafPainel.data = dadosGraf; objGrafPainel.update(); }
+  else {
+    objGrafPainel = new Chart(document.getElementById('grafPainel'), {
+      type:'bar', data:dadosGraf,
+      options:{ responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{font:{size:11}}}},
+        scales:{ y:{ticks:{callback:function(v){ return v?'R$'+Math.round(v/1000)+'k':'0'; }},grid:{color:'rgba(0,0,0,0.05)'}},
+                 x:{grid:{display:false}} } }
+    });
+  }
+  atualizarGlobal();
+}
+
+// ============================================================
+// ALERTAS
+// ============================================================
+function gerarAlertas(){
+  var als = [];
+  var mg = margem(), tr = totalRec(), tp = totalPag();
+  var atrP = listaPagar.filter(function(p){ return p.status!=='pago' && diasAte(p.vencimento)<0; });
+  var atrR = listaReceber.filter(function(r){ return r.status!=='recebido' && diasAte(r.vencimento)<0; });
+  var venc5 = listaPagar.filter(function(p){ return p.status!=='pago' && diasAte(p.vencimento)>=0 && diasAte(p.vencimento)<=5; });
+  var cliAlto = listaClientes.filter(function(c){ return c.atraso > 15; });
+  var simFds = parcelasAtivas.filter(function(p){ return p.isWE; });
+
+  if(atrP.length){ var t=atrP.reduce(function(s,p){ return s+parseFloat(p.valor); },0); als.push({t:'al-red',h:atrP.length+' boleto(s) a pagar em atraso — '+brl(t),p:'Regularize esses pagamentos com urgência para não prejudicar seu crédito com fornecedores.'}); }
+  if(atrR.length){ var t2=atrR.reduce(function(s,r){ return s+parseFloat(r.valor); },0); als.push({t:'al-red',h:atrR.length+' recebimento(s) em atraso — '+brl(t2),p:'Priorize a cobrança antes de planejar novas compras. Esse valor ainda não está no seu caixa.'}); }
+  if(venc5.length){ var t3=venc5.reduce(function(s,p){ return s+parseFloat(p.valor); },0); als.push({t:'al-amber',h:venc5.length+' boleto(s) vencendo em até 5 dias — '+brl(t3),p:'Confirme a cobertura em caixa antes de fechar qualquer nova compra.'}); }
+  if(cliAlto.length){ als.push({t:'al-amber',h:cliAlto.length+' cliente(s) com risco alto de atraso',p:'Clientes: '+cliAlto.map(function(c){ return c.nome+' ('+c.atraso+' dias)'; }).join(', ')+'. Não baseie compras contando com esses recebimentos no prazo combinado.'}); }
+  if(tr>0 && tp>0 && mg<=0){ als.push({t:'al-red',h:'Fluxo de caixa negativo — evite novas compras',p:'Contas a pagar superam as a receber. Qualquer compra agrava o descasamento de caixa.'}); }
+  if(simFds.length){ als.push({t:'al-amber',h:simFds.length+' parcela(s) simulada(s) caindo no fim de semana',p:'Os boletos serão compensados na segunda-feira seguinte. Verifique se o caixa tem cobertura para essa data.'}); }
+  if(parcelasAtivas.length){ als.push({t:'al-blue',h:'Simulação ativa: '+parcelasAtivas.length+' parcela(s) marcada(s) no calendário',p:'Acesse o Calendário para visualizar os dias de vencimento e a coloração do caixa nesses períodos.'}); }
+  if(mg > 0){ als.push({t:'al-green',h:'Margem positiva: '+brl(mg)+' — compra segura até '+brl(mg*0.20)+'/mês',p:'Parcelas mensais abaixo de '+brl(mg*0.20)+' estão dentro do limite saudável de 20% da margem operacional.'}); }
+  return als;
+}
+
+function renderAlertas(){
+  var als = gerarAlertas();
+  var wrap = document.getElementById('listaAlertas');
+  if(!als.length){ wrap.innerHTML='<div style="text-align:center;color:#cbd5e1;padding:48px;"><div style="font-size:32px;margin-bottom:10px;">✓</div>Nenhum alerta crítico. Cadastre dados para análise personalizada.</div>'; return; }
+  wrap.innerHTML = als.map(function(a){ return '<div class="alerta '+a.t+'"><h4>'+a.h+'</h4><p>'+a.p+'</p></div>'; }).join('');
+}
+
+// ============================================================
+// GLOBAL UPDATE
+// ============================================================
+function atualizarGlobal(){
+  var tr = totalRec(), tp = totalPag(), mg = margem();
+  var pill = document.getElementById('saudePill');
+  var qtd = document.getElementById('qtdAlertas');
+  var als = gerarAlertas();
+  if(als.length > 0){ qtd.textContent=als.length; qtd.style.display='inline'; }
+  else { qtd.style.display='none'; }
+  if(!tr && !tp){ pill.textContent='Sem dados'; pill.style.background='rgba(255,255,255,0.05)'; pill.style.color='#94a3b8'; }
+  else if(mg<=0){ pill.textContent='⚠ Fluxo Negativo'; pill.style.background='rgba(220,38,38,0.2)'; pill.style.color='#fca5a5'; }
+  else if(mg/Math.max(tr,1) < 0.15){ pill.textContent='~ Atenção'; pill.style.background='rgba(245,158,11,0.2)'; pill.style.color='#fcd34d'; }
+  else{ pill.textContent='✓ Saúde: Boa'; pill.style.background='rgba(22,163,74,0.2)'; pill.style.color='#86efac'; }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.getElementById('dataHoje').textContent = HOJE.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+renderReceber();
+renderPagar();
+renderClientes();
+renderPainel();
+
+// ============================================================
+// BLING INTEGRATION
+// ============================================================
+var USANDO_SERVIDOR = (window.location.protocol !== 'file:' && window.location.hostname !== '');
+var API_BASE = USANDO_SERVIDOR ? (window.location.origin + '/api/bling') : null;
+
+function getToken(){
+  var t = document.getElementById('blingToken').value.trim();
+  if(!t) t = lerLS('blingToken')||'';
+  if(!t){ mostrarStatusBling('error','Cole o token do Bling no campo acima.'); return null; }
+  gravarLS('blingToken', t);
+  document.getElementById('blingToken').value = t;
+  return t;
+}
+
+function mostrarStatusBling(tipo, msg){
+  var el = document.getElementById('blingStatus');
+  el.style.display = 'block';
+  if(tipo==='ok'){    el.style.background='#f0fdf4'; el.style.border='1.5px solid #86efac'; el.style.color='#16a34a'; }
+  else if(tipo==='error'){ el.style.background='#fef2f2'; el.style.border='1.5px solid #fca5a5'; el.style.color='#dc2626'; }
+  else { el.style.background='#eff6ff'; el.style.border='1.5px solid #bfdbfe'; el.style.color='#1d4ed8'; }
+  el.innerHTML = msg;
+}
+
+function atualizarModoBling(){
+  var avisoEl = document.getElementById('avisoModoBling');
+  if(!avisoEl) return;
+  if(USANDO_SERVIDOR){
+    avisoEl.style.background='#f0fdf4'; avisoEl.style.borderColor='#86efac'; avisoEl.style.color='#16a34a';
+    avisoEl.innerHTML='✅ <strong>Integração Bling disponível</strong> — cole o token e clique em Sincronizar.';
+  } else {
+    avisoEl.style.background='#fffbeb'; avisoEl.style.borderColor='#fcd34d'; avisoEl.style.color='#92400e';
+    avisoEl.innerHTML='⚠️ <strong>Arquivo aberto diretamente</strong> — a sincronização com o Bling não funciona assim. Use o <strong>INICIAR.bat</strong> ou acesse pela <strong>URL do Render</strong>.';
+  }
+}
+
+async function fetchBling(endpoint, token){
+  if(USANDO_SERVIDOR){
+    // Via proxy local — sem CORS
+    var r = await fetch(API_BASE+'/'+endpoint, {
+      headers: { 'Authorization': 'Bearer '+token }
+    });
+    if(!r.ok) throw new Error('Erro '+r.status+' ao buscar '+endpoint);
+    var j = await r.json();
+    if(j.erro) throw new Error(j.erro);
+    return j.data || j || [];
+  } else {
+    // Direto — pode falhar por CORS
+    var r = await fetch('https://www.bling.com.br/Api/v3/'+endpoint+'?pagina=1&limite=100', {
+      headers: { 'Authorization': 'Bearer '+token, 'Accept': 'application/json' }
+    });
+    if(!r.ok) throw new Error('Erro '+r.status);
+    var j = await r.json();
+    return j.data || [];
+  }
+}
+
+async function testarConexaoBling(){
+  var token = getToken(); if(!token) return;
+  mostrarStatusBling('info','🔄 Testando conexão...');
+  try {
+    var endpoint = USANDO_SERVIDOR ? 'testar' : 'situacoes/modulos';
+    var url = USANDO_SERVIDOR
+      ? 'http://localhost:3000/api/bling/testar'
+      : 'https://www.bling.com.br/Api/v3/situacoes/modulos';
+    var r = await fetch(url, { headers:{ 'Authorization':'Bearer '+token, 'Accept':'application/json' } });
+    if(r.ok){
+      mostrarStatusBling('ok','✅ Conexão OK! Token válido. Agora clique em <strong>Sincronizar</strong>.');
+    } else if(r.status===401){
+      mostrarStatusBling('error','❌ Token inválido ou expirado. Gere um novo token no Bling → Preferências → API.');
+    } else {
+      mostrarStatusBling('error','❌ Erro '+r.status+'. Verifique o token e tente novamente.');
+    }
+  } catch(e) {
+    if(!USANDO_SERVIDOR){
+      mostrarStatusBling('error','❌ Bloqueado pelo navegador (CORS). <strong>Abra o sistema pelo INICIAR.bat</strong> para ativar o modo servidor.');
+    } else {
+      mostrarStatusBling('error','❌ Erro de conexão: '+e.message);
+    }
+  }
+}
+
+async function sincronizarBling(){
+  var token = getToken(); if(!token) return;
+  if(!USANDO_SERVIDOR){
+    mostrarStatusBling('error','❌ Para sincronizar com o Bling, abra o sistema pelo <strong>INICIAR.bat</strong> e acesse <a href="http://localhost:3000" style="color:#dc2626;">http://localhost:3000</a>');
+    return;
+  }
+  mostrarStatusBling('info','🔄 Sincronizando com o Bling... aguarde.');
+  try {
+    var erros = [];
+    var importadosRec = 0, importadosPag = 0;
+
+    // Contas a receber
+    try {
+      var contasRec = await fetchBling('receber', token);
+      contasRec.forEach(function(c){
+        var venc = (c.dataVencimento||c.vencimento||'').substring(0,10);
+        if(!venc||!c.valor) return;
+        if(listaReceber.some(function(r){ return r.blingId==c.id; })) return;
+        var sf = diasAte(venc)<0?'atrasado':(c.situacao&&c.situacao.id===9?'recebido':'aberto');
+        listaReceber.push({ id:novoID(), blingId:c.id,
+          cliente:(c.contato&&c.contato.nome)||'Bling',
+          valor:parseFloat(c.valor), vencimento:venc, status:sf,
+          descricao:'Bling #'+c.id, parcelaNum:1, totalParcelas:1 });
+        importadosRec++;
+      });
+    } catch(e){ erros.push('Receber: '+e.message); }
+
+    // Contas a pagar
+    try {
+      var contasPag = await fetchBling('pagar', token);
+      contasPag.forEach(function(c){
+        var venc = (c.dataVencimento||c.vencimento||'').substring(0,10);
+        if(!venc||!c.valor) return;
+        if(listaPagar.some(function(p){ return p.blingId==c.id; })) return;
+        var sf = diasAte(venc)<0?'atrasado':(c.situacao&&c.situacao.id===2?'pago':'aberto');
+        listaPagar.push({ id:novoID(), blingId:c.id,
+          fornecedor:(c.contato&&c.contato.nome)||'Bling',
+          valor:parseFloat(c.valor), vencimento:venc,
+          categoria:'Fornecedor de Peças', status:sf, parcelaNum:1, totalParcelas:1 });
+        importadosPag++;
+      });
+    } catch(e){ erros.push('Pagar: '+e.message); }
+
+    gravarLS('rec', listaReceber); gravarLS('pag', listaPagar);
+    renderReceber(); renderPagar(); atualizarGlobal();
+
+    var msg = '✅ Sincronização concluída!<br>'+
+      '• '+importadosRec+' novo(s) recebimento(s) importado(s)<br>'+
+      '• '+importadosPag+' nova(s) conta(s) a pagar importada(s)';
+    if(erros.length) msg += '<br>⚠️ Avisos: '+erros.join(', ');
+    mostrarStatusBling('ok', msg);
+  } catch(e){
+    mostrarStatusBling('error','❌ Falha na sincronização: '+e.message);
+  }
+}
+
+// ============================================================
+// BACKUP — EXPORTAR / IMPORTAR
+// ============================================================
+function exportarDados(){
+  var dados = {
+    versao: '1.0',
+    exportadoEm: new Date().toISOString(),
+    receber: listaReceber,
+    pagar: listaPagar,
+    clientes: listaClientes
+  };
+  var json = JSON.stringify(dados, null, 2);
+  var blob = new Blob([json], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var hoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  a.href = url; a.download = 'compras-ai-backup-'+hoje+'.json';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function importarDados(event){
+  var file = event.target.files[0];
+  if(!file){ return; }
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var dados = JSON.parse(e.target.result);
+      if(!dados.receber && !dados.pagar){ alert('Arquivo inválido. Use um backup gerado por este sistema.'); return; }
+      if(!confirm('Importar dados? Os dados atuais serão substituídos pelos do arquivo.\nExportado em: '+(dados.exportadoEm||'desconhecido'))) return;
+      listaReceber  = dados.receber  || [];
+      listaPagar    = dados.pagar    || [];
+      listaClientes = dados.clientes || [];
+      gravarLS('rec', listaReceber);
+      gravarLS('pag', listaPagar);
+      gravarLS('cli', listaClientes);
+      renderReceber(); renderPagar(); renderClientes(); atualizarGlobal();
+      alert('✓ Dados importados com sucesso!\n- '+listaReceber.length+' recebimentos\n- '+listaPagar.length+' contas a pagar\n- '+listaClientes.length+' clientes');
+    } catch(err) {
+      alert('Erro ao ler o arquivo: '+err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function limparTodosDados(){
+  if(!confirm('ATENÇÃO: Isso vai apagar TODOS os dados do sistema. Não tem como desfazer. Continuar?')) return;
+  if(!confirm('Tem certeza? Todos os recebimentos, pagamentos e clientes serão excluídos.')) return;
+  listaReceber=[]; listaPagar=[]; listaClientes=[];
+  gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]);
+  renderReceber(); renderPagar(); renderClientes(); atualizarGlobal();
+  alert('Dados apagados.');
+}
+
+// Restaurar token salvo e atualizar modo
+(function(){
+  var t = lerLS('blingToken');
+  if(t){ var el=document.getElementById('blingToken'); if(el) el.value=t; }
+  atualizarModoBling();
+})();
+</script>
+</body>
+</html>

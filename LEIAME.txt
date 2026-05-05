@@ -1,0 +1,64 @@
+╔══════════════════════════════════════════════════════════╗
+║             ComprasAI — Distribuidora de Peças           ║
+╚══════════════════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════════════════
+  COMO INICIAR O SISTEMA
+═══════════════════════════════════════════════════════════
+
+  ➤ Dê DUPLO CLIQUE no arquivo:  INICIAR.bat
+
+  O sistema vai abrir automaticamente no seu navegador.
+  Não feche a janela preta enquanto estiver usando.
+
+═══════════════════════════════════════════════════════════
+  REQUISITO: NODE.JS
+═══════════════════════════════════════════════════════════
+
+  Se aparecer erro "Node.js não encontrado":
+
+  1. Acesse: https://nodejs.org
+  2. Clique em "LTS" (versão recomendada)
+  3. Instale normalmente (Next → Next → Finish)
+  4. Reinicie o computador
+  5. Tente abrir o INICIAR.bat novamente
+
+  Node.js é gratuito e não interfere em outros programas.
+
+═══════════════════════════════════════════════════════════
+  INTEGRAÇÃO COM BLING
+═══════════════════════════════════════════════════════════
+
+  1. Inicie o sistema pelo INICIAR.bat (obrigatório)
+  2. Vá em ⚙ Configurações → Integração com Bling
+  3. No Bling: acesse seu usuário → Preferências → API
+  4. Gere um novo token e copie
+  5. Cole o token no campo e clique em "Testar conexão"
+  6. Se OK, clique em "Sincronizar com Bling"
+
+  ⚠ A sincronização só funciona quando o sistema é aberto
+    pelo INICIAR.bat (http://localhost:3000).
+    Se abrir o index.html diretamente, o Bling não conecta.
+
+═══════════════════════════════════════════════════════════
+  USAR EM OUTRO COMPUTADOR
+═══════════════════════════════════════════════════════════
+
+  Opção 1 — Pendrive:
+    Copie toda esta pasta para o pendrive.
+    No outro computador, instale o Node.js e execute INICIAR.bat.
+
+  Opção 2 — Backup de dados:
+    No sistema: ⚙ Configurações → Exportar todos os dados
+    Leve o arquivo .json e importe no outro computador.
+
+═══════════════════════════════════════════════════════════
+  ARQUIVOS DA PASTA
+═══════════════════════════════════════════════════════════
+
+  INICIAR.bat   → Clique aqui para abrir o sistema
+  index.html    → Interface do sistema
+  server.js     → Servidor local (não abrir diretamente)
+  LEIAME.txt    → Este arquivo
+
+══════════════════════════════════════════════════════════
