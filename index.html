@@ -1884,7 +1884,7 @@ async function sincronizarBling(){
   mostrarStatusBling('info','🔄 Sincronizando com o Bling... aguarde.');
   try {
     var erros = [];
-    var importadosRec = 0, importadosPag = 0;
+    var importadosRec = 0, importadosPag = 0, importadosProd = 0, atualizadosProd = 0;
 
     // Contas a receber
     try {
@@ -1918,12 +1918,65 @@ async function sincronizarBling(){
       });
     } catch(e){ erros.push('Pagar: '+e.message); }
 
-    gravarLS('rec', listaReceber); gravarLS('pag', listaPagar);
-    renderReceber(); renderPagar(); atualizarGlobal();
+    // Produtos / Peças
+    try {
+      var produtosBling = await fetchBling('produtos');
+
+      // Buscar saldos de estoque (pode não existir em todos os planos)
+      var saldosMap = {};
+      try {
+        var saldos = await fetchBling('estoques');
+        (Array.isArray(saldos) ? saldos : []).forEach(function(s){
+          var bId = s.produto && (s.produto.id || s.produto);
+          if(bId) saldosMap[bId] = (saldosMap[bId] || 0) + (parseFloat(s.saldoFisico) || 0);
+        });
+      } catch(e){ /* saldos opcionais */ }
+
+      (Array.isArray(produtosBling) ? produtosBling : []).forEach(function(p){
+        if(!p.nome) return;
+        // Ignorar produtos inativos
+        if(p.situacao && p.situacao !== 'A' && p.situacao !== 'Ativo' && p.situacao !== 1) return;
+
+        var existente = listaProdutos.find(function(lp){ return lp.blingId == p.id; });
+        var estoqueAtual = saldosMap[p.id] !== undefined ? saldosMap[p.id]
+          : (p.estoque && p.estoque.saldoFisico !== undefined ? parseFloat(p.estoque.saldoFisico) : 0);
+        var estoqueMin = (p.estoque && p.estoque.minimo !== undefined) ? parseFloat(p.estoque.minimo) : 0;
+
+        var dados = {
+          blingId:      p.id,
+          codigo:       p.codigo || '',
+          nome:         p.nome,
+          categoria:    (p.categoria && p.categoria.nome) || 'Peças',
+          unidade:      p.unidade || 'UN',
+          custo:        parseFloat(p.precoCusto) || 0,
+          venda:        parseFloat(p.preco) || 0,
+          estoqueAtual: estoqueAtual,
+          estoqueMin:   estoqueMin,
+          fornecedor:   (p.fornecedor && p.fornecedor.nome) || '',
+          localizacao:  (p.estoque && p.estoque.localizacao) || '',
+          obs:          p.descricaoCurta || '',
+        };
+
+        if(existente){
+          // Atualizar peça já existente com dados do Bling
+          Object.assign(existente, dados);
+          atualizadosProd++;
+        } else {
+          dados.id = novoID();
+          listaProdutos.push(dados);
+          importadosProd++;
+        }
+      });
+    } catch(e){ erros.push('Produtos: '+e.message); }
+
+    gravarLS('rec', listaReceber); gravarLS('pag', listaPagar); gravarLS('prod', listaProdutos);
+    renderReceber(); renderPagar(); renderProdutos(); atualizarGlobal();
 
     var msg = '✅ Sincronização concluída!<br>'+
       '• '+importadosRec+' novo(s) recebimento(s) importado(s)<br>'+
-      '• '+importadosPag+' nova(s) conta(s) a pagar importada(s)';
+      '• '+importadosPag+' nova(s) conta(s) a pagar importada(s)<br>'+
+      '• '+importadosProd+' nova(s) peça(s)/produto(s) importado(s)<br>'+
+      '• '+atualizadosProd+' peça(s)/produto(s) atualizado(s)';
     if(erros.length) msg += '<br>⚠️ Avisos: '+erros.join(', ');
     mostrarStatusBling('ok', msg);
   } catch(e){

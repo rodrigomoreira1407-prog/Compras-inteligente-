@@ -242,6 +242,8 @@ const server = http.createServer((req, res) => {
       'receber':  'contas/receber',
       'pagar':    'contas/pagar',
       'clientes': 'contatos',
+      'produtos': 'produtos',
+      'estoques': 'estoques/saldos',
       'testar':   'situacoes/modulos',
     };
 
