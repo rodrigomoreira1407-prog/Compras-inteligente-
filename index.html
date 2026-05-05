@@ -1507,7 +1507,7 @@ async function fetchBling(endpoint, token){
     return j.data || j || [];
   } else {
     // Direto — pode falhar por CORS
-    var r = await fetch('https://www.bling.com.br/Api/v3/'+endpoint+'?pagina=1&limite=100', {
+    var r = await fetch('https://api.bling.com.br/Api/v3/'+endpoint+'?pagina=1&limite=100', {
       headers: { 'Authorization': 'Bearer '+token, 'Accept': 'application/json' }
     });
     if(!r.ok) throw new Error('Erro '+r.status);
@@ -1523,7 +1523,7 @@ async function testarConexaoBling(){
     var endpoint = USANDO_SERVIDOR ? 'testar' : 'situacoes/modulos';
     var url = USANDO_SERVIDOR
       ? 'http://localhost:3000/api/bling/testar'
-      : 'https://www.bling.com.br/Api/v3/situacoes/modulos';
+      : 'https://api.bling.com.br/Api/v3/situacoes/modulos';
     var r = await fetch(url, { headers:{ 'Authorization':'Bearer '+token, 'Accept':'application/json' } });
     if(r.ok){
       mostrarStatusBling('ok','✅ Conexão OK! Token válido. Agora clique em <strong>Sincronizar</strong>.');

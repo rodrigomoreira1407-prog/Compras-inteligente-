@@ -9,7 +9,7 @@ const url    = require('url');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
-const BLING_BASE = 'https://www.bling.com.br/Api/v3';
+const BLING_BASE = 'https://api.bling.com.br/Api/v3';
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
