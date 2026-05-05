@@ -155,16 +155,61 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
 .cli-bar-val{width:65px;text-align:right;font-size:12px;font-weight:700;}
 /* CHIP */
 .chip{background:#f1f5f9;border-radius:12px;padding:2px 9px;font-size:11px;color:#64748b;}
+/* ── MOBILE ── */
 @media(max-width:860px){
-  .sb{display:none;}
-  .col2,.sim-layout,.cal-layout{grid-template-columns:1fr;}
+  /* Sidebar vira menu deslizante */
+  .sb{
+    position:fixed;top:0;left:-220px;height:100vh;z-index:1000;
+    transition:left .25s ease;box-shadow:2px 0 20px rgba(0,0,0,0.3);
+  }
+  .sb.aberto{ left:0; }
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:999;}
+  .overlay.ativo{display:block;}
+  /* Botão hamburguer */
+  .hamburger{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:none;}
+  .hamburger span{display:block;width:22px;height:2px;background:#1e293b;border-radius:2px;transition:all .2s;}
+  /* Layout ajustado */
+  .main{width:100%;}
+  .topbar{padding:10px 14px;}
+  .pages{padding:12px;}
+  .col2,.sim-layout,.cal-layout,.g2,.g3{grid-template-columns:1fr;}
+  /* KPIs — 2 por linha no celular */
+  .kpi-grid{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .kpi{padding:11px 12px;}
+  .kpi-v{font-size:16px;}
+  .kpi-l{font-size:9px;}
+  /* Tabelas — scroll horizontal */
+  .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:520px;}
+  /* Formulários — 1 coluna */
+  .fgrid{grid-template-columns:1fr;}
+  /* Calendario */
+  .cal-layout{grid-template-columns:1fr;}
+  .cdia{min-height:52px;padding:4px;}
+  .cdia-num{font-size:10px;}
+  .cev{font-size:8px;}
+  .cdia-label{font-size:8px;}
+  /* Simulador */
+  .prazo-btns{gap:5px;}
+  .pb{padding:6px 10px;font-size:11px;}
+  /* Cards */
+  .card-b{padding:12px;}
+  .card-h{padding:10px 12px;}
+  /* Botões maiores para toque */
+  .btn-add,.btn-sec{padding:11px 18px;font-size:14px;}
+  input,select{font-size:16px;} /* evita zoom no iOS */
+}
+@media(min-width:861px){
+  .hamburger{display:none;}
+  .overlay{display:none !important;}
 }
 </style>
 </head>
 <body>
 
 <!-- SIDEBAR -->
-<div class="sb">
+<div class="overlay" id="overlay" onclick="fecharMenu()"></div>
+<div class="sb" id="sidebar">
   <div class="sb-logo">
     <div class="sb-logo-n">ComprasAI</div>
     <div class="sb-logo-s">Distribuidora de Peças</div>
@@ -187,6 +232,9 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
+    <button class="hamburger" onclick="abrirMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <span class="topbar-title" id="tituloPagina">Painel</span>
     <span style="font-size:12px;color:#94a3b8;" id="dataHoje"></span>
   </div>
@@ -518,6 +566,7 @@ function irPara(nome, btn){
   document.getElementById('pg-'+nome).classList.add('ativo');
   btn.classList.add('ativo');
   document.getElementById('tituloPagina').textContent = titulosPagina[nome]||nome;
+  fecharMenu();
   if(nome==='painel') renderPainel();
   if(nome==='calendario') renderCalendario();
   if(nome==='simulador'){ iniciarGrafSim(); calcularSim(); }
@@ -1246,6 +1295,16 @@ function atualizarGlobal(){
 // INIT
 // ============================================================
 document.getElementById('dataHoje').textContent = HOJE.toLocaleDateString('pt-BR',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+// ── Menu mobile ──
+function abrirMenu(){
+  document.getElementById('sidebar').classList.add('aberto');
+  document.getElementById('overlay').classList.add('ativo');
+}
+function fecharMenu(){
+  document.getElementById('sidebar').classList.remove('aberto');
+  document.getElementById('overlay').classList.remove('ativo');
+}
 renderReceber();
 renderPagar();
 renderClientes();
