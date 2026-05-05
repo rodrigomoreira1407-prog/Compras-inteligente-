@@ -13,14 +13,24 @@ const HOST = '0.0.0.0';
 const BLING_BASE       = 'https://api.bling.com.br/Api/v3';
 const BLING_AUTH_URL   = 'https://www.bling.com.br/Api/v3/oauth/authorize';
 const BLING_TOKEN_URL  = 'https://www.bling.com.br/Api/v3/oauth/token';
-const REDIRECT_URI     = `http://localhost:${PORT}/callback`;
 
-// ---- Carregar credenciais OAuth2 do arquivo de configuração ----
+// Suporta URL pública via variável de ambiente (Render define RENDER_EXTERNAL_URL
+// automaticamente; também pode ser definida manualmente como APP_URL).
+const APP_BASE_URL = process.env.RENDER_EXTERNAL_URL || process.env.APP_URL || `http://localhost:${PORT}`;
+const REDIRECT_URI = `${APP_BASE_URL}/callback`;
+
+// ---- Carregar credenciais OAuth2 do arquivo de configuração ou variáveis de ambiente ----
 let blingConfig = { clientId: '', clientSecret: '' };
 try {
   blingConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'bling.config.json'), 'utf8'));
 } catch (e) {
-  console.warn('[CONFIG] bling.config.json não encontrado. Crie o arquivo com clientId e clientSecret.');
+  // Fallback para variáveis de ambiente (necessário em produção/Render)
+  if (process.env.BLING_CLIENT_ID && process.env.BLING_CLIENT_SECRET) {
+    blingConfig = { clientId: process.env.BLING_CLIENT_ID, clientSecret: process.env.BLING_CLIENT_SECRET };
+    console.log('[CONFIG] Credenciais Bling carregadas via variáveis de ambiente.');
+  } else {
+    console.warn('[CONFIG] bling.config.json não encontrado e variáveis BLING_CLIENT_ID/BLING_CLIENT_SECRET não definidas.');
+  }
 }
 
 // ---- Carregar token OAuth2 salvo localmente ----

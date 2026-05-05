@@ -67,7 +67,30 @@
     pelo INICIAR.bat (http://localhost:3000).
 
 ═══════════════════════════════════════════════════════════
-  USAR EM OUTRO COMPUTADOR
+  USAR NA NUVEM (RENDER) — CELULAR E QUALQUER COMPUTADOR
+═══════════════════════════════════════════════════════════
+
+  O sistema já está hospedado em:
+    https://compras-inteligente.onrender.com
+
+  Configure as seguintes variáveis de ambiente no painel do Render
+  (Settings → Environment Variables):
+
+    BLING_CLIENT_ID      → seu Client ID do Bling
+    BLING_CLIENT_SECRET  → seu Client Secret do Bling
+
+  A variável RENDER_EXTERNAL_URL é definida automaticamente pelo Render
+  e garante que o callback OAuth2 do Bling aponte para a URL correta.
+
+  ⚠ No painel do Bling (Aplicativos → seu app), registre como
+    Redirect URI:  https://compras-inteligente.onrender.com/callback
+
+  ⚠ O token OAuth2 é salvo em memória/arquivo temporário no Render.
+    Após cada reinicialização do serviço será necessário reconectar
+    ao Bling nas Configurações.
+
+═══════════════════════════════════════════════════════════
+  USAR EM OUTRO COMPUTADOR (LOCAL)
 ═══════════════════════════════════════════════════════════
 
   Opção 1 — Pendrive:
