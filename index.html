@@ -223,6 +223,7 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
     <button id="btnSimulador" class="sb-btn" onclick="irPara('simulador',this)">✦ Simulador</button>
     <button class="sb-btn" onclick="irPara('alertas',this)">⚑ Alertas <span id="qtdAlertas" style="margin-left:auto;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;display:none;">0</span></button>
     <button class="sb-btn" onclick="irPara('sugestao',this)">🛒 Sugestão de Compras</button>
+    <button class="sb-btn" onclick="irPara('produtos',this)">📦 Produtos</button>
     <button class="sb-btn" onclick="irPara('config',this)">⚙ Configurações</button>
   </nav>
   <div class="sb-bot">
@@ -460,6 +461,118 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
       <div id="sugestaoConteudo"><div style="text-align:center;color:#cbd5e1;padding:48px;"><div style="font-size:32px;margin-bottom:10px;">🛒</div>Cadastre dados para ver as sugestões de compras.</div></div>
     </div>
 
+    <!-- PRODUTOS -->
+    <div class="pg" id="pg-produtos">
+      <!-- KPIs de Produtos -->
+      <div class="kpi-grid" style="margin-bottom:14px;">
+        <div class="kpi"><div class="kpi-l">Total de Produtos</div><div class="kpi-v" id="kpiProdTotal" style="color:#2563eb;">0</div><div class="kpi-s" id="kpiProdTotalS">cadastrados</div></div>
+        <div class="kpi"><div class="kpi-l">Estoque Crítico</div><div class="kpi-v" id="kpiProdBaixo" style="color:#dc2626;">0</div><div class="kpi-s">zerado ou abaixo do mínimo</div></div>
+        <div class="kpi"><div class="kpi-l">Valor em Estoque</div><div class="kpi-v" id="kpiProdValor" style="color:#16a34a;">R$ 0,00</div><div class="kpi-s">custo × quantidade</div></div>
+        <div class="kpi"><div class="kpi-l">Margem Média</div><div class="kpi-v" id="kpiProdMargem" style="color:#d97706;">0%</div><div class="kpi-s">sobre o custo</div></div>
+      </div>
+
+      <!-- Formulário -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h">
+          <span class="card-t" id="prodFormTitulo">Cadastrar Produto</span>
+          <button id="prodBtnCancelarEdicao" class="btn-sec" onclick="cancelarEdicaoProduto()" style="display:none;font-size:12px;padding:5px 12px;">✕ Cancelar edição</button>
+        </div>
+        <div class="card-b">
+          <input type="hidden" id="prodId">
+          <div class="fgrid">
+            <div class="fg"><label>Código do Produto</label><input id="prodCodigo" placeholder="Ex: PEC-001"></div>
+            <div class="fg"><label>Nome do Produto *</label><input id="prodNome" placeholder="Nome do produto"></div>
+            <div class="fg"><label>Categoria</label>
+              <select id="prodCategoria">
+                <option>Peças Mecânicas</option>
+                <option>Peças Elétricas</option>
+                <option>Filtros</option>
+                <option>Óleo e Lubrificantes</option>
+                <option>Acessórios</option>
+                <option>Ferramentas</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="fg"><label>Unidade</label>
+              <select id="prodUnidade">
+                <option>Peça</option>
+                <option>Par</option>
+                <option>Caixa</option>
+                <option>Kit</option>
+                <option>Metro</option>
+                <option>Litro</option>
+                <option>Kg</option>
+                <option>Conjunto</option>
+              </select>
+            </div>
+            <div class="fg"><label>Preço de Custo R$ *</label><input id="prodCusto" type="number" placeholder="0,00" min="0" step="0.01" oninput="atualizarMargemPreview()"></div>
+            <div class="fg"><label>Preço de Venda R$ *</label><input id="prodVenda" type="number" placeholder="0,00" min="0" step="0.01" oninput="atualizarMargemPreview()"></div>
+            <div class="fg"><label>Estoque Atual *</label><input id="prodEstoqueAtual" type="number" placeholder="0" min="0" step="1" oninput="renderKpisProdutos()"></div>
+            <div class="fg"><label>Estoque Mínimo</label><input id="prodEstoqueMin" type="number" placeholder="0" min="0" step="1"></div>
+            <div class="fg"><label>Fornecedor</label><input id="prodFornecedor" placeholder="Nome do fornecedor"></div>
+            <div class="fg"><label>Localização / Prateleira</label><input id="prodLocalizacao" placeholder="Ex: A-12, Galpão 2"></div>
+          </div>
+          <div class="fg" style="margin-bottom:12px;">
+            <label>Observações</label>
+            <input id="prodObs" placeholder="Aplicação, referência cruzada, observações...">
+          </div>
+          <div id="prodMargemPreview" style="margin-bottom:12px;"></div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-add" id="prodBtnSalvar" onclick="salvarProduto()">+ Adicionar Produto</button>
+            <button class="btn-sec" onclick="limparFormProduto()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista de Produtos -->
+      <div class="card">
+        <div class="card-h">
+          <span class="card-t">Produtos Cadastrados</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="chip" id="cntProd">0</span>
+            <input id="prodBusca" placeholder="🔍 Buscar produto..." oninput="renderProdutos()" style="width:180px;padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <select id="prodFiltroCategoria" onchange="renderProdutos()" style="padding:5px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+              <option value="">Todas as categorias</option>
+              <option>Peças Mecânicas</option>
+              <option>Peças Elétricas</option>
+              <option>Filtros</option>
+              <option>Óleo e Lubrificantes</option>
+              <option>Acessórios</option>
+              <option>Ferramentas</option>
+              <option>Outro</option>
+            </select>
+            <select id="prodFiltroStatus" onchange="renderProdutos()" style="padding:5px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+              <option value="">Todos os status</option>
+              <option value="ok">Estoque OK</option>
+              <option value="baixo">Estoque Baixo</option>
+              <option value="zerado">Sem Estoque</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Un.</th>
+                <th>Custo</th>
+                <th>Venda</th>
+                <th>Margem</th>
+                <th>Estoque</th>
+                <th>Valor Total</th>
+                <th>Status</th>
+                <th>Fornecedor</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="tbProd"><tr class="empty-row"><td colspan="12">Nenhum produto cadastrado. Adicione acima.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIGURAÇÕES -->
     <div class="pg" id="pg-config">
       <!-- BLING -->
@@ -533,6 +646,7 @@ const HOJE = new Date(); HOJE.setHours(0,0,0,0);
 let listaReceber  = lerLS('rec')  || [];
 let listaPagar    = lerLS('pag')  || [];
 let listaClientes = lerLS('cli')  || [];
+let listaProdutos = lerLS('prod') || [];
 let parcelasAtivas = [];
 let calAno  = HOJE.getFullYear();
 let calMes  = HOJE.getMonth();
@@ -565,7 +679,7 @@ function margem(){ return Math.max(0, totalRec()-totalPag()); }
 // ============================================================
 // NAVEGAÇÃO
 // ============================================================
-const titulosPagina = {painel:'Painel',calendario:'Calendário',receber:'A Receber',pagar:'A Pagar',clientes:'Clientes',simulador:'Simulador de Compra',alertas:'Alertas',sugestao:'Sugestão de Compras',config:'Configurações'};
+const titulosPagina = {painel:'Painel',calendario:'Calendário',receber:'A Receber',pagar:'A Pagar',clientes:'Clientes',simulador:'Simulador de Compra',alertas:'Alertas',sugestao:'Sugestão de Compras',produtos:'Cadastro de Produtos',config:'Configurações'};
 function irPara(nome, btn){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('ativo'));
   document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('ativo'));
@@ -579,6 +693,7 @@ function irPara(nome, btn){
   if(nome==='alertas') renderAlertas();
   if(nome==='sugestao') renderSugestao();
   if(nome==='clientes') renderClientes();
+  if(nome==='produtos') renderProdutos();
 }
 
 // ============================================================
@@ -1180,6 +1295,223 @@ function renderClientes(){
 }
 
 // ============================================================
+// PRODUTOS — CADASTRO, ESTOQUE, PREÇOS
+// ============================================================
+var produtoEmEdicao = null;
+
+function margemProduto(custo, venda){
+  if(!custo || custo <= 0) return null;
+  return ((venda - custo) / custo) * 100;
+}
+
+function statusEstoque(prod){
+  var atual = prod.estoqueAtual || 0;
+  var min   = prod.estoqueMin   || 0;
+  if(atual <= 0)          return { cls:'b-red',    l:'Sem Estoque', code:'zerado' };
+  if(min > 0 && atual <= min) return { cls:'b-amber',  l:'Estoque Baixo', code:'baixo' };
+  return { cls:'b-green', l:'OK', code:'ok' };
+}
+
+function atualizarMargemPreview(){
+  var custo = parseFloat(document.getElementById('prodCusto').value) || 0;
+  var venda = parseFloat(document.getElementById('prodVenda').value) || 0;
+  var el = document.getElementById('prodMargemPreview');
+  if(!custo || !venda){ el.innerHTML=''; return; }
+  var mg = margemProduto(custo, venda);
+  var cor = mg < 0 ? '#dc2626' : mg < 20 ? '#d97706' : '#16a34a';
+  var lucro = venda - custo;
+  el.innerHTML = '<div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;padding:10px 14px;font-size:12px;display:flex;gap:24px;align-items:center;">'
+    +'<span>💰 Lucro por unidade: <strong style="color:'+cor+';">'+brl(lucro)+'</strong></span>'
+    +'<span>📊 Margem: <strong style="color:'+cor+';">'+(mg>=0?'+':'')+mg.toFixed(1)+'%</strong></span>'
+    +'<span style="font-size:11px;color:#94a3b8;">'+(mg<0?'⚠ Venda abaixo do custo':mg<20?'⚠ Margem baixa':'✓ Margem saudável')+'</span>'
+    +'</div>';
+}
+
+function renderKpisProdutos(){
+  var total  = listaProdutos.length;
+  var baixo  = listaProdutos.filter(function(p){ return statusEstoque(p).code !== 'ok'; }).length;
+  var valorEstoque = listaProdutos.reduce(function(s,p){ return s + (parseFloat(p.custo)||0) * (parseFloat(p.estoqueAtual)||0); }, 0);
+  var prodComMargem = listaProdutos.filter(function(p){ return p.custo>0 && p.venda>0; });
+  var margemMedia = prodComMargem.length
+    ? prodComMargem.reduce(function(s,p){ return s + margemProduto(p.custo,p.venda); }, 0) / prodComMargem.length
+    : 0;
+
+  document.getElementById('kpiProdTotal').textContent  = total;
+  document.getElementById('kpiProdTotalS').textContent = total === 1 ? 'cadastrado' : 'cadastrados';
+  document.getElementById('kpiProdBaixo').textContent  = baixo;
+  document.getElementById('kpiProdBaixo').style.color  = baixo > 0 ? '#dc2626' : '#16a34a';
+  document.getElementById('kpiProdValor').textContent  = brl(valorEstoque);
+  document.getElementById('kpiProdMargem').textContent = (margemMedia >= 0 ? '+' : '') + margemMedia.toFixed(1) + '%';
+  document.getElementById('kpiProdMargem').style.color = margemMedia < 0 ? '#dc2626' : margemMedia < 20 ? '#d97706' : '#16a34a';
+}
+
+function salvarProduto(){
+  var nome = document.getElementById('prodNome').value.trim();
+  if(!nome){ alert('Informe o nome do produto.'); return; }
+  var custo = parseFloat(document.getElementById('prodCusto').value);
+  var venda = parseFloat(document.getElementById('prodVenda').value);
+  if(!custo || custo <= 0){ alert('Informe o Preço de Custo.'); return; }
+  if(!venda || venda <= 0){ alert('Informe o Preço de Venda.'); return; }
+  var estoqueAtual = parseFloat(document.getElementById('prodEstoqueAtual').value);
+  if(isNaN(estoqueAtual) || estoqueAtual < 0){ alert('Informe o Estoque Atual (pode ser 0).'); return; }
+
+  var dados = {
+    codigo:       document.getElementById('prodCodigo').value.trim(),
+    nome:         nome,
+    categoria:    document.getElementById('prodCategoria').value,
+    unidade:      document.getElementById('prodUnidade').value,
+    custo:        custo,
+    venda:        venda,
+    estoqueAtual: estoqueAtual,
+    estoqueMin:   parseFloat(document.getElementById('prodEstoqueMin').value) || 0,
+    fornecedor:   document.getElementById('prodFornecedor').value.trim(),
+    localizacao:  document.getElementById('prodLocalizacao').value.trim(),
+    obs:          document.getElementById('prodObs').value.trim(),
+    atualizadoEm: new Date().toISOString()
+  };
+
+  if(produtoEmEdicao !== null){
+    // Atualizar existente
+    var idx = listaProdutos.findIndex(function(p){ return p.id === produtoEmEdicao; });
+    if(idx !== -1){
+      dados.id = produtoEmEdicao;
+      dados.criadoEm = listaProdutos[idx].criadoEm;
+      listaProdutos[idx] = dados;
+    }
+    produtoEmEdicao = null;
+  } else {
+    // Novo produto
+    dados.id = novoID();
+    dados.criadoEm = new Date().toISOString();
+    listaProdutos.push(dados);
+  }
+
+  gravarLS('prod', listaProdutos);
+  renderProdutos();
+  limparFormProduto();
+  atualizarGlobal();
+}
+
+function editarProduto(id){
+  var p = listaProdutos.find(function(p){ return p.id === id; });
+  if(!p) return;
+  produtoEmEdicao = id;
+  document.getElementById('prodId').value          = id;
+  document.getElementById('prodCodigo').value      = p.codigo || '';
+  document.getElementById('prodNome').value         = p.nome || '';
+  document.getElementById('prodCategoria').value    = p.categoria || 'Peças Mecânicas';
+  document.getElementById('prodUnidade').value      = p.unidade || 'Peça';
+  document.getElementById('prodCusto').value        = p.custo || '';
+  document.getElementById('prodVenda').value        = p.venda || '';
+  document.getElementById('prodEstoqueAtual').value = p.estoqueAtual !== undefined ? p.estoqueAtual : '';
+  document.getElementById('prodEstoqueMin').value   = p.estoqueMin || '';
+  document.getElementById('prodFornecedor').value   = p.fornecedor || '';
+  document.getElementById('prodLocalizacao').value  = p.localizacao || '';
+  document.getElementById('prodObs').value          = p.obs || '';
+  document.getElementById('prodFormTitulo').textContent = '✏ Editando: ' + p.nome;
+  document.getElementById('prodBtnSalvar').textContent  = '✓ Salvar Alterações';
+  document.getElementById('prodBtnCancelarEdicao').style.display = 'inline-block';
+  atualizarMargemPreview();
+  document.getElementById('pg-produtos').scrollTop = 0;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function cancelarEdicaoProduto(){
+  produtoEmEdicao = null;
+  limparFormProduto();
+}
+
+function excluirProduto(id){
+  var p = listaProdutos.find(function(x){ return x.id === id; });
+  if(!p) return;
+  if(!confirm('Excluir o produto "'+p.nome+'"?')) return;
+  listaProdutos = listaProdutos.filter(function(x){ return x.id !== id; });
+  gravarLS('prod', listaProdutos);
+  if(produtoEmEdicao === id) cancelarEdicaoProduto();
+  renderProdutos();
+  atualizarGlobal();
+}
+
+function ajustarEstoque(id){
+  var p = listaProdutos.find(function(x){ return x.id === id; });
+  if(!p) return;
+  var resp = prompt('Novo saldo de estoque para "'+p.nome+'" (atual: '+p.estoqueAtual+'):', p.estoqueAtual);
+  if(resp === null) return;
+  var novo = parseFloat(resp);
+  if(isNaN(novo) || novo < 0){ alert('Valor inválido.'); return; }
+  var idx = listaProdutos.findIndex(function(x){ return x.id === id; });
+  listaProdutos[idx].estoqueAtual = novo;
+  listaProdutos[idx].atualizadoEm = new Date().toISOString();
+  gravarLS('prod', listaProdutos);
+  renderProdutos();
+  atualizarGlobal();
+}
+
+function limparFormProduto(){
+  produtoEmEdicao = null;
+  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodFornecedor','prodLocalizacao','prodObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('prodCategoria').value = 'Peças Mecânicas';
+  document.getElementById('prodUnidade').value   = 'Peça';
+  document.getElementById('prodMargemPreview').innerHTML = '';
+  document.getElementById('prodFormTitulo').textContent  = 'Cadastrar Produto';
+  document.getElementById('prodBtnSalvar').textContent   = '+ Adicionar Produto';
+  document.getElementById('prodBtnCancelarEdicao').style.display = 'none';
+}
+
+function renderProdutos(){
+  renderKpisProdutos();
+  var busca    = (document.getElementById('prodBusca') ? document.getElementById('prodBusca').value.toLowerCase() : '');
+  var filtCat  = (document.getElementById('prodFiltroCategoria') ? document.getElementById('prodFiltroCategoria').value : '');
+  var filtSt   = (document.getElementById('prodFiltroStatus') ? document.getElementById('prodFiltroStatus').value : '');
+
+  var lista = listaProdutos.filter(function(p){
+    if(busca){
+      var nomeLower  = p.nome.toLowerCase();
+      var codigoLower = (p.codigo||'').toLowerCase();
+      var fornLower   = (p.fornecedor||'').toLowerCase();
+      if(nomeLower.indexOf(busca)===-1 && codigoLower.indexOf(busca)===-1 && fornLower.indexOf(busca)===-1) return false;
+    }
+    if(filtCat && p.categoria !== filtCat) return false;
+    if(filtSt  && statusEstoque(p).code !== filtSt) return false;
+    return true;
+  });
+
+  document.getElementById('cntProd').textContent = listaProdutos.length;
+  var tb = document.getElementById('tbProd');
+  if(!lista.length){
+    tb.innerHTML = '<tr class="empty-row"><td colspan="12">'+(listaProdutos.length ? 'Nenhum produto encontrado com os filtros aplicados.' : 'Nenhum produto cadastrado. Adicione acima.')+'</td></tr>';
+    return;
+  }
+
+  tb.innerHTML = lista.map(function(p){
+    var st = statusEstoque(p);
+    var mg = margemProduto(p.custo, p.venda);
+    var mgTxt = mg !== null ? (mg >= 0 ? '+' : '') + mg.toFixed(1) + '%' : '—';
+    var mgCor = mg === null ? '#94a3b8' : mg < 0 ? '#dc2626' : mg < 20 ? '#d97706' : '#16a34a';
+    var valorTotal = (p.custo || 0) * (p.estoqueAtual || 0);
+    var estCor = st.code === 'ok' ? '#16a34a' : st.code === 'baixo' ? '#d97706' : '#dc2626';
+    var estMin = p.estoqueMin > 0 ? '<span class="td-m" style="font-size:10px;"> (mín: '+p.estoqueMin+')</span>' : '';
+    return '<tr>'
+      +'<td class="td-m">'+(p.codigo||'—')+'</td>'
+      +'<td><strong>'+p.nome+'</strong>'+(p.obs?'<br><span class="td-m" style="font-size:10px;">'+p.obs+'</span>':'')+'</td>'
+      +'<td class="td-m">'+p.categoria+'</td>'
+      +'<td class="td-m">'+p.unidade+'</td>'
+      +'<td style="color:#64748b;font-weight:600;">'+brl(p.custo)+'</td>'
+      +'<td style="color:#1e293b;font-weight:700;">'+brl(p.venda)+'</td>'
+      +'<td style="color:'+mgCor+';font-weight:700;">'+mgTxt+'</td>'
+      +'<td style="color:'+estCor+';font-weight:700;">'+(p.estoqueAtual||0)+' '+p.unidade+estMin+'</td>'
+      +'<td class="td-m">'+brl(valorTotal)+'</td>'
+      +'<td><span class="badge '+st.cls+'">'+st.l+'</span></td>'
+      +'<td class="td-m">'+(p.fornecedor||'—')+'</td>'
+      +'<td style="white-space:nowrap;">'
+        +'<button class="btn-del" onclick="ajustarEstoque('+p.id+')" title="Ajustar estoque" style="color:#2563eb;margin-right:2px;">±</button>'
+        +'<button class="btn-del" onclick="editarProduto('+p.id+')" title="Editar produto" style="color:#d97706;margin-right:2px;">✎</button>'
+        +'<button class="btn-del" onclick="excluirProduto('+p.id+')" title="Excluir produto">✕</button>'
+      +'</td></tr>';
+  }).join('');
+}
+
+// ============================================================
 // PAINEL
 // ============================================================
 function renderPainel(){
@@ -1271,6 +1603,13 @@ function gerarAlertas(){
   if(tr>0 && tp>0 && mg<=0){ als.push({t:'al-red',h:'Fluxo de caixa negativo — evite novas compras',p:'Contas a pagar superam as a receber. Qualquer compra agrava o descasamento de caixa.'}); }
   if(simFds.length){ als.push({t:'al-amber',h:simFds.length+' parcela(s) simulada(s) caindo no fim de semana',p:'Os boletos serão compensados na segunda-feira seguinte. Verifique se o caixa tem cobertura para essa data.'}); }
   if(parcelasAtivas.length){ als.push({t:'al-blue',h:'Simulação ativa: '+parcelasAtivas.length+' parcela(s) marcada(s) no calendário',p:'Acesse o Calendário para visualizar os dias de vencimento e a coloração do caixa nesses períodos.'}); }
+
+  // Alertas de estoque de produtos
+  var semEstoque = listaProdutos.filter(function(p){ return (p.estoqueAtual||0) <= 0; });
+  var estoqueB   = listaProdutos.filter(function(p){ var s=statusEstoque(p); return s.code==='baixo'; });
+  if(semEstoque.length){ als.push({t:'al-red',h:semEstoque.length+' produto(s) SEM estoque',p:'Produtos zerados: '+semEstoque.map(function(p){ return p.nome; }).join(', ')+'. Reposição urgente necessária.'}); }
+  if(estoqueB.length){ als.push({t:'al-amber',h:estoqueB.length+' produto(s) com estoque abaixo do mínimo',p:'Produtos com baixo estoque: '+estoqueB.map(function(p){ return p.nome+' (atual: '+p.estoqueAtual+', mín: '+p.estoqueMin+')'; }).join(', ')+'.'}); }
+
   if(mg > 0){ als.push({t:'al-green',h:'Margem positiva: '+brl(mg)+' — compra segura até '+brl(mg*0.20)+'/mês',p:'Parcelas mensais abaixo de '+brl(mg*0.20)+' estão dentro do limite saudável de 20% da margem operacional.'}); }
   return als;
 }
@@ -1457,6 +1796,7 @@ function fecharMenu(){
 renderReceber();
 renderPagar();
 renderClientes();
+renderProdutos();
 renderPainel();
 
 // ============================================================
@@ -1609,11 +1949,12 @@ if(window.location.search.indexOf('bling=ok') !== -1){
 // ============================================================
 function exportarDados(){
   var dados = {
-    versao: '1.0',
+    versao: '1.1',
     exportadoEm: new Date().toISOString(),
     receber: listaReceber,
     pagar: listaPagar,
-    clientes: listaClientes
+    clientes: listaClientes,
+    produtos: listaProdutos
   };
   var json = JSON.stringify(dados, null, 2);
   var blob = new Blob([json], {type:'application/json'});
@@ -1637,11 +1978,13 @@ function importarDados(event){
       listaReceber  = dados.receber  || [];
       listaPagar    = dados.pagar    || [];
       listaClientes = dados.clientes || [];
+      listaProdutos = dados.produtos || [];
       gravarLS('rec', listaReceber);
       gravarLS('pag', listaPagar);
       gravarLS('cli', listaClientes);
-      renderReceber(); renderPagar(); renderClientes(); atualizarGlobal();
-      alert('✓ Dados importados com sucesso!\n- '+listaReceber.length+' recebimentos\n- '+listaPagar.length+' contas a pagar\n- '+listaClientes.length+' clientes');
+      gravarLS('prod', listaProdutos);
+      renderReceber(); renderPagar(); renderClientes(); renderProdutos(); atualizarGlobal();
+      alert('✓ Dados importados com sucesso!\n- '+listaReceber.length+' recebimentos\n- '+listaPagar.length+' contas a pagar\n- '+listaClientes.length+' clientes\n- '+listaProdutos.length+' produtos');
     } catch(err) {
       alert('Erro ao ler o arquivo: '+err.message);
     }
@@ -1653,9 +1996,9 @@ function importarDados(event){
 function limparTodosDados(){
   if(!confirm('ATENÇÃO: Isso vai apagar TODOS os dados do sistema. Não tem como desfazer. Continuar?')) return;
   if(!confirm('Tem certeza? Todos os recebimentos, pagamentos e clientes serão excluídos.')) return;
-  listaReceber=[]; listaPagar=[]; listaClientes=[];
-  gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]);
-  renderReceber(); renderPagar(); renderClientes(); atualizarGlobal();
+  listaReceber=[]; listaPagar=[]; listaClientes=[]; listaProdutos=[];
+  gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]); gravarLS('prod',[]);
+  renderReceber(); renderPagar(); renderClientes(); renderProdutos(); atualizarGlobal();
   alert('Dados apagados.');
 }
 
