@@ -658,7 +658,7 @@ let objGrafSim    = null;
 // PERSISTÊNCIA
 // ============================================================
 function lerLS(k){ try{ return JSON.parse(localStorage.getItem('cai5_'+k)); }catch(e){ return null; } }
-function gravarLS(k,v){ localStorage.setItem('cai5_'+k, JSON.stringify(v)); }
+function gravarLS(k,v){ try { localStorage.setItem('cai5_'+k, JSON.stringify(v)); } catch(e) { throw new Error('Armazenamento local cheio (chave: '+k+'). Exporte seus dados e limpe o cache do navegador.'); } }
 function novoID(){ return Date.now() + Math.floor(Math.random()*10000); }
 
 // ============================================================
@@ -1884,7 +1884,7 @@ async function sincronizarBling(){
   mostrarStatusBling('info','🔄 Sincronizando com o Bling... aguarde.');
   try {
     var erros = [];
-    var importadosRec = 0, importadosPag = 0, importadosProd = 0, atualizadosProd = 0;
+    var importadosRec = 0, importadosPag = 0, importadosProd = 0, atualizadosProd = 0, ignoradosProd = 0, totalBlingProd = 0;
 
     // Contas a receber
     try {
@@ -1932,12 +1932,16 @@ async function sincronizarBling(){
         });
       } catch(e){ /* saldos opcionais */ }
 
+      totalBlingProd = Array.isArray(produtosBling) ? produtosBling.length : 0;
       (Array.isArray(produtosBling) ? produtosBling : []).forEach(function(p){
         if(!p.nome) return;
-        // Ignorar produtos inativos
-        if(p.situacao && p.situacao !== 'A' && p.situacao !== 'Ativo' && p.situacao !== 1) return;
+        // Ignorar produtos inativos — suporta situacao como string ('I') ou objeto ({ id: 2 })
+        var sit = (p.situacao && typeof p.situacao === 'object') ? p.situacao.id : p.situacao;
+        if(sit === 'I' || sit === 'Inativo' || sit === 2 || sit === '2') { ignoradosProd++; return; }
 
-        var existente = listaProdutos.find(function(lp){ return lp.blingId == p.id; });
+        // Correspondência por blingId; fallback por código para produtos cadastrados manualmente
+        var existente = listaProdutos.find(function(lp){ return lp.blingId && lp.blingId == p.id; })
+          || (p.codigo ? listaProdutos.find(function(lp){ return !lp.blingId && lp.codigo && lp.codigo === p.codigo; }) : null);
         var estoqueAtual = saldosMap[p.id] !== undefined ? saldosMap[p.id]
           : (p.estoque && p.estoque.saldoFisico !== undefined ? parseFloat(p.estoque.saldoFisico) : 0);
         var estoqueMin = (p.estoque && p.estoque.minimo !== undefined) ? parseFloat(p.estoque.minimo) : 0;
@@ -1975,8 +1979,10 @@ async function sincronizarBling(){
     var msg = '✅ Sincronização concluída!<br>'+
       '• '+importadosRec+' novo(s) recebimento(s) importado(s)<br>'+
       '• '+importadosPag+' nova(s) conta(s) a pagar importada(s)<br>'+
+      '• '+totalBlingProd+' produto(s) recebido(s) do Bling<br>'+
       '• '+importadosProd+' nova(s) peça(s)/produto(s) importado(s)<br>'+
-      '• '+atualizadosProd+' peça(s)/produto(s) atualizado(s)';
+      '• '+atualizadosProd+' peça(s)/produto(s) atualizado(s)'+
+      (ignoradosProd ? '<br>• '+ignoradosProd+' produto(s) ignorado(s) (inativos)' : '');
     if(erros.length) msg += '<br>⚠️ Avisos: '+erros.join(', ');
     mostrarStatusBling('ok', msg);
   } catch(e){
