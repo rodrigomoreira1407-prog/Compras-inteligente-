@@ -155,6 +155,27 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
 .cli-bar-val{width:65px;text-align:right;font-size:12px;font-weight:700;}
 /* CHIP */
 .chip{background:#f1f5f9;border-radius:12px;padding:2px 9px;font-size:11px;color:#64748b;}
+/* FILTER BARS */
+.filter-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#f8fafc;border-bottom:1px solid #f1f5f9;}
+.filter-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.filter-bar input[type="date"],.filter-bar input[type="text"],.filter-bar select{width:auto;padding:6px 10px;font-size:12px;}
+.filter-bar .btn-sm{padding:5px 13px;border-radius:6px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:600;color:#64748b;transition:all .15s;}
+.filter-bar .btn-sm:hover{border-color:#f59e0b;color:#f59e0b;}
+.filter-bar .btn-sm.ativo{background:#fffbeb;border-color:#f59e0b;color:#d97706;}
+/* SUPPLIER / BEST-SELLING CARDS */
+.sup-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.sup-card-h{padding:10px 16px;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.sup-card-b{padding:12px 16px;}
+.sell-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f8fafc;}
+.sell-row:last-child{border-bottom:none;}
+.sell-name{flex:1;font-size:13px;color:#1e293b;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sell-bar-track{width:80px;height:5px;background:#f1f5f9;border-radius:3px;overflow:hidden;}
+.sell-bar-fill{height:100%;border-radius:3px;}
+/* PERIOD SUMMARY */
+.period-summary{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:14px;}
+.period-summary h4{font-size:13px;font-weight:700;color:#1e293b;margin-bottom:12px;}
+/* STOCK ALERT BANNER */
+.stock-banner{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
 /* ── MOBILE ── */
 @media(max-width:860px){
   /* Sidebar vira menu deslizante */
@@ -269,6 +290,23 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
 
     <!-- CALENDÁRIO -->
     <div class="pg" id="pg-calendario">
+      <!-- FILTRO DE PERÍODO DO CALENDÁRIO -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h"><span class="card-t">🔍 Filtrar Período</span></div>
+        <div class="filter-bar">
+          <span class="filter-label">De:</span>
+          <input type="date" id="calFiltroInicio" oninput="aplicarFiltroCalendario()">
+          <span class="filter-label">Até:</span>
+          <input type="date" id="calFiltroFim" oninput="aplicarFiltroCalendario()">
+          <button class="btn-sm" onclick="setCalFiltroRapido('hoje')">Hoje</button>
+          <button class="btn-sm" onclick="setCalFiltroRapido('semana')">Esta Semana</button>
+          <button class="btn-sm" onclick="setCalFiltroRapido('mes')">Este Mês</button>
+          <button class="btn-sm" onclick="setCalFiltroRapido('30d')">Próx. 30 dias</button>
+          <button class="btn-sm" onclick="limparFiltroCalendario()">✕ Limpar</button>
+        </div>
+        <div id="periodSummary" style="display:none;" class="period-summary" style="border-top:1px solid #f1f5f9;border-radius:0;"></div>
+      </div>
+
       <div id="bannerSim" class="banner ban-purple" style="display:none;">
         <span style="font-size:20px;">🛒</span>
         <div style="flex:1;"><div id="bannerSimT" style="font-size:13px;font-weight:700;color:#7c3aed;"></div><div id="bannerSimS" style="font-size:12px;color:#7c3aed;opacity:.8;margin-top:2px;"></div></div>
@@ -327,6 +365,20 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
       </div>
       <div class="card">
         <div class="card-h"><span class="card-t">Contas a Receber</span><span class="chip" id="cntRec">0</span></div>
+        <div class="filter-bar">
+          <span class="filter-label">De:</span>
+          <input type="date" id="recFiltroInicio" oninput="renderReceber()">
+          <span class="filter-label">Até:</span>
+          <input type="date" id="recFiltroFim" oninput="renderReceber()">
+          <select id="recFiltroStatus" onchange="renderReceber()" style="padding:6px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <option value="">Todos os status</option>
+            <option value="aberto">Em aberto</option>
+            <option value="atrasado">Atrasado</option>
+            <option value="recebido">Recebido</option>
+          </select>
+          <input type="text" id="recFiltroBusca" placeholder="🔍 Buscar cliente..." oninput="renderReceber()" style="min-width:150px;">
+          <button class="btn-sm" onclick="limparFiltroRec()">✕ Limpar</button>
+        </div>
         <div class="tbl-wrap">
           <table><thead><tr><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Dias</th><th>Status</th><th>Descrição</th><th></th></tr></thead>
           <tbody id="tbRec"><tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr></tbody></table>
@@ -360,6 +412,29 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
       </div>
       <div class="card">
         <div class="card-h"><span class="card-t">Contas a Pagar</span><span class="chip" id="cntPag">0</span></div>
+        <div class="filter-bar">
+          <span class="filter-label">De:</span>
+          <input type="date" id="pagFiltroInicio" oninput="renderPagar()">
+          <span class="filter-label">Até:</span>
+          <input type="date" id="pagFiltroFim" oninput="renderPagar()">
+          <select id="pagFiltroStatus" onchange="renderPagar()" style="padding:6px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <option value="">Todos os status</option>
+            <option value="aberto">Em aberto</option>
+            <option value="atrasado">Atrasado</option>
+            <option value="pago">Pago</option>
+          </select>
+          <select id="pagFiltroCategoria" onchange="renderPagar()" style="padding:6px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <option value="">Todas as categorias</option>
+            <option>Fornecedor de Peças</option>
+            <option>Aluguel</option>
+            <option>Folha de Pagamento</option>
+            <option>Impostos</option>
+            <option>Energia / Água</option>
+            <option>Outro</option>
+          </select>
+          <input type="text" id="pagFiltroBusca" placeholder="🔍 Buscar fornecedor..." oninput="renderPagar()" style="min-width:150px;">
+          <button class="btn-sm" onclick="limparFiltroPag()">✕ Limpar</button>
+        </div>
         <div class="tbl-wrap">
           <table><thead><tr><th>Fornecedor</th><th>Valor</th><th>Vencimento</th><th>Dias</th><th>Categoria</th><th>Status</th><th></th></tr></thead>
           <tbody id="tbPag"><tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr></tbody></table>
@@ -463,6 +538,12 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
 
     <!-- PRODUTOS -->
     <div class="pg" id="pg-produtos">
+      <!-- Banner de alerta de estoque -->
+      <div id="stockBanner" class="stock-banner" style="display:none;">
+        <span style="font-size:22px;">⚠️</span>
+        <div id="stockBannerText" style="flex:1;font-size:13px;color:#dc2626;font-weight:600;"></div>
+        <button onclick="irParaAlertasEstoque()" style="padding:6px 14px;border-radius:6px;border:1.5px solid #fca5a5;background:transparent;color:#dc2626;cursor:pointer;font-size:12px;font-weight:700;">Ver Alertas</button>
+      </div>
       <!-- KPIs de Produtos -->
       <div class="kpi-grid" style="margin-bottom:14px;">
         <div class="kpi"><div class="kpi-l">Total de Produtos</div><div class="kpi-v" id="kpiProdTotal" style="color:#2563eb;">0</div><div class="kpi-s" id="kpiProdTotalS">cadastrados</div></div>
@@ -509,6 +590,7 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
             <div class="fg"><label>Preço de Venda R$ *</label><input id="prodVenda" type="number" placeholder="0,00" min="0" step="0.01" oninput="atualizarMargemPreview()"></div>
             <div class="fg"><label>Estoque Atual *</label><input id="prodEstoqueAtual" type="number" placeholder="0" min="0" step="1" oninput="renderKpisProdutos()"></div>
             <div class="fg"><label>Estoque Mínimo</label><input id="prodEstoqueMin" type="number" placeholder="0" min="0" step="1"></div>
+            <div class="fg"><label>Vendas Estimadas/Mês</label><input id="prodVendasMes" type="number" placeholder="0" min="0" step="1" title="Quantidade média vendida por mês (para sugestão de compras)"></div>
             <div class="fg"><label>Fornecedor</label><input id="prodFornecedor" placeholder="Nome do fornecedor"></div>
             <div class="fg"><label>Localização / Prateleira</label><input id="prodLocalizacao" placeholder="Ex: A-12, Galpão 2"></div>
           </div>
@@ -602,6 +684,27 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
         </div>
       </div>
 
+      <!-- IMPORTAR PLANILHA BLING -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h"><span class="card-t">📊 Importar Planilha de Produtos (Bling CSV)</span></div>
+        <div class="card-b">
+          <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6;">
+            Importe diretamente a planilha de produtos exportada do Bling. Os itens serão cadastrados ou atualizados automaticamente no sistema.
+          </p>
+          <div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:12px;font-size:12px;color:#1d4ed8;line-height:1.7;margin-bottom:14px;">
+            <strong>Como exportar do Bling:</strong><br>
+            1. No Bling, acesse <strong>Produtos → Todos os Produtos</strong><br>
+            2. Clique em <strong>Exportar → Exportar CSV</strong><br>
+            3. Salve o arquivo e clique no botão abaixo para importar
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <button class="btn-add" onclick="document.getElementById('blingCSVFile').click()">📂 Selecionar Planilha Bling (.csv)</button>
+            <input type="file" id="blingCSVFile" accept=".csv,.txt" style="display:none;" onchange="importarPlanilhaBling(event)">
+          </div>
+          <div id="blingCSVStatus" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+        </div>
+      </div>
+
       <!-- BACKUP -->
       <div class="card" style="margin-bottom:14px;">
         <div class="card-h"><span class="card-t">☁️ Backup e Sincronização entre dispositivos</span></div>
@@ -653,6 +756,9 @@ let calMes  = HOJE.getMonth();
 let diaEscolhido = null;
 let objGrafPainel = null;
 let objGrafSim    = null;
+// Calendar filter state
+let calFiltroInicioVal = null;
+let calFiltroFimVal = null;
 
 // ============================================================
 // PERSISTÊNCIA
@@ -997,6 +1103,116 @@ function marcarNoCal(){
 
 function limparSim(){ parcelasAtivas = []; renderCalendario(); }
 
+// ============================================================
+// CALENDÁRIO — FILTRO DE PERÍODO
+// ============================================================
+function setCalFiltroRapido(tipo){
+  var hoje = new Date(HOJE);
+  var ini, fim;
+  if(tipo === 'hoje'){
+    ini = fim = chaveData(hoje);
+  } else if(tipo === 'semana'){
+    var dow = hoje.getDay();
+    var s = new Date(hoje); s.setDate(s.getDate() - dow);
+    var e = new Date(s);    e.setDate(e.getDate() + 6);
+    ini = chaveData(s); fim = chaveData(e);
+  } else if(tipo === 'mes'){
+    ini = hoje.getFullYear()+'-'+String(hoje.getMonth()+1).padStart(2,'0')+'-01';
+    var lastDay = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0);
+    fim = chaveData(lastDay);
+  } else if(tipo === '30d'){
+    var e30 = new Date(hoje); e30.setDate(e30.getDate()+30);
+    ini = chaveData(hoje); fim = chaveData(e30);
+  }
+  document.getElementById('calFiltroInicio').value = ini;
+  document.getElementById('calFiltroFim').value    = fim;
+  calFiltroInicioVal = ini;
+  calFiltroFimVal    = fim;
+  // Navigate calendar to show the start date's month
+  if(ini){
+    var d = new Date(ini+'T00:00:00');
+    calAno = d.getFullYear(); calMes = d.getMonth();
+  }
+  renderCalendario();
+  renderPeriodSummary();
+}
+
+function aplicarFiltroCalendario(){
+  calFiltroInicioVal = document.getElementById('calFiltroInicio').value || null;
+  calFiltroFimVal    = document.getElementById('calFiltroFim').value    || null;
+  if(calFiltroInicioVal){
+    var d = new Date(calFiltroInicioVal+'T00:00:00');
+    calAno = d.getFullYear(); calMes = d.getMonth();
+  }
+  renderCalendario();
+  renderPeriodSummary();
+}
+
+function limparFiltroCalendario(){
+  document.getElementById('calFiltroInicio').value = '';
+  document.getElementById('calFiltroFim').value    = '';
+  calFiltroInicioVal = null;
+  calFiltroFimVal    = null;
+  document.getElementById('periodSummary').style.display = 'none';
+  renderCalendario();
+}
+
+function renderPeriodSummary(){
+  var el = document.getElementById('periodSummary');
+  if(!calFiltroInicioVal && !calFiltroFimVal){ el.style.display='none'; return; }
+  var ini = calFiltroInicioVal ? new Date(calFiltroInicioVal+'T00:00:00') : new Date(0);
+  var fim = calFiltroFimVal   ? new Date(calFiltroFimVal+'T23:59:59')   : new Date(9999,11,31);
+
+  var recs = listaReceber.filter(function(r){
+    if(r.status==='recebido') return false;
+    var d = new Date(r.vencimento+'T00:00:00');
+    return d >= ini && d <= fim;
+  });
+  var pags = listaPagar.filter(function(p){
+    if(p.status==='pago') return false;
+    var d = new Date(p.vencimento+'T00:00:00');
+    return d >= ini && d <= fim;
+  });
+
+  var todosEvt = [];
+  recs.forEach(function(r){ todosEvt.push({data:r.vencimento, tipo:'R', desc:r.cliente, val:r.valor}); });
+  pags.forEach(function(p){ todosEvt.push({data:p.vencimento, tipo:'P', desc:p.fornecedor, val:p.valor}); });
+  todosEvt.sort(function(a,b){ return a.data.localeCompare(b.data); });
+
+  var totR = recs.reduce(function(s,r){ return s+parseFloat(r.valor); }, 0);
+  var totP = pags.reduce(function(s,p){ return s+parseFloat(p.valor); }, 0);
+  var saldo = totR - totP;
+
+  var periodo = (calFiltroInicioVal ? fmtData(calFiltroInicioVal) : 'início') + ' a ' + (calFiltroFimVal ? fmtData(calFiltroFimVal) : 'hoje');
+
+  var html = '<h4>📋 Resumo do Período: '+periodo+'</h4>';
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;">'
+    +'<div class="kpi" style="min-width:120px;padding:10px 14px;flex:1;"><div class="kpi-l">A Receber</div><div class="kpi-v" style="color:#16a34a;font-size:17px;">'+brl(totR)+'</div><div class="kpi-s">'+recs.length+' lançamento(s)</div></div>'
+    +'<div class="kpi" style="min-width:120px;padding:10px 14px;flex:1;"><div class="kpi-l">A Pagar</div><div class="kpi-v" style="color:#dc2626;font-size:17px;">'+brl(totP)+'</div><div class="kpi-s">'+pags.length+' lançamento(s)</div></div>'
+    +'<div class="kpi" style="min-width:120px;padding:10px 14px;flex:1;"><div class="kpi-l">Saldo do Período</div><div class="kpi-v" style="color:'+(saldo>=0?'#16a34a':'#dc2626')+';font-size:17px;">'+brl(saldo)+'</div><div class="kpi-s">'+(saldo>=0?'Saldo positivo':'Atenção: saldo negativo')+'</div></div>'
+    +'</div>';
+
+  if(!todosEvt.length){
+    html += '<div style="text-align:center;color:#cbd5e1;padding:20px;font-size:13px;">Nenhum lançamento no período selecionado.</div>';
+  } else {
+    html += '<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Tipo</th><th>Descrição</th><th>Valor</th><th>Status</th></tr></thead><tbody>';
+    html += todosEvt.map(function(x){
+      var isR = x.tipo==='R';
+      var ds = diasAte(x.data);
+      var status = ds < 0 ? '<span class="badge b-red">Atrasado</span>' : ds === 0 ? '<span class="badge b-amber">Hoje</span>' : '<span class="badge b-gray">'+'+'+ds+'d</span>';
+      return '<tr><td class="td-m">'+fmtData(x.data)+'</td>'
+        +'<td><span class="badge '+(isR?'b-green':'b-red')+'">'+(isR?'↓ Receber':'📄 Pagar')+'</span></td>'
+        +'<td>'+x.desc+'</td>'
+        +'<td style="color:'+(isR?'#16a34a':'#dc2626')+';font-weight:700;">'+brl(x.val)+'</td>'
+        +'<td>'+status+'</td></tr>';
+    }).join('');
+    html += '</tbody></table></div>';
+  }
+
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+
 function iniciarGrafSim(){
   if(objGrafSim) return;
   objGrafSim = new Chart(document.getElementById('grafSim'), {
@@ -1104,11 +1320,28 @@ function limparFormRec(){
 function renderReceber(){
   document.getElementById('cntRec').textContent = listaReceber.length;
   var tb = document.getElementById('tbRec');
-  if(!listaReceber.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhum registro. Adicione acima.</td></tr>'; return; }
+
+  // Read filters
+  var fIni   = document.getElementById('recFiltroInicio') ? document.getElementById('recFiltroInicio').value : '';
+  var fFim   = document.getElementById('recFiltroFim')   ? document.getElementById('recFiltroFim').value   : '';
+  var fSt    = document.getElementById('recFiltroStatus') ? document.getElementById('recFiltroStatus').value : '';
+  var fBusca = document.getElementById('recFiltroBusca')  ? document.getElementById('recFiltroBusca').value.toLowerCase() : '';
+
+  var lista = listaReceber.filter(function(r){
+    if(fIni && r.vencimento < fIni) return false;
+    if(fFim && r.vencimento > fFim) return false;
+    var sf = r.status === 'recebido' ? 'recebido' : (diasAte(r.vencimento) < 0 ? 'atrasado' : r.status);
+    if(fSt && sf !== fSt) return false;
+    if(fBusca && r.cliente.toLowerCase().indexOf(fBusca) === -1 && (r.descricao||'').toLowerCase().indexOf(fBusca) === -1) return false;
+    return true;
+  });
+
+  if(!listaReceber.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro encontrado com os filtros aplicados.</td></tr>'; return; }
+
   var slMap = {atrasado:'Atrasado',recebido:'Recebido',aberto:'Em aberto'};
-  // Group by grupoId for display
   var seen = {};
-  tb.innerHTML = listaReceber.map(function(r){
+  tb.innerHTML = lista.map(function(r){
     var ds = diasAte(r.vencimento);
     var sf = r.status==='recebido' ? r.status : (ds<0 ? 'atrasado' : r.status);
     var dt = r.status==='recebido' ? '—' : (ds<0 ? Math.abs(ds)+'d atrás' : ds===0 ? 'Hoje' : '+'+ds+'d');
@@ -1130,6 +1363,12 @@ function renderReceber(){
       +'<td class="td-m">'+(r.descricao||'—')+'</td>'
       +'<td>'+delBtn+'</td></tr>';
   }).join('');
+}
+
+function limparFiltroRec(){
+  ['recFiltroInicio','recFiltroFim','recFiltroBusca'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  var el = document.getElementById('recFiltroStatus'); if(el) el.value='';
+  renderReceber();
 }
 
 // ============================================================
@@ -1206,10 +1445,30 @@ function limparFormPag(){
 function renderPagar(){
   document.getElementById('cntPag').textContent = listaPagar.length;
   var tb = document.getElementById('tbPag');
+
+  // Read filters
+  var fIni   = document.getElementById('pagFiltroInicio')   ? document.getElementById('pagFiltroInicio').value   : '';
+  var fFim   = document.getElementById('pagFiltroFim')      ? document.getElementById('pagFiltroFim').value      : '';
+  var fSt    = document.getElementById('pagFiltroStatus')   ? document.getElementById('pagFiltroStatus').value   : '';
+  var fCat   = document.getElementById('pagFiltroCategoria')? document.getElementById('pagFiltroCategoria').value: '';
+  var fBusca = document.getElementById('pagFiltroBusca')    ? document.getElementById('pagFiltroBusca').value.toLowerCase() : '';
+
+  var lista = listaPagar.filter(function(p){
+    if(fIni && p.vencimento < fIni) return false;
+    if(fFim && p.vencimento > fFim) return false;
+    var sf = p.status === 'pago' ? 'pago' : (diasAte(p.vencimento) < 0 ? 'atrasado' : p.status);
+    if(fSt  && sf !== fSt)              return false;
+    if(fCat && p.categoria !== fCat)    return false;
+    if(fBusca && p.fornecedor.toLowerCase().indexOf(fBusca) === -1) return false;
+    return true;
+  });
+
   if(!listaPagar.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro encontrado com os filtros aplicados.</td></tr>'; return; }
+
   var slMap = {atrasado:'Atrasado',pago:'Pago',aberto:'Em aberto'};
   var seen = {};
-  tb.innerHTML = listaPagar.map(function(p){
+  tb.innerHTML = lista.map(function(p){
     var ds = diasAte(p.vencimento);
     var sf = p.status==='pago' ? p.status : (ds<0 ? 'atrasado' : p.status);
     var dt = p.status==='pago' ? '—' : (ds<0 ? Math.abs(ds)+'d atraso' : ds===0 ? 'Hoje' : '+'+ds+'d');
@@ -1231,6 +1490,12 @@ function renderPagar(){
       +'<td><span class="badge '+bc+'">'+slMap[sf]+'</span></td>'
       +'<td>'+delBtn+'</td></tr>';
   }).join('');
+}
+
+function limparFiltroPag(){
+  ['pagFiltroInicio','pagFiltroFim','pagFiltroBusca'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  ['pagFiltroStatus','pagFiltroCategoria'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+  renderPagar();
 }
 
 // ============================================================
@@ -1343,6 +1608,23 @@ function renderKpisProdutos(){
   document.getElementById('kpiProdValor').textContent  = brl(valorEstoque);
   document.getElementById('kpiProdMargem').textContent = (margemMedia >= 0 ? '+' : '') + margemMedia.toFixed(1) + '%';
   document.getElementById('kpiProdMargem').style.color = margemMedia < 0 ? '#dc2626' : margemMedia < 20 ? '#d97706' : '#16a34a';
+
+  // Stock alert banner
+  var semEstoque = listaProdutos.filter(function(p){ return (p.estoqueAtual||0) <= 0; });
+  var estBaixo   = listaProdutos.filter(function(p){ return statusEstoque(p).code === 'baixo'; });
+  var banner = document.getElementById('stockBanner');
+  var bannerText = document.getElementById('stockBannerText');
+  if(banner){
+    if(semEstoque.length || estBaixo.length){
+      var partes = [];
+      if(semEstoque.length) partes.push(semEstoque.length+' produto(s) SEM estoque: '+semEstoque.slice(0,3).map(function(p){ return p.nome; }).join(', ')+(semEstoque.length>3?'...':''));
+      if(estBaixo.length)   partes.push(estBaixo.length+' produto(s) com estoque abaixo do mínimo: '+estBaixo.slice(0,3).map(function(p){ return p.nome+' (atual: '+p.estoqueAtual+', mín: '+p.estoqueMin+')'; }).join(', ')+(estBaixo.length>3?'...':''));
+      bannerText.textContent = '⚠️ Atenção: ' + partes.join(' | ');
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  }
 }
 
 function salvarProduto(){
@@ -1364,6 +1646,7 @@ function salvarProduto(){
     venda:        venda,
     estoqueAtual: estoqueAtual,
     estoqueMin:   parseFloat(document.getElementById('prodEstoqueMin').value) || 0,
+    vendasMes:    parseFloat(document.getElementById('prodVendasMes').value)  || 0,
     fornecedor:   document.getElementById('prodFornecedor').value.trim(),
     localizacao:  document.getElementById('prodLocalizacao').value.trim(),
     obs:          document.getElementById('prodObs').value.trim(),
@@ -1405,6 +1688,7 @@ function editarProduto(id){
   document.getElementById('prodVenda').value        = p.venda || '';
   document.getElementById('prodEstoqueAtual').value = p.estoqueAtual !== undefined ? p.estoqueAtual : '';
   document.getElementById('prodEstoqueMin').value   = p.estoqueMin || '';
+  document.getElementById('prodVendasMes').value    = p.vendasMes  || '';
   document.getElementById('prodFornecedor').value   = p.fornecedor || '';
   document.getElementById('prodLocalizacao').value  = p.localizacao || '';
   document.getElementById('prodObs').value          = p.obs || '';
@@ -1449,7 +1733,7 @@ function ajustarEstoque(id){
 
 function limparFormProduto(){
   produtoEmEdicao = null;
-  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodFornecedor','prodLocalizacao','prodObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs'].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('prodCategoria').value = 'Peças Mecânicas';
   document.getElementById('prodUnidade').value   = 'Peça';
   document.getElementById('prodMargemPreview').innerHTML = '';
@@ -1509,6 +1793,11 @@ function renderProdutos(){
         +'<button class="btn-del" onclick="excluirProduto('+p.id+')" title="Excluir produto">✕</button>'
       +'</td></tr>';
   }).join('');
+}
+
+function irParaAlertasEstoque(){
+  var btn = document.querySelector('.sb-btn[onclick*="alertas"]');
+  if(btn) irPara('alertas', btn);
 }
 
 // ============================================================
@@ -1627,21 +1916,20 @@ function renderAlertas(){
 function renderSugestao(){
   var wrap = document.getElementById('sugestaoConteudo');
   var tr = totalRec(), tp = totalPag(), mg = margem();
-  var semDados = (tr === 0 && tp === 0);
+  var semDados = (tr === 0 && tp === 0 && listaProdutos.length === 0);
 
   if(semDados){
-    wrap.innerHTML = '<div style="text-align:center;color:#cbd5e1;padding:48px;"><div style="font-size:32px;margin-bottom:10px;">🛒</div>Cadastre contas a receber e a pagar para ver as sugestões de compras.</div>';
+    wrap.innerHTML = '<div style="text-align:center;color:#cbd5e1;padding:48px;"><div style="font-size:32px;margin-bottom:10px;">🛒</div>Cadastre contas a receber, a pagar e produtos para ver as sugestões de compras.</div>';
     return;
   }
 
-  // Calcular valores seguros por prazo
+  // ── Análise financeira ──────────────────────────────────────
   var prazos = [30, 60, 90];
   var sugestoes = prazos.map(function(p){
     var max = mg * 0.20 * (p / 30);
     return { prazo: p, max: max };
   });
 
-  // Melhor semana do mês (mesmo cálculo do painel)
   var ano = HOJE.getFullYear(), mes = HOJE.getMonth();
   var sR=[0,0,0,0], sP=[0,0,0,0];
   listaReceber.filter(function(r){ return r.status!=='recebido'; }).forEach(function(r){
@@ -1658,7 +1946,6 @@ function renderSugestao(){
   var proxSem = ['Dias 8–14','Dias 15–21','Dias 22–31','Dias 1–7 (próx. mês)'];
   var temRecebimentos = Math.max.apply(null, sR) > 0;
 
-  // Situação geral
   var situacaoCor, situacaoIcon, situacaoTexto;
   if(mg <= 0){
     situacaoCor = '#dc2626'; situacaoIcon = '✕';
@@ -1671,96 +1958,221 @@ function renderSugestao(){
     situacaoTexto = 'Fluxo saudável — há capacidade de compra';
   }
 
-  // Alertas de contas em atraso
   var atrP = listaPagar.filter(function(p){ return p.status!=='pago' && diasAte(p.vencimento)<0; });
   var atrR = listaReceber.filter(function(r){ return r.status!=='recebido' && diasAte(r.vencimento)<0; });
   var venc7 = listaPagar.filter(function(p){ return p.status!=='pago' && diasAte(p.vencimento)>=0 && diasAte(p.vencimento)<=7; });
 
   var avisoHtml = '';
-  if(atrP.length){
-    var tA = atrP.reduce(function(s,p){ return s+parseFloat(p.valor); }, 0);
-    avisoHtml += '<div class="alerta al-red" style="margin-bottom:10px;"><h4>⚠ '+atrP.length+' boleto(s) em atraso — '+brl(tA)+'</h4><p>Regularize antes de planejar novas compras para não comprometer seu crédito.</p></div>';
-  }
-  if(atrR.length){
-    var tAr = atrR.reduce(function(s,r){ return s+parseFloat(r.valor); }, 0);
-    avisoHtml += '<div class="alerta al-amber" style="margin-bottom:10px;"><h4>⚠ '+atrR.length+' recebimento(s) em atraso — '+brl(tAr)+'</h4><p>Esse valor ainda não está no caixa. Não conte com ele ao planejar compras.</p></div>';
-  }
-  if(venc7.length){
-    var tV7 = venc7.reduce(function(s,p){ return s+parseFloat(p.valor); }, 0);
-    avisoHtml += '<div class="alerta al-amber" style="margin-bottom:10px;"><h4>📅 '+venc7.length+' boleto(s) vencendo em até 7 dias — '+brl(tV7)+'</h4><p>Garanta cobertura em caixa antes de fechar qualquer nova compra.</p></div>';
-  }
+  if(atrP.length){ var tA=atrP.reduce(function(s,p){ return s+parseFloat(p.valor); },0); avisoHtml+='<div class="alerta al-red" style="margin-bottom:10px;"><h4>⚠ '+atrP.length+' boleto(s) em atraso — '+brl(tA)+'</h4><p>Regularize antes de planejar novas compras.</p></div>'; }
+  if(atrR.length){ var tAr=atrR.reduce(function(s,r){ return s+parseFloat(r.valor); },0); avisoHtml+='<div class="alerta al-amber" style="margin-bottom:10px;"><h4>⚠ '+atrR.length+' recebimento(s) em atraso — '+brl(tAr)+'</h4><p>Esse valor ainda não está no caixa.</p></div>'; }
+  if(venc7.length){ var tV7=venc7.reduce(function(s,p){ return s+parseFloat(p.valor); },0); avisoHtml+='<div class="alerta al-amber" style="margin-bottom:10px;"><h4>📅 '+venc7.length+' boleto(s) vencendo em até 7 dias — '+brl(tV7)+'</h4><p>Garanta cobertura antes de fechar compras.</p></div>'; }
 
-  // Cards de sugestão por prazo
   var sugestoesHtml = sugestoes.map(function(s){
-    var cor = mg <= 0 ? '#dc2626' : (s.max < 500 ? '#d97706' : '#16a34a');
-    var bg  = mg <= 0 ? '#fef2f2' : (s.max < 500 ? '#fffbeb' : '#f0fdf4');
-    var brd = mg <= 0 ? '#fca5a5' : (s.max < 500 ? '#fcd34d' : '#86efac');
+    var cor = mg<=0?'#dc2626':(s.max<500?'#d97706':'#16a34a');
+    var bg  = mg<=0?'#fef2f2':(s.max<500?'#fffbeb':'#f0fdf4');
+    var brd = mg<=0?'#fca5a5':(s.max<500?'#fcd34d':'#86efac');
     return '<div class="kpi" style="background:'+bg+';border-color:'+brd+';">'
       +'<div class="kpi-l">Compra segura — prazo '+s.prazo+'d</div>'
       +'<div class="kpi-v" style="color:'+cor+';">'+brl(s.max)+'</div>'
-      +'<div class="kpi-s">Parcela ≤ 20% da margem</div>'
-      +'</div>';
+      +'<div class="kpi-s">Parcela ≤ 20% da margem</div></div>';
   }).join('');
 
-  // Melhor período
   var periodoHtml = temRecebimentos
-    ? '<div class="alerta al-blue" style="margin-bottom:0;">'
-        +'<h4>📅 Melhor período para pagar boletos: '+proxSem[melhor]+'</h4>'
-        +'<p>O saldo de caixa tende a ser melhor após o pico de recebimentos nos '
-        +nomeSem[melhor]+'. Prefira fornecedores com vencimento nessa janela.</p>'
-        +'</div>'
-    : '<div class="alerta al-blue" style="margin-bottom:0;">'
-        +'<h4>📅 Cadastre lançamentos para ver o melhor período</h4>'
-        +'<p>Adicione contas a receber e a pagar para identificar a semana com maior saldo de caixa.</p>'
-        +'</div>';
+    ? '<div class="alerta al-blue" style="margin-bottom:0;"><h4>📅 Melhor período: '+proxSem[melhor]+'</h4><p>Saldo de caixa tende a ser melhor após o pico de recebimentos nos '+nomeSem[melhor]+'.</p></div>'
+    : '<div class="alerta al-blue" style="margin-bottom:0;"><h4>📅 Cadastre lançamentos para ver o melhor período</h4><p>Adicione contas a receber e a pagar.</p></div>';
 
-  // Dica de prazo de compra
   var melhorPrazo = 30;
-  if(temRecebimentos){
-    // Prefere prazo que cai depois do pico de recebimentos
-    var picoFim = [7,14,21,31][melhor];
-    if(picoFim <= 14) melhorPrazo = 30;
-    else melhorPrazo = picoFim;
-  }
-  var dicaHtml = '<div class="alerta al-green" style="margin-bottom:0;">'
-    +'<h4>💡 Dica: negocie prazo de '+melhorPrazo+' dias com o fornecedor</h4>'
-    +'<p>Com esse prazo, você pode comprar até <strong>'+brl(mg * 0.20 * (melhorPrazo / 30))+'</strong> com segurança. '
-    +'Acesse o <strong>Simulador de Compra</strong> para testar valores específicos e marcar parcelas no calendário.</p>'
-    +'</div>';
+  if(temRecebimentos){ var picoFim=[7,14,21,31][melhor]; melhorPrazo = picoFim<=14?30:picoFim; }
 
+  // ── Alertas de estoque ──────────────────────────────────────
+  var semEstoque = listaProdutos.filter(function(p){ return (p.estoqueAtual||0)<=0; });
+  var estBaixo   = listaProdutos.filter(function(p){ return statusEstoque(p).code==='baixo'; });
+
+  var estoqueAlertHtml = '';
+  if(semEstoque.length || estBaixo.length){
+    estoqueAlertHtml = '<div class="card" style="margin-bottom:14px;">'
+      +'<div class="card-h"><span class="card-t">🚨 Alertas de Estoque</span>'
+      +'<span class="badge b-red">'+( semEstoque.length+estBaixo.length)+' produto(s)</span></div>'
+      +'<div class="card-b">';
+    if(semEstoque.length){
+      estoqueAlertHtml += '<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🔴 Sem Estoque ('+semEstoque.length+')</div>';
+      estoqueAlertHtml += semEstoque.map(function(p){
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #fef2f2;">'
+          +'<div><strong>'+p.nome+'</strong><span class="td-m" style="margin-left:6px;font-size:11px;">'+(p.codigo?'#'+p.codigo:'')+'</span></div>'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +(p.fornecedor?'<span class="chip">'+p.fornecedor+'</span>':'')
+          +'<span class="badge b-red">Zerado</span>'
+          +(p.vendasMes?'<span style="font-size:11px;color:#64748b;">'+p.vendasMes+' un/mês</span>':'')
+          +'</div></div>';
+      }).join('');
+      estoqueAlertHtml += '</div>';
+    }
+    if(estBaixo.length){
+      estoqueAlertHtml += '<div><div style="font-size:11px;font-weight:700;color:#d97706;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;">🟡 Estoque Abaixo do Mínimo ('+estBaixo.length+')</div>';
+      estoqueAlertHtml += estBaixo.map(function(p){
+        var pct = p.estoqueMin>0 ? Math.round((p.estoqueAtual/p.estoqueMin)*100) : 100;
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #fffbeb;">'
+          +'<div><strong>'+p.nome+'</strong><span class="td-m" style="margin-left:6px;font-size:11px;">'+(p.codigo?'#'+p.codigo:'')+'</span></div>'
+          +'<div style="display:flex;align-items:center;gap:8px;">'
+          +(p.fornecedor?'<span class="chip">'+p.fornecedor+'</span>':'')
+          +'<span class="badge b-amber">'+p.estoqueAtual+'/'+p.estoqueMin+' ('+pct+'%)</span>'
+          +(p.vendasMes?'<span style="font-size:11px;color:#64748b;">'+p.vendasMes+' un/mês</span>':'')
+          +'</div></div>';
+      }).join('');
+      estoqueAlertHtml += '</div>';
+    }
+    estoqueAlertHtml += '</div></div>';
+  }
+
+  // ── Produtos mais vendidos ──────────────────────────────────
+  var prodComVendas = listaProdutos.filter(function(p){ return (p.vendasMes||0) > 0; })
+    .sort(function(a,b){ return (b.vendasMes||0)-(a.vendasMes||0); });
+
+  var maisVendidosHtml = '';
+  if(prodComVendas.length){
+    var maxVend = prodComVendas[0].vendasMes || 1;
+    maisVendidosHtml = '<div class="card" style="margin-bottom:14px;">'
+      +'<div class="card-h"><span class="card-t">🏆 Produtos Mais Vendidos</span>'
+      +'<span style="font-size:11px;color:#94a3b8;">Baseado em vendas estimadas/mês</span></div>'
+      +'<div class="card-b">'
+      +'<div class="tbl-wrap"><table><thead><tr><th>Rank</th><th>Produto</th><th>Fornecedor</th><th>Vendas/Mês</th><th>Estoque Atual</th><th>Cobertura</th><th>Status</th></tr></thead><tbody>';
+    maisVendidosHtml += prodComVendas.slice(0,15).map(function(p, i){
+      var cobertura = (p.vendasMes>0 && (p.estoqueAtual||0)>0) ? Math.round((p.estoqueAtual||0)/p.vendasMes) : 0;
+      var cobCor = cobertura<=0?'#dc2626':cobertura<=1?'#d97706':'#16a34a';
+      var cobTxt = cobertura<=0?'Sem estoque':cobertura+'m';
+      var st = statusEstoque(p);
+      var rankIcon = i===0?'🥇':i===1?'🥈':i===2?'🥉':''+(i+1)+'.';
+      var pct = Math.round(((p.vendasMes||0)/maxVend)*100);
+      return '<tr>'
+        +'<td style="font-weight:700;text-align:center;">'+rankIcon+'</td>'
+        +'<td><strong>'+p.nome+'</strong>'+(p.codigo?'<br><span class="td-m" style="font-size:10px;">#'+p.codigo+'</span>':'')+'</td>'
+        +'<td class="td-m">'+(p.fornecedor||'—')+'</td>'
+        +'<td><div style="display:flex;align-items:center;gap:6px;">'
+          +'<div class="sell-bar-track" style="width:60px;"><div class="sell-bar-fill" style="width:'+pct+'%;background:#2563eb;"></div></div>'
+          +'<strong>'+p.vendasMes+'</strong> un</div></td>'
+        +'<td style="font-weight:700;color:'+(st.code==='ok'?'#16a34a':st.code==='baixo'?'#d97706':'#dc2626')+'">'+(p.estoqueAtual||0)+' un</td>'
+        +'<td style="font-weight:700;color:'+cobCor+';">'+cobTxt+'</td>'
+        +'<td><span class="badge '+st.cls+'">'+st.l+'</span></td>'
+        +'</tr>';
+    }).join('');
+    maisVendidosHtml += '</tbody></table></div></div></div>';
+  } else {
+    maisVendidosHtml = '<div class="card" style="margin-bottom:14px;">'
+      +'<div class="card-h"><span class="card-t">🏆 Produtos Mais Vendidos</span></div>'
+      +'<div class="card-b"><div style="text-align:center;color:#cbd5e1;padding:24px;font-size:13px;">Preencha o campo <strong>Vendas Estimadas/Mês</strong> nos produtos cadastrados para ver o ranking.</div></div></div>';
+  }
+
+  // Helper: calculate suggested order quantity for a product
+  var STOCK_COVERAGE_MONTHS = 2;
+  function calcularQuantidadeSugerida(p){
+    var qty = Math.max(
+      (p.estoqueMin||0) - (p.estoqueAtual||0) + (p.vendasMes||0),
+      p.vendasMes
+        ? (p.vendasMes * STOCK_COVERAGE_MONTHS - (p.estoqueAtual||0))
+        : ((p.estoqueMin||0) * STOCK_COVERAGE_MONTHS - (p.estoqueAtual||0))
+    );
+    return Math.max(0, Math.ceil(qty));
+  }
+
+  // ── Sugestão por Fornecedor ────────────────────────────────
+  var prodParaComprar = listaProdutos.filter(function(p){
+    return statusEstoque(p).code !== 'ok' || (p.vendasMes > 0 && (p.estoqueAtual||0) < p.vendasMes * STOCK_COVERAGE_MONTHS);
+  });
+
+  var porFornecedor = {};
+  prodParaComprar.forEach(function(p){
+    var forn = p.fornecedor || 'Sem fornecedor cadastrado';
+    if(!porFornecedor[forn]) porFornecedor[forn] = [];
+    porFornecedor[forn].push(p);
+  });
+
+  var fornHtml = '';
+  var fornNomes = Object.keys(porFornecedor).sort();
+
+  if(fornNomes.length){
+    fornHtml = '<div class="card" style="margin-bottom:14px;">'
+      +'<div class="card-h"><span class="card-t">🏭 Sugestão de Compras por Fornecedor</span>'
+      +'<span style="font-size:11px;color:#94a3b8;">'+fornNomes.length+' fornecedor(es)</span></div>'
+      +'<div class="card-b">';
+
+    fornHtml += fornNomes.map(function(forn){
+      var prods = porFornecedor[forn];
+      var totalEstimado = prods.reduce(function(s,p){
+        return s + calcularQuantidadeSugerida(p) * (p.custo||0);
+      }, 0);
+
+      var itensHtml = prods.map(function(p){
+        var st = statusEstoque(p);
+        var qtdSugerida = calcularQuantidadeSugerida(p);
+        var urgTxt   = st.code==='zerado'?'🔴 Urgente':st.code==='baixo'?'🟡 Baixo':'🔵 Repor logo';
+        return '<tr>'
+          +'<td><strong>'+p.nome+'</strong>'+(p.codigo?'<br><span class="td-m" style="font-size:10px;">#'+p.codigo+'</span>':'')+'</td>'
+          +'<td style="text-align:center;">'+(p.estoqueAtual||0)+'</td>'
+          +'<td style="text-align:center;">'+(p.estoqueMin||0)+'</td>'
+          +'<td style="text-align:center;">'+(p.vendasMes||'—')+'</td>'
+          +'<td style="text-align:center;font-weight:700;color:#2563eb;">'+qtdSugerida+'</td>'
+          +'<td>'+(p.custo?brl(qtdSugerida*p.custo):'—')+'</td>'
+          +'<td><span class="badge '+(st.code==='zerado'?'b-red':st.code==='baixo'?'b-amber':'b-purple')+'">'+urgTxt+'</span></td>'
+          +'</tr>';
+      }).join('');
+
+      return '<div class="sup-card">'
+        +'<div class="sup-card-h">'
+          +'<div style="font-size:13px;font-weight:700;color:#1e293b;">🏭 '+forn+'</div>'
+          +'<div style="display:flex;align-items:center;gap:10px;">'
+            +'<span style="font-size:12px;color:#64748b;">'+prods.length+' item(ns) p/ repor</span>'
+            +(totalEstimado>0?'<span style="font-size:13px;font-weight:700;color:#2563eb;">Estimado: '+brl(totalEstimado)+'</span>':'')
+          +'</div>'
+        +'</div>'
+        +'<div class="sup-card-b">'
+          +'<div class="tbl-wrap"><table><thead><tr><th>Produto</th><th style="text-align:center;">Atual</th><th style="text-align:center;">Mín</th><th style="text-align:center;">Vend/Mês</th><th style="text-align:center;">Qtd Sugerida</th><th>Valor Est.</th><th>Urgência</th></tr></thead>'
+          +'<tbody>'+itensHtml+'</tbody></table></div>'
+        +'</div>'
+      +'</div>';
+    }).join('');
+    fornHtml += '</div></div>';
+  } else if(listaProdutos.length > 0){
+    fornHtml = '<div class="card" style="margin-bottom:14px;">'
+      +'<div class="card-h"><span class="card-t">🏭 Sugestão por Fornecedor</span></div>'
+      +'<div class="card-b"><div style="text-align:center;color:#16a34a;padding:24px;font-size:13px;">✓ Todos os produtos estão com estoque adequado.</div></div></div>';
+  }
+
+  // ── Montar HTML final ────────────────────────────────────────
   wrap.innerHTML =
-    // Status geral
+    // Situação financeira
     '<div class="card" style="margin-bottom:14px;">'
-      +'<div class="card-h"><span class="card-t">🛒 Situação para Compras</span></div>'
+      +'<div class="card-h"><span class="card-t">💰 Situação Financeira para Compras</span></div>'
       +'<div class="card-b">'
         +'<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">'
           +'<div style="width:44px;height:44px;border-radius:50%;background:'+(mg<=0?'#fef2f2':mg/Math.max(tr,1)<0.15?'#fffbeb':'#f0fdf4')+';border:2px solid '+situacaoCor+';display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:'+situacaoCor+';">'+situacaoIcon+'</div>'
           +'<div><div style="font-size:15px;font-weight:700;color:'+situacaoCor+';">'+situacaoTexto+'</div>'
-            +'<div style="font-size:12px;color:#94a3b8;margin-top:2px;">Margem operacional: <strong style="color:#1e293b;">'+brl(mg)+'</strong> &nbsp;|&nbsp; A Receber: <strong style="color:#16a34a;">'+brl(tr)+'</strong> &nbsp;|&nbsp; A Pagar: <strong style="color:#dc2626;">'+brl(tp)+'</strong></div>'
+            +'<div style="font-size:12px;color:#94a3b8;margin-top:2px;">Margem: <strong style="color:#1e293b;">'+brl(mg)+'</strong> | Receber: <strong style="color:#16a34a;">'+brl(tr)+'</strong> | Pagar: <strong style="color:#dc2626;">'+brl(tp)+'</strong></div>'
           +'</div>'
         +'</div>'
         +(avisoHtml||'')
       +'</div>'
     +'</div>'
-    // Capacidade de compra por prazo
+    // Capacidade por prazo
     +'<div class="card" style="margin-bottom:14px;">'
-      +'<div class="card-h"><span class="card-t">💰 Capacidade de Compra por Prazo</span></div>'
+      +'<div class="card-h"><span class="card-t">📊 Capacidade de Compra por Prazo</span></div>'
       +'<div class="card-b">'
         +'<div class="kpi-grid">'+sugestoesHtml+'</div>'
-        +'<p style="font-size:11px;color:#94a3b8;margin-top:4px;">Valores calculados com base em parcela ≤ 20% da margem operacional (A Receber − A Pagar).</p>'
-      +'</div>'
-    +'</div>'
-    // Melhor período e dica
-    +'<div class="card">'
-      +'<div class="card-h"><span class="card-t">📊 Recomendações</span></div>'
-      +'<div class="card-b">'
+        +'<p style="font-size:11px;color:#94a3b8;margin-top:4px;">Parcela ≤ 20% da margem operacional.</p>'
         +periodoHtml
-        +'<div style="margin-top:10px;">'+dicaHtml+'</div>'
+        +'<div style="margin-top:10px;"><div class="alerta al-green" style="margin-bottom:0;">'
+          +'<h4>💡 Negocie prazo de '+melhorPrazo+'d com fornecedores</h4>'
+          +'<p>Com esse prazo, compra segura até <strong>'+brl(mg*0.20*(melhorPrazo/30))+'</strong>.</p></div></div>'
         +'<div style="margin-top:14px;text-align:center;">'
           +'<button class="btn-add" onclick="irPara(\'simulador\', document.getElementById(\'btnSimulador\'))">✦ Abrir Simulador de Compra</button>'
         +'</div>'
       +'</div>'
-    +'</div>';
+    +'</div>'
+    // Alertas de estoque
+    + estoqueAlertHtml
+    // Mais vendidos
+    + maisVendidosHtml
+    // Por fornecedor
+    + fornHtml;
 }
 
 // ============================================================
@@ -1964,8 +2376,10 @@ async function sincronizarBling(){
         };
 
         if(existente){
-          // Atualizar peça já existente com dados do Bling
+          // Atualizar peça já existente com dados do Bling — preservar vendasMes definido manualmente
+          var vendasMesAnterior = existente.vendasMes;
           Object.assign(existente, dados);
+          if(vendasMesAnterior !== undefined && vendasMesAnterior !== null) existente.vendasMes = vendasMesAnterior;
           atualizadosProd++;
         } else {
           dados.id = novoID();
@@ -2061,6 +2475,152 @@ function limparTodosDados(){
   gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]); gravarLS('prod',[]);
   renderReceber(); renderPagar(); renderClientes(); renderProdutos(); atualizarGlobal();
   alert('Dados apagados.');
+}
+
+// ============================================================
+// IMPORTAR PLANILHA BLING (CSV)
+// ============================================================
+function importarPlanilhaBling(event){
+  var file = event.target.files[0];
+  event.target.value = '';
+  if(!file) return;
+
+  var statusEl = document.getElementById('blingCSVStatus');
+  function showStatus(tipo, msg){
+    statusEl.style.display = 'block';
+    statusEl.style.background = tipo==='ok'?'#f0fdf4':tipo==='error'?'#fef2f2':'#eff6ff';
+    statusEl.style.border = '1.5px solid '+(tipo==='ok'?'#86efac':tipo==='error'?'#fca5a5':'#bfdbfe');
+    statusEl.style.color = tipo==='ok'?'#166534':tipo==='error'?'#dc2626':'#1d4ed8';
+    statusEl.innerHTML = msg;
+  }
+
+  showStatus('info', '⏳ Lendo arquivo...');
+
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var text = e.target.result;
+      // Detect separator: semicolon (Bling BR) or comma
+      var lines = text.split(/\r?\n/).filter(function(l){ return l.trim() !== ''; });
+      if(lines.length < 2){ showStatus('error','❌ Arquivo vazio ou inválido.'); return; }
+
+      var sep = (lines[0].indexOf(';') !== -1) ? ';' : ',';
+
+      // Parse CSV respecting quoted fields and escaped double-quotes ("")
+      function parseCSVLine(line, separator){
+        var result = [], cur = '', inQ = false;
+        for(var i=0; i<line.length; i++){
+          var c = line[i];
+          if(c==='"'){
+            if(inQ && line[i+1]==='"'){ cur+='"'; i++; continue; } // escaped ""
+            inQ = !inQ; continue;
+          }
+          if(c===separator && !inQ){ result.push(cur.trim()); cur=''; continue; }
+          cur += c;
+        }
+        result.push(cur.trim());
+        return result;
+      }
+
+      var headers = parseCSVLine(lines[0], sep).map(function(h){ return h.toLowerCase().replace(/[^\w]/g,''); });
+
+      // Column name mapping (flexible)
+      function findCol(aliases){
+        for(var i=0; i<aliases.length; i++){
+          var idx = headers.indexOf(aliases[i].toLowerCase().replace(/[^\w]/g,''));
+          if(idx !== -1) return idx;
+        }
+        return -1;
+      }
+
+      var colCodigo   = findCol(['codigo','code','sku','codigoproduto']);
+      var colNome     = findCol(['descricao','nome','produto','descricaoproduto','name']);
+      var colCusto    = findCol(['preocdecusto','precodecusto','custounid','custo','precoadicusto','precoCusto','preco_custo']);
+      var colVenda    = findCol(['preo','preco','precovenda','preo1','price','valor','venda']);
+      var colUnidade  = findCol(['unidade','un','unit','und']);
+      var colSaldo    = findCol(['saldofisico','saldoemestoque','saldo','qtd','quantidade','estoque','saldoatual','saldofsico']);
+      var colEstMin   = findCol(['estoqueminimo','minimo','estoquemin','saldominimo','min']);
+      var colCateg    = findCol(['categoria','category','grupo','ncm']);
+      var colFornec   = findCol(['fornecedor','supplier','fornecedornome']);
+      var colLoc      = findCol(['localizacao','localizao','galpao','deposito','estante']);
+      var colSitua    = findCol(['situacao','situacao','status','ativo']);
+
+      if(colNome === -1){ showStatus('error','❌ Coluna de nome/descrição do produto não encontrada.<br>Verifique se o arquivo é uma exportação de produtos do Bling.'); return; }
+
+      var importados = 0, atualizados = 0, ignorados = 0;
+      var erros = [];
+
+      for(var r=1; r<lines.length; r++){
+        var cols = parseCSVLine(lines[r], sep);
+        if(cols.length < 2) continue;
+
+        var nome = colNome !== -1 ? cols[colNome] : '';
+        if(!nome){ ignorados++; continue; }
+
+        // Skip inactive products
+        if(colSitua !== -1){
+          var sit = (cols[colSitua]||'').toLowerCase();
+          if(sit === 'i' || sit === 'inativo' || sit === '0' || sit === 'false'){ ignorados++; continue; }
+        }
+
+        var custo  = colCusto  !== -1 ? parseFloat((cols[colCusto]||'').replace(',','.'))  || 0 : 0;
+        var venda  = colVenda  !== -1 ? parseFloat((cols[colVenda]||'').replace(',','.'))  || 0 : 0;
+        var saldo  = colSaldo  !== -1 ? parseFloat((cols[colSaldo]||'').replace(',','.'))  || 0 : 0;
+        var estMin = colEstMin !== -1 ? parseFloat((cols[colEstMin]||'').replace(',','.')) || 0 : 0;
+        var codigo = colCodigo !== -1 ? cols[colCodigo] : '';
+        var unidade= colUnidade!== -1 ? cols[colUnidade]: 'UN';
+        var categ  = colCateg  !== -1 ? cols[colCateg]  : 'Peças Mecânicas';
+        var fornec = colFornec !== -1 ? cols[colFornec] : '';
+        var loc    = colLoc    !== -1 ? cols[colLoc]    : '';
+
+        // Find existing by code or name
+        var existente = listaProdutos.find(function(p){
+          return (codigo && p.codigo && p.codigo === codigo) || p.nome.toLowerCase() === nome.toLowerCase();
+        });
+
+        var dados = {
+          codigo:       codigo,
+          nome:         nome,
+          categoria:    categ || 'Peças Mecânicas',
+          unidade:      unidade || 'UN',
+          custo:        custo,
+          venda:        venda || custo,
+          estoqueAtual: saldo,
+          estoqueMin:   estMin,
+          fornecedor:   fornec,
+          localizacao:  loc,
+          obs:          '',
+          vendasMes:    0,
+          atualizadoEm: new Date().toISOString()
+        };
+
+        if(existente){
+          Object.assign(existente, dados);
+          atualizados++;
+        } else {
+          dados.id = novoID();
+          dados.criadoEm = new Date().toISOString();
+          listaProdutos.push(dados);
+          importados++;
+        }
+      }
+
+      gravarLS('prod', listaProdutos);
+      renderProdutos();
+      atualizarGlobal();
+
+      showStatus('ok',
+        '✅ Planilha importada com sucesso!<br>'
+        +'• '+importados+' produto(s) novo(s) importado(s)<br>'
+        +'• '+atualizados+' produto(s) atualizado(s)<br>'
+        +(ignorados?'• '+ignorados+' linha(s) ignorada(s) (inativos ou sem nome)<br>':'')
+        +'<br>Acesse <strong>Produtos</strong> para verificar os itens importados.'
+      );
+    } catch(err){
+      showStatus('error','❌ Erro ao processar o arquivo: '+err.message);
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
 }
 
 // Atualizar aviso de modo Bling
