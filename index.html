@@ -1336,8 +1336,8 @@ function renderReceber(){
     return true;
   });
 
-  if(!listaReceber.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhum registro. Adicione acima.</td></tr>'; return; }
-  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhum registro encontrado com os filtros aplicados.</td></tr>'; return; }
+  if(!listaReceber.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum registro encontrado com os filtros aplicados.</td></tr>'; return; }
 
   var slMap = {atrasado:'Atrasado',recebido:'Recebido',aberto:'Em aberto'};
   var seen = {};
@@ -2062,9 +2062,21 @@ function renderSugestao(){
       +'<div class="card-b"><div style="text-align:center;color:#cbd5e1;padding:24px;font-size:13px;">Preencha o campo <strong>Vendas Estimadas/Mês</strong> nos produtos cadastrados para ver o ranking.</div></div></div>';
   }
 
+  // Helper: calculate suggested order quantity for a product
+  var STOCK_COVERAGE_MONTHS = 2;
+  function calcularQuantidadeSugerida(p){
+    var qty = Math.max(
+      (p.estoqueMin||0) - (p.estoqueAtual||0) + (p.vendasMes||0),
+      p.vendasMes
+        ? (p.vendasMes * STOCK_COVERAGE_MONTHS - (p.estoqueAtual||0))
+        : ((p.estoqueMin||0) * STOCK_COVERAGE_MONTHS - (p.estoqueAtual||0))
+    );
+    return Math.max(0, Math.ceil(qty));
+  }
+
   // ── Sugestão por Fornecedor ────────────────────────────────
   var prodParaComprar = listaProdutos.filter(function(p){
-    return statusEstoque(p).code !== 'ok' || (p.vendasMes > 0 && (p.estoqueAtual||0) < p.vendasMes * 2);
+    return statusEstoque(p).code !== 'ok' || (p.vendasMes > 0 && (p.estoqueAtual||0) < p.vendasMes * STOCK_COVERAGE_MONTHS);
   });
 
   var porFornecedor = {};
@@ -2086,23 +2098,12 @@ function renderSugestao(){
     fornHtml += fornNomes.map(function(forn){
       var prods = porFornecedor[forn];
       var totalEstimado = prods.reduce(function(s,p){
-        var qtdSugerida = Math.max(
-          (p.estoqueMin||0) - (p.estoqueAtual||0) + (p.vendasMes||0),
-          (p.vendasMes||0) * 2 - (p.estoqueAtual||0),
-          p.vendasMes ? p.vendasMes * 2 : ((p.estoqueMin||0) * 2 - (p.estoqueAtual||0))
-        );
-        qtdSugerida = Math.max(0, Math.ceil(qtdSugerida));
-        return s + qtdSugerida * (p.custo||0);
+        return s + calcularQuantidadeSugerida(p) * (p.custo||0);
       }, 0);
 
       var itensHtml = prods.map(function(p){
         var st = statusEstoque(p);
-        var qtdSugerida = Math.max(
-          (p.estoqueMin||0) - (p.estoqueAtual||0) + (p.vendasMes||0),
-          p.vendasMes ? (p.vendasMes * 2 - (p.estoqueAtual||0)) : ((p.estoqueMin||0)*2-(p.estoqueAtual||0))
-        );
-        qtdSugerida = Math.max(0, Math.ceil(qtdSugerida));
-        var urgencia = st.code==='zerado'?'al-red':st.code==='baixo'?'al-amber':'al-blue';
+        var qtdSugerida = calcularQuantidadeSugerida(p);
         var urgTxt   = st.code==='zerado'?'🔴 Urgente':st.code==='baixo'?'🟡 Baixo':'🔵 Repor logo';
         return '<tr>'
           +'<td><strong>'+p.nome+'</strong>'+(p.codigo?'<br><span class="td-m" style="font-size:10px;">#'+p.codigo+'</span>':'')+'</td>'
@@ -2378,7 +2379,7 @@ async function sincronizarBling(){
           // Atualizar peça já existente com dados do Bling — preservar vendasMes definido manualmente
           var vendasMesAnterior = existente.vendasMes;
           Object.assign(existente, dados);
-          if(vendasMesAnterior) existente.vendasMes = vendasMesAnterior;
+          if(vendasMesAnterior !== undefined && vendasMesAnterior !== null) existente.vendasMes = vendasMesAnterior;
           atualizadosProd++;
         } else {
           dados.id = novoID();
@@ -2505,12 +2506,15 @@ function importarPlanilhaBling(event){
 
       var sep = (lines[0].indexOf(';') !== -1) ? ';' : ',';
 
-      // Parse CSV respecting quoted fields
+      // Parse CSV respecting quoted fields and escaped double-quotes ("")
       function parseCSVLine(line, separator){
         var result = [], cur = '', inQ = false;
         for(var i=0; i<line.length; i++){
           var c = line[i];
-          if(c==='"'){ inQ=!inQ; continue; }
+          if(c==='"'){
+            if(inQ && line[i+1]==='"'){ cur+='"'; i++; continue; } // escaped ""
+            inQ = !inQ; continue;
+          }
           if(c===separator && !inQ){ result.push(cur.trim()); cur=''; continue; }
           cur += c;
         }
