@@ -467,24 +467,24 @@ td{padding:10px 14px;font-size:13px;color:#1e293b;vertical-align:middle;}
         <div class="card-h"><span class="card-t">🔗 Integração com Bling</span></div>
         <div class="card-b">
           <div id="avisoModoBling" style="padding:10px 14px;border-radius:8px;border:1.5px solid;font-size:12px;margin-bottom:14px;line-height:1.6;"></div>
-          <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6;">Cole o token da API do Bling para importar automaticamente suas contas a receber e a pagar. O sistema buscará os dados diretamente do Bling.</p>
-          <div class="fgrid" style="margin-bottom:12px;">
-            <div class="fg" style="grid-column:span 2;">
-              <label>Token de API do Bling (v3)</label>
-              <input id="blingToken" type="password" placeholder="Cole aqui o Bearer token do Bling..." style="font-family:monospace;font-size:12px;">
+
+          <!-- Estado: não autenticado -->
+          <div id="blingNaoConectado">
+            <p style="font-size:13px;color:#64748b;margin-bottom:14px;line-height:1.6;">Conecte sua conta Bling para importar automaticamente contas a receber, a pagar e clientes. Seus dados já cadastrados no Bling serão carregados.</p>
+            <a href="/api/auth/login" id="btnConectarBling" style="display:inline-block;padding:10px 22px;border-radius:8px;background:#f59e0b;color:#fff;font-size:13px;font-weight:700;text-decoration:none;">🔑 Conectar com Bling</a>
+          </div>
+
+          <!-- Estado: autenticado -->
+          <div id="blingConectado" style="display:none;">
+            <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:12px 14px;font-size:13px;color:#166534;margin-bottom:14px;">
+              ✅ <strong>Conectado ao Bling</strong> — token OAuth2 ativo. Seus dados serão carregados automaticamente.
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-add" onclick="sincronizarBling()">🔄 Sincronizar com Bling</button>
+              <button class="btn-sec" onclick="desconectarBling()">Desconectar</button>
             </div>
           </div>
-          <div style="background:#fffbeb;border:1.5px solid #fcd34d;border-radius:8px;padding:12px;font-size:12px;color:#92400e;margin-bottom:14px;line-height:1.7;">
-            <strong>Como obter o token:</strong><br>
-            1. Acesse <strong>bling.com.br</strong> → faça login<br>
-            2. Clique no seu usuário (canto superior direito) → <strong>Preferências</strong><br>
-            3. Vá em <strong>API</strong> → <strong>Gerar token</strong><br>
-            4. Copie o token e cole no campo acima
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-add" onclick="sincronizarBling()">🔄 Sincronizar com Bling</button>
-            <button class="btn-sec" onclick="testarConexaoBling()">Testar conexão</button>
-          </div>
+
           <div id="blingStatus" style="margin-top:12px;font-size:13px;display:none;padding:10px 14px;border-radius:8px;"></div>
         </div>
       </div>
@@ -1460,19 +1460,10 @@ renderClientes();
 renderPainel();
 
 // ============================================================
-// BLING INTEGRATION
+// BLING INTEGRATION — OAuth2
 // ============================================================
 var USANDO_SERVIDOR = (window.location.protocol !== 'file:' && window.location.hostname !== '');
 var API_BASE = USANDO_SERVIDOR ? (window.location.origin + '/api/bling') : null;
-
-function getToken(){
-  var t = document.getElementById('blingToken').value.trim();
-  if(!t) t = lerLS('blingToken')||'';
-  if(!t){ mostrarStatusBling('error','Cole o token do Bling no campo acima.'); return null; }
-  gravarLS('blingToken', t);
-  document.getElementById('blingToken').value = t;
-  return t;
-}
 
 function mostrarStatusBling(tipo, msg){
   var el = document.getElementById('blingStatus');
@@ -1488,63 +1479,66 @@ function atualizarModoBling(){
   if(!avisoEl) return;
   if(USANDO_SERVIDOR){
     avisoEl.style.background='#f0fdf4'; avisoEl.style.borderColor='#86efac'; avisoEl.style.color='#16a34a';
-    avisoEl.innerHTML='✅ <strong>Integração Bling disponível</strong> — cole o token e clique em Sincronizar.';
+    avisoEl.innerHTML='✅ <strong>Integração Bling disponível</strong> — conecte sua conta clicando no botão abaixo.';
   } else {
     avisoEl.style.background='#fffbeb'; avisoEl.style.borderColor='#fcd34d'; avisoEl.style.color='#92400e';
-    avisoEl.innerHTML='⚠️ <strong>Arquivo aberto diretamente</strong> — a sincronização com o Bling não funciona assim. Use o <strong>INICIAR.bat</strong> ou acesse pela <strong>URL do Render</strong>.';
+    avisoEl.innerHTML='⚠️ <strong>Arquivo aberto diretamente</strong> — a sincronização com o Bling não funciona assim. Use o <strong>INICIAR.bat</strong>.';
   }
 }
 
-async function fetchBling(endpoint, token){
-  if(USANDO_SERVIDOR){
-    // Via proxy local — sem CORS
-    var r = await fetch(API_BASE+'/'+endpoint, {
-      headers: { 'Authorization': 'Bearer '+token }
-    });
-    if(!r.ok) throw new Error('Erro '+r.status+' ao buscar '+endpoint);
-    var j = await r.json();
-    if(j.erro) throw new Error(j.erro);
-    return j.data || j || [];
-  } else {
-    // Direto — pode falhar por CORS
-    var r = await fetch('https://api.bling.com.br/Api/v3/'+endpoint+'?pagina=1&limite=100', {
-      headers: { 'Authorization': 'Bearer '+token, 'Accept': 'application/json' }
-    });
-    if(!r.ok) throw new Error('Erro '+r.status);
-    var j = await r.json();
-    return j.data || [];
-  }
-}
-
-async function testarConexaoBling(){
-  var token = getToken(); if(!token) return;
-  mostrarStatusBling('info','🔄 Testando conexão...');
+async function verificarStatusBling(){
+  if(!USANDO_SERVIDOR) return;
   try {
-    var endpoint = USANDO_SERVIDOR ? 'testar' : 'situacoes/modulos';
-    var url = USANDO_SERVIDOR
-      ? 'http://localhost:3000/api/bling/testar'
-      : 'https://api.bling.com.br/Api/v3/situacoes/modulos';
-    var r = await fetch(url, { headers:{ 'Authorization':'Bearer '+token, 'Accept':'application/json' } });
-    if(r.ok){
-      mostrarStatusBling('ok','✅ Conexão OK! Token válido. Agora clique em <strong>Sincronizar</strong>.');
-    } else if(r.status===401){
-      mostrarStatusBling('error','❌ Token inválido ou expirado. Gere um novo token no Bling → Preferências → API.');
+    var r = await fetch('/api/auth/status');
+    var s = await r.json();
+    var nc = document.getElementById('blingNaoConectado');
+    var co = document.getElementById('blingConectado');
+    var btn = document.getElementById('btnConectarBling');
+    if(s.autenticado){
+      if(nc) nc.style.display = 'none';
+      if(co) co.style.display = 'block';
     } else {
-      mostrarStatusBling('error','❌ Erro '+r.status+'. Verifique o token e tente novamente.');
+      if(nc) nc.style.display = 'block';
+      if(co) co.style.display = 'none';
+      if(btn && !s.configOk){
+        btn.style.opacity = '0.5';
+        btn.style.cursor  = 'not-allowed';
+        btn.removeAttribute('href');
+        btn.title = 'bling.config.json não configurado no servidor';
+        document.getElementById('blingStatus').style.display='block';
+        document.getElementById('blingStatus').style.background='#fef2f2';
+        document.getElementById('blingStatus').style.border='1.5px solid #fca5a5';
+        document.getElementById('blingStatus').style.color='#dc2626';
+        document.getElementById('blingStatus').innerHTML='⚠️ <strong>bling.config.json</strong> não encontrado no servidor. Crie o arquivo com seu Client ID e Client Secret.';
+      }
     }
-  } catch(e) {
-    if(!USANDO_SERVIDOR){
-      mostrarStatusBling('error','❌ Bloqueado pelo navegador (CORS). <strong>Abra o sistema pelo INICIAR.bat</strong> para ativar o modo servidor.');
-    } else {
-      mostrarStatusBling('error','❌ Erro de conexão: '+e.message);
-    }
+  } catch(e) { /* servidor indisponível */ }
+}
+
+async function desconectarBling(){
+  if(!confirm('Desconectar conta Bling?')) return;
+  try {
+    await fetch('/api/auth/logout');
+    document.getElementById('blingNaoConectado').style.display = 'block';
+    document.getElementById('blingConectado').style.display = 'none';
+    mostrarStatusBling('info','Desconectado do Bling.');
+  } catch(e) { mostrarStatusBling('error','Erro ao desconectar: '+e.message); }
+}
+
+async function fetchBling(endpoint){
+  var r = await fetch(API_BASE+'/'+endpoint);
+  var j = await r.json();
+  if(r.status === 401 || j.naoAutenticado){
+    throw new Error('Não autenticado. Conecte-se ao Bling primeiro em ⚙ Configurações.');
   }
+  if(!r.ok) throw new Error('Erro '+r.status+' ao buscar '+endpoint);
+  if(j.erro) throw new Error(j.erro);
+  return j.data || j || [];
 }
 
 async function sincronizarBling(){
-  var token = getToken(); if(!token) return;
   if(!USANDO_SERVIDOR){
-    mostrarStatusBling('error','❌ Para sincronizar com o Bling, abra o sistema pelo <strong>INICIAR.bat</strong> e acesse <a href="http://localhost:3000" style="color:#dc2626;">http://localhost:3000</a>');
+    mostrarStatusBling('error','❌ Para sincronizar com o Bling, abra o sistema pelo <strong>INICIAR.bat</strong>.');
     return;
   }
   mostrarStatusBling('info','🔄 Sincronizando com o Bling... aguarde.');
@@ -1554,7 +1548,7 @@ async function sincronizarBling(){
 
     // Contas a receber
     try {
-      var contasRec = await fetchBling('receber', token);
+      var contasRec = await fetchBling('receber');
       contasRec.forEach(function(c){
         var venc = (c.dataVencimento||c.vencimento||'').substring(0,10);
         if(!venc||!c.valor) return;
@@ -1570,7 +1564,7 @@ async function sincronizarBling(){
 
     // Contas a pagar
     try {
-      var contasPag = await fetchBling('pagar', token);
+      var contasPag = await fetchBling('pagar');
       contasPag.forEach(function(c){
         var venc = (c.dataVencimento||c.vencimento||'').substring(0,10);
         if(!venc||!c.valor) return;
@@ -1595,6 +1589,19 @@ async function sincronizarBling(){
   } catch(e){
     mostrarStatusBling('error','❌ Falha na sincronização: '+e.message);
   }
+}
+
+// Verificar status ao carregar e ao entrar na aba Config
+verificarStatusBling();
+
+// Mostrar mensagem de sucesso se veio do callback OAuth
+if(window.location.search.indexOf('bling=ok') !== -1){
+  history.replaceState(null,'','/');
+  // Aguarda render e depois abre Configurações
+  setTimeout(function(){
+    irPara('config', document.querySelector('.sb-btn[onclick*="config"]'));
+    setTimeout(function(){ mostrarStatusBling('ok','✅ Bling conectado com sucesso! Clique em <strong>Sincronizar</strong> para importar seus dados.'); }, 300);
+  }, 100);
 }
 
 // ============================================================
@@ -1652,10 +1659,8 @@ function limparTodosDados(){
   alert('Dados apagados.');
 }
 
-// Restaurar token salvo e atualizar modo
+// Atualizar aviso de modo Bling
 (function(){
-  var t = lerLS('blingToken');
-  if(t){ var el=document.getElementById('blingToken'); if(el) el.value=t; }
   atualizarModoBling();
 })();
 </script>
