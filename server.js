@@ -123,8 +123,16 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
+// Parâmetros extras por endpoint (ex: criterio=3 em produtos retorna todos,
+// independente de ter ou não estoque; sem esse parâmetro o Bling retorna
+// apenas produtos sem estoque por padrão).
+const ENDPOINT_EXTRA_PARAMS = {
+  'produtos': '&criterio=3',
+};
+
 function fetchBlingPage(endpoint, token, pagina, callback) {
-  const blingUrl = `${BLING_BASE}/${endpoint}?pagina=${pagina}&limite=100`;
+  const extra = ENDPOINT_EXTRA_PARAMS[endpoint] || '';
+  const blingUrl = `${BLING_BASE}/${endpoint}?pagina=${pagina}&limite=100${extra}`;
   const opts = url.parse(blingUrl);
   opts.headers = {
     'Authorization': `Bearer ${token}`,
