@@ -658,7 +658,7 @@ let objGrafSim    = null;
 // PERSISTÊNCIA
 // ============================================================
 function lerLS(k){ try{ return JSON.parse(localStorage.getItem('cai5_'+k)); }catch(e){ return null; } }
-function gravarLS(k,v){ try { localStorage.setItem('cai5_'+k, JSON.stringify(v)); } catch(e) { throw new Error('Armazenamento local cheio (chave: '+k+'). Exporte seus dados e limpe o cache do navegador.'); } }
+function gravarLS(k,v){ try { localStorage.setItem('cai5_'+k, JSON.stringify(v)); } catch(e) { var msg = (e.name==='QuotaExceededError'||e.code===22) ? 'Armazenamento local cheio (chave: '+k+'). Exporte seus dados e limpe o cache do navegador.' : 'Erro ao salvar dados locais (chave: '+k+'): '+e.message; throw new Error(msg); } }
 function novoID(){ return Date.now() + Math.floor(Math.random()*10000); }
 
 // ============================================================
@@ -1940,8 +1940,10 @@ async function sincronizarBling(){
         if(sit === 'I' || sit === 'Inativo' || sit === 2 || sit === '2') { ignoradosProd++; return; }
 
         // Correspondência por blingId; fallback por código para produtos cadastrados manualmente
-        var existente = listaProdutos.find(function(lp){ return lp.blingId && lp.blingId == p.id; })
-          || (p.codigo ? listaProdutos.find(function(lp){ return !lp.blingId && lp.codigo && lp.codigo === p.codigo; }) : null);
+        var existente = listaProdutos.find(function(lp){
+          return (lp.blingId && lp.blingId === p.id) ||
+                 (!lp.blingId && p.codigo && lp.codigo && lp.codigo === p.codigo);
+        });
         var estoqueAtual = saldosMap[p.id] !== undefined ? saldosMap[p.id]
           : (p.estoque && p.estoque.saldoFisico !== undefined ? parseFloat(p.estoque.saldoFisico) : 0);
         var estoqueMin = (p.estoque && p.estoque.minimo !== undefined) ? parseFloat(p.estoque.minimo) : 0;
