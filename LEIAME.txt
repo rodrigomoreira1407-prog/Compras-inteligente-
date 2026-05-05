@@ -26,27 +26,77 @@
   Node.js é gratuito e não interfere em outros programas.
 
 ═══════════════════════════════════════════════════════════
-  INTEGRAÇÃO COM BLING
+  CONFIGURAR INTEGRAÇÃO COM BLING (FAZER UMA VEZ)
+═══════════════════════════════════════════════════════════
+
+  Antes de usar a integração, crie o arquivo bling.config.json
+  na mesma pasta deste sistema:
+
+  1. Copie o arquivo  bling.config.example.json
+  2. Renomeie a cópia para  bling.config.json
+  3. Abra o arquivo bling.config.json com o Bloco de Notas
+  4. Substitua os valores:
+       "clientId":     coloque seu Client ID do Bling
+       "clientSecret": coloque seu Client Secret do Bling
+
+  Onde encontrar o Client ID e Client Secret:
+    → Bling → Menu usuário → Aplicativos → seu app → editar
+
+  ⚠ NUNCA envie bling.config.json para o GitHub.
+    Ele está no .gitignore e só ficará na sua máquina.
+
+═══════════════════════════════════════════════════════════
+  INTEGRAÇÃO COM BLING — USO DIÁRIO
 ═══════════════════════════════════════════════════════════
 
   1. Inicie o sistema pelo INICIAR.bat (obrigatório)
   2. Vá em ⚙ Configurações → Integração com Bling
-  3. No Bling: acesse seu usuário → Preferências → API
-  4. Gere um novo token e copie
-  5. Cole o token no campo e clique em "Testar conexão"
-  6. Se OK, clique em "Sincronizar com Bling"
+  3. Clique em "🔑 Conectar com Bling"
+  4. Faça login no Bling e autorize o aplicativo
+  5. Você será redirecionado de volta para o sistema
+  6. Clique em "🔄 Sincronizar com Bling"
 
-  ⚠ A sincronização só funciona quando o sistema é aberto
+  ✅ Todos os seus dados já cadastrados no Bling (clientes,
+     contas a receber e a pagar) serão importados automaticamente.
+     Não é preciso re-cadastrar nada!
+
+  O token OAuth2 é salvo em bling.token.json e renovado
+  automaticamente. Você só precisa se conectar uma vez.
+
+  ⚠ A integração só funciona quando o sistema é aberto
     pelo INICIAR.bat (http://localhost:3000).
-    Se abrir o index.html diretamente, o Bling não conecta.
 
 ═══════════════════════════════════════════════════════════
-  USAR EM OUTRO COMPUTADOR
+  USAR NA NUVEM (RENDER) — CELULAR E QUALQUER COMPUTADOR
+═══════════════════════════════════════════════════════════
+
+  O sistema já está hospedado em:
+    https://compras-inteligente.onrender.com
+
+  Configure as seguintes variáveis de ambiente no painel do Render
+  (Settings → Environment Variables):
+
+    BLING_CLIENT_ID      → seu Client ID do Bling
+    BLING_CLIENT_SECRET  → seu Client Secret do Bling
+
+  A variável RENDER_EXTERNAL_URL é definida automaticamente pelo Render
+  e garante que o callback OAuth2 do Bling aponte para a URL correta.
+
+  ⚠ No painel do Bling (Aplicativos → seu app), registre como
+    Redirect URI:  https://compras-inteligente.onrender.com/callback
+
+  ⚠ O token OAuth2 é salvo em memória/arquivo temporário no Render.
+    Após cada reinicialização do serviço será necessário reconectar
+    ao Bling nas Configurações.
+
+═══════════════════════════════════════════════════════════
+  USAR EM OUTRO COMPUTADOR (LOCAL)
 ═══════════════════════════════════════════════════════════
 
   Opção 1 — Pendrive:
     Copie toda esta pasta para o pendrive.
     No outro computador, instale o Node.js e execute INICIAR.bat.
+    Refaça a conexão com o Bling nas Configurações.
 
   Opção 2 — Backup de dados:
     No sistema: ⚙ Configurações → Exportar todos os dados
@@ -56,9 +106,12 @@
   ARQUIVOS DA PASTA
 ═══════════════════════════════════════════════════════════
 
-  INICIAR.bat   → Clique aqui para abrir o sistema
-  index.html    → Interface do sistema
-  server.js     → Servidor local (não abrir diretamente)
-  LEIAME.txt    → Este arquivo
+  INICIAR.bat                → Clique aqui para abrir o sistema
+  index.html                 → Interface do sistema
+  server.js                  → Servidor local (não abrir diretamente)
+  bling.config.example.json  → Modelo para configurar o Bling
+  bling.config.json          → Suas credenciais Bling (criar você)
+  bling.token.json           → Token OAuth2 (criado automaticamente)
+  LEIAME.txt                 → Este arquivo
 
 ══════════════════════════════════════════════════════════
