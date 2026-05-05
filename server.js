@@ -7,6 +7,7 @@ const fs        = require('fs');
 const path      = require('path');
 const url       = require('url');
 const querystring = require('querystring');
+const crypto    = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
@@ -38,6 +39,19 @@ let storedToken = { access_token: '', refresh_token: '', expires_at: 0 };
 try {
   storedToken = JSON.parse(fs.readFileSync(path.join(__dirname, 'bling.token.json'), 'utf8'));
 } catch (e) { /* token ainda não existe */ }
+
+// Estados OAuth2 pendentes: Map<state, expiresAt> — proteção CSRF
+const pendingOAuthStates = new Map();
+const OAUTH_STATE_TTL_MS             = 10 * 60 * 1000; // 10 minutos
+const OAUTH_STATE_CLEANUP_INTERVAL_MS =  5 * 60 * 1000; //  5 minutos
+
+// Limpa estados expirados periodicamente para evitar crescimento ilimitado da Map
+setInterval(() => {
+  const now = Date.now();
+  for (const [state, expiry] of pendingOAuthStates) {
+    if (now > expiry) pendingOAuthStates.delete(state);
+  }
+}, OAUTH_STATE_CLEANUP_INTERVAL_MS).unref();
 
 function saveToken(data) {
   storedToken = data;
@@ -123,11 +137,11 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-// Parâmetros extras por endpoint (ex: criterio=3 em produtos retorna todos,
-// independente de ter ou não estoque; sem esse parâmetro o Bling retorna
-// apenas produtos sem estoque por padrão).
+// Parâmetros extras por endpoint.
+// criterio=3 → retorna todos os produtos independente de estoque.
+// situacao=A → somente produtos ativos (evita ter que filtrar inativos no cliente).
 const ENDPOINT_EXTRA_PARAMS = {
-  'produtos': '&criterio=3',
+  'produtos': '&criterio=3&situacao=A',
 };
 
 function fetchBlingPage(endpoint, token, pagina, callback) {
@@ -189,11 +203,19 @@ function proxyBling(endpoint, token, res) {
         return;
       }
 
-      if (statusCode !== 200 || !json.data) {
-        // Retorna a resposta original do Bling em caso de erro ou formato inesperado
-        setCORS(res);
-        res.writeHead(statusCode, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(json));
+      if (statusCode !== 200 || !Array.isArray(json.data)) {
+        if (allItems.length > 0) {
+          // Já coletamos itens de páginas anteriores — a página extra provavelmente
+          // está fora do intervalo (end-of-data). Retorna o que foi coletado.
+          setCORS(res);
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ data: allItems }));
+        } else {
+          // Nenhum item coletado ainda — repassa a resposta de erro do Bling.
+          setCORS(res);
+          res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(json));
+        }
         return;
       }
 
@@ -234,7 +256,9 @@ const server = http.createServer((req, res) => {
       res.end('Erro: bling.config.json não configurado. Veja LEIAME.txt.');
       return;
     }
-    const authUrl = `${BLING_AUTH_URL}?response_type=code&client_id=${encodeURIComponent(blingConfig.clientId)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&state=comprasai`;
+    const oauthState = crypto.randomBytes(16).toString('hex');
+    pendingOAuthStates.set(oauthState, Date.now() + OAUTH_STATE_TTL_MS);
+    const authUrl = `${BLING_AUTH_URL}?response_type=code&client_id=${encodeURIComponent(blingConfig.clientId)}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent('read:todos')}&state=${oauthState}`;
     res.writeHead(302, { Location: authUrl });
     res.end();
     return;
@@ -242,14 +266,27 @@ const server = http.createServer((req, res) => {
 
   // ---- OAuth2: callback do Bling ----
   if (pathname === '/callback') {
-    const code  = parsed.query.code;
-    const error = parsed.query.error;
+    const code       = parsed.query.code;
+    const error      = parsed.query.error;
+    const stateParam = parsed.query.state;
 
     if (error || !code) {
       res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
       res.end(`<html><body style="font-family:sans-serif;padding:40px"><h2>❌ Autenticação cancelada</h2><p>${error || 'Código não recebido.'}</p><a href="/">← Voltar ao sistema</a></body></html>`);
       return;
     }
+
+    const stateExpiry = stateParam ? pendingOAuthStates.get(stateParam) : undefined;
+    if (!stateExpiry || Date.now() > stateExpiry) {
+      // State expirado ou desconhecido — limpa e rejeita.
+      // Map.delete em chave inexistente é no-op, por isso é seguro chamá-lo incondicionalmente.
+      pendingOAuthStates.delete(stateParam);
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(`<html><body style="font-family:sans-serif;padding:40px"><h2>❌ Erro de segurança</h2><p>Parâmetro state inválido ou expirado. Tente conectar novamente.</p><a href="/">← Voltar ao sistema</a></body></html>`);
+      return;
+    }
+    // Remove somente após validação bem-sucedida (one-time use)
+    pendingOAuthStates.delete(stateParam);
 
     exchangeToken({
       grant_type:   'authorization_code',
