@@ -145,7 +145,7 @@ function fetchBlingPage(endpoint, token, pagina, callback) {
     blingRes.on('data', (chunk) => { body += chunk; });
     blingRes.on('end', () => {
       try {
-        callback(null, blingRes.statusCode, JSON.parse(body));
+        callback(null, blingRes.statusCode, JSON.parse(body), blingRes.headers);
       } catch (e) {
         callback(e);
       }
@@ -156,11 +156,32 @@ function fetchBlingPage(endpoint, token, pagina, callback) {
   req.end();
 }
 
+const MAX_RETRIES = 3;
+const DEFAULT_RETRY_DELAY_MS = 2000;
+
+// Faz a requisição e tenta novamente em caso de erro 429 (Too Many Requests)
+function fetchBlingPageWithRetry(endpoint, token, pagina, retriesLeft, callback) {
+  fetchBlingPage(endpoint, token, pagina, (err, statusCode, json, headers) => {
+    if (err) return callback(err);
+    if (statusCode === 429 && retriesLeft > 0) {
+      const retryAfterHeader = headers && headers['retry-after'];
+      const retryAfterSec = retryAfterHeader ? parseInt(retryAfterHeader, 10) : NaN;
+      const waitMs = !isNaN(retryAfterSec)
+        ? Math.min(retryAfterSec * 1000, 30000)
+        : DEFAULT_RETRY_DELAY_MS;
+      console.log(`[BLING] Rate limited (429) on /${endpoint} página ${pagina}, aguardando ${waitMs}ms (${retriesLeft} tentativa(s) restante(s))...`);
+      setTimeout(() => fetchBlingPageWithRetry(endpoint, token, pagina, retriesLeft - 1, callback), waitMs);
+      return;
+    }
+    callback(null, statusCode, json);
+  });
+}
+
 function proxyBling(endpoint, token, res) {
   const allItems = [];
 
   function fetchPage(pagina) {
-    fetchBlingPage(endpoint, token, pagina, (err, statusCode, json) => {
+    fetchBlingPageWithRetry(endpoint, token, pagina, MAX_RETRIES, (err, statusCode, json) => {
       if (err) {
         setCORS(res);
         res.writeHead(502, { 'Content-Type': 'application/json' });
@@ -180,7 +201,8 @@ function proxyBling(endpoint, token, res) {
 
       // Se a página retornou 100 itens, pode haver mais páginas
       if (json.data.length === 100) {
-        fetchPage(pagina + 1);
+        // Pequena pausa entre páginas para evitar disparar o limite de requisições do Bling
+        setTimeout(() => fetchPage(pagina + 1), 300);
       } else {
         // Todas as páginas foram buscadas — retorna resultado combinado
         setCORS(res);
