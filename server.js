@@ -123,8 +123,16 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-function proxyBling(endpoint, token, res) {
-  const blingUrl = `${BLING_BASE}/${endpoint}?pagina=1&limite=100`;
+// Parâmetros extras por endpoint (ex: criterio=3 em produtos retorna todos,
+// independente de ter ou não estoque; sem esse parâmetro o Bling retorna
+// apenas produtos sem estoque por padrão).
+const ENDPOINT_EXTRA_PARAMS = {
+  'produtos': '&criterio=3',
+};
+
+function fetchBlingPage(endpoint, token, pagina, callback) {
+  const extra = ENDPOINT_EXTRA_PARAMS[endpoint] || '';
+  const blingUrl = `${BLING_BASE}/${endpoint}?pagina=${pagina}&limite=100${extra}`;
   const opts = url.parse(blingUrl);
   opts.headers = {
     'Authorization': `Bearer ${token}`,
@@ -136,18 +144,53 @@ function proxyBling(endpoint, token, res) {
     let body = '';
     blingRes.on('data', (chunk) => { body += chunk; });
     blingRes.on('end', () => {
-      setCORS(res);
-      res.writeHead(blingRes.statusCode, { 'Content-Type': 'application/json' });
-      res.end(body);
+      try {
+        callback(null, blingRes.statusCode, JSON.parse(body));
+      } catch (e) {
+        callback(e);
+      }
     });
   });
 
-  req.on('error', (e) => {
-    setCORS(res);
-    res.writeHead(502, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ erro: 'Falha ao conectar ao Bling: ' + e.message }));
-  });
+  req.on('error', callback);
   req.end();
+}
+
+function proxyBling(endpoint, token, res) {
+  const allItems = [];
+
+  function fetchPage(pagina) {
+    fetchBlingPage(endpoint, token, pagina, (err, statusCode, json) => {
+      if (err) {
+        setCORS(res);
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ erro: 'Falha ao conectar ao Bling: ' + err.message }));
+        return;
+      }
+
+      if (statusCode !== 200 || !json.data) {
+        // Retorna a resposta original do Bling em caso de erro ou formato inesperado
+        setCORS(res);
+        res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(json));
+        return;
+      }
+
+      allItems.push(...json.data);
+
+      // Se a página retornou 100 itens, pode haver mais páginas
+      if (json.data.length === 100) {
+        fetchPage(pagina + 1);
+      } else {
+        // Todas as páginas foram buscadas — retorna resultado combinado
+        setCORS(res);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ data: allItems }));
+      }
+    });
+  }
+
+  fetchPage(1);
 }
 
 const server = http.createServer((req, res) => {
