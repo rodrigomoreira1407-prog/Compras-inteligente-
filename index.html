@@ -463,6 +463,44 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
 .fiscal-toggle.aberto{transform:rotate(180deg);}
 .fiscal-section-body{padding:14px;display:none;}
 .fiscal-section-body.aberto{display:block;}
+
+/* ── CLIENT PURCHASE HISTORY ── */
+.cli-hist-box{
+  background:linear-gradient(135deg,#eff6ff,#e0edff);
+  border:1.5px solid var(--blue-border);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.cli-hist-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  background:linear-gradient(135deg,#dbeafe,#eff6ff);
+  border-bottom:1px solid var(--blue-border);
+}
+.cli-hist-title{font-size:12px;font-weight:700;color:#1d4ed8;}
+.cli-hist-body{padding:10px 14px;}
+.cli-hist-item{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid #bfdbfe;
+  font-size:12.5px;
+}
+.cli-hist-item:last-child{border-bottom:none;}
+.cli-hist-rank{
+  width:22px;height:22px;border-radius:50%;
+  background:#2563eb;color:#fff;
+  font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cli-hist-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cli-hist-count{font-size:11px;color:#3b82f6;font-weight:700;white-space:nowrap;}
+.cli-hist-preco{font-size:11px;color:var(--text-2);white-space:nowrap;}
+.cli-hist-add{
+  padding:4px 10px;border-radius:var(--radius-xs);
+  border:1.5px solid #93c5fd;background:#eff6ff;
+  color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;font-family:inherit;white-space:nowrap;
+}
+.cli-hist-add:hover{background:#2563eb;color:#fff;border-color:#2563eb;}
 </style>
 </head>
 <body>
@@ -1021,7 +1059,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
         <div class="card-b">
           <input type="hidden" id="orcId">
           <div class="fgrid">
-            <div class="fg"><label>Cliente *</label><input id="orcCliente" placeholder="Nome do cliente"></div>
+            <div class="fg"><label>Cliente *</label><input id="orcCliente" placeholder="Nome do cliente" oninput="atualizarHistoricoClienteOrc()"></div>
             <div class="fg"><label>Data *</label><input id="orcData" type="date"></div>
             <div class="fg"><label>Validade até</label><input id="orcValidade" type="date"></div>
             <div class="fg"><label>Condição de Pagamento</label>
@@ -1040,6 +1078,16 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
                 <option value="aprovado">Aprovado</option>
                 <option value="recusado">Recusado</option>
               </select>
+            </div>
+          </div>
+          <!-- Histórico de itens mais comprados pelo cliente -->
+          <div id="clienteHistoricoOrc" style="display:none;margin-bottom:14px;">
+            <div class="cli-hist-box">
+              <div class="cli-hist-hdr">
+                <span class="cli-hist-title">🛒 Itens que <span id="clienteHistoricoNome" style="font-style:italic;"></span> mais compra</span>
+                <span id="clienteHistoricoQtd" class="chip" style="font-size:10px;"></span>
+              </div>
+              <div id="clienteHistoricoBody" class="cli-hist-body"></div>
             </div>
           </div>
           <!-- Adicionar item -->
@@ -2904,6 +2952,86 @@ function renderItensOrc(){
   document.getElementById('orcTotalGeral').textContent = brl(totalBruto - totalDesc);
 }
 
+// ============================================================
+// HISTÓRICO DE ITENS MAIS COMPRADOS POR CLIENTE
+// ============================================================
+var _histTopItens = []; // cache dos top-itens exibidos, para acesso por índice
+
+function escHTML(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function atualizarHistoricoClienteOrc(){
+  var nome = document.getElementById('orcCliente').value.trim();
+  var el   = document.getElementById('clienteHistoricoOrc');
+  if(!nome || nome.length < 2){ el.style.display='none'; return; }
+
+  // Coleta todos os orçamentos do cliente (exceto o que está sendo editado)
+  var normNome = nome.toLowerCase();
+  var historico = listaOrcamentos.filter(function(o){
+    return o.cliente && o.cliente.toLowerCase().indexOf(normNome) !== -1
+        && (orcEmEdicao === null ? true : o.id !== orcEmEdicao);
+  });
+
+  if(!historico.length){ el.style.display='none'; return; }
+
+  // Agrega a quantidade total de cada item comprado
+  var itemMap = {};
+  historico.forEach(function(o){
+    (o.itens||[]).forEach(function(item){
+      var key = item.desc.trim().toLowerCase();
+      if(!itemMap[key]){
+        itemMap[key] = { desc: item.desc.trim(), qtdTotal: 0, vezes: 0, ultimoPreco: 0 };
+      }
+      itemMap[key].qtdTotal += parseFloat(item.qtd) || 0;
+      itemMap[key].vezes    += 1;
+      var p = parseFloat(item.preco);
+      if(!isNaN(p)) itemMap[key].ultimoPreco = p;
+    });
+  });
+
+  var itens = Object.values(itemMap).sort(function(a,b){ return b.qtdTotal - a.qtdTotal; });
+  if(!itens.length){ el.style.display='none'; return; }
+
+  _histTopItens = itens.slice(0, 8);
+  document.getElementById('clienteHistoricoNome').textContent = nome;
+  document.getElementById('clienteHistoricoQtd').textContent =
+    historico.length + ' pedido(s) • ' + itens.length + ' produto(s) diferentes';
+
+  var body = document.getElementById('clienteHistoricoBody');
+  body.innerHTML = _histTopItens.map(function(item, idx){
+    var precoStr = item.ultimoPreco > 0 ? ' • último preço: '+brl(item.ultimoPreco) : '';
+    var qtdFmt   = item.qtdTotal.toLocaleString('pt-BR',{maximumFractionDigits:0});
+    return '<div class="cli-hist-item">'
+      +'<div class="cli-hist-rank">'+(idx+1)+'</div>'
+      +'<div class="cli-hist-name" title="'+escHTML(item.desc)+'">'+escHTML(item.desc)+'</div>'
+      +'<div class="cli-hist-count">'+qtdFmt+'x</div>'
+      +'<div class="cli-hist-preco">'+precoStr+'</div>'
+      +'<button class="cli-hist-add" data-hist-idx="'+idx+'" title="Adicionar ao orçamento">+ Adicionar</button>'
+      +'</div>';
+  }).join('');
+
+  // Bind add buttons via event delegation (avoids inline onclick with unescaped data)
+  body.querySelectorAll('.cli-hist-add').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = parseInt(this.getAttribute('data-hist-idx'), 10);
+      if(_histTopItens[i]) adicionarItemHistoricoOrc(_histTopItens[i].desc, _histTopItens[i].ultimoPreco);
+    });
+  });
+
+  el.style.display = 'block';
+}
+
+function adicionarItemHistoricoOrc(desc, preco){
+  document.getElementById('orcItemDesc').value  = desc;
+  document.getElementById('orcItemQtd').value   = 1;
+  document.getElementById('orcItemPreco').value = preco > 0 ? preco : '';
+  document.getElementById('orcItemDesc2').value = '';
+  calcOrcItemSubtotal();
+  document.getElementById('orcItemDesc').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  document.getElementById('orcItemQtd').focus();
+}
+
 function salvarOrcamento(){
   var cliente = document.getElementById('orcCliente').value.trim();
   var data    = document.getElementById('orcData').value;
@@ -2962,6 +3090,7 @@ function editarOrcamento(id){
   document.getElementById('orcFormTitulo').textContent = '✏ Editando Orçamento Nº '+o.num;
   document.getElementById('orcBtnSalvar').textContent  = '✓ Salvar Alterações';
   document.getElementById('orcBtnCancelar').style.display = 'inline-block';
+  atualizarHistoricoClienteOrc();
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -3022,6 +3151,7 @@ function limparFormOrc(){
   document.getElementById('orcFormTitulo').textContent = 'Novo Orçamento';
   document.getElementById('orcBtnSalvar').textContent  = '+ Salvar Orçamento';
   document.getElementById('orcBtnCancelar').style.display = 'none';
+  document.getElementById('clienteHistoricoOrc').style.display = 'none';
 }
 
 function renderOrcamentos(){
