@@ -3336,10 +3336,10 @@ async function sincronizarBling(){
       // O Bling V3 exige o parâmetro idsProdutos — enviamos os IDs em lotes de até 100.
       var saldosMap = {};
       try {
-        var prodIds = (Array.isArray(produtosBling) ? produtosBling : []).map(function(p){ return p.id; }).filter(Boolean);
-        var BATCH = 100;
-        for(var bi = 0; bi < prodIds.length; bi += BATCH){
-          var lote = prodIds.slice(bi, bi + BATCH);
+        var prodIds = (Array.isArray(produtosBling) ? produtosBling : []).map(function(p){ return p.id; }).filter(function(id){ return id != null; });
+        var BATCH_SIZE = 100;
+        for(var bi = 0; bi < prodIds.length; bi += BATCH_SIZE){
+          var lote = prodIds.slice(bi, bi + BATCH_SIZE);
           var saldos = await fetchBling('estoques', { idsProdutos: lote.join(',') });
           (Array.isArray(saldos) ? saldos : []).forEach(function(s){
             var bId = s.produto && String(s.produto.id || s.produto);
