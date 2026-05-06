@@ -3177,12 +3177,11 @@ function adicionarItemOrc(){
   var tipo  = (document.getElementById('orcItemTipoBusca') ? document.getElementById('orcItemTipoBusca').value : 'nome');
   // Resolve product based on search type
   var prod = null;
+  var descLower = desc.toLowerCase();
   if(tipo === 'codigo'){
-    var v = desc.toLowerCase();
-    prod = listaProdutos.find(function(p){ return p.codigo && p.codigo.toLowerCase() === v; }) || null;
+    prod = listaProdutos.find(function(p){ return p.codigo && p.codigo.toLowerCase() === descLower; }) || null;
   } else if(tipo === 'fabricante'){
-    var v = desc.toLowerCase();
-    prod = listaProdutos.find(function(p){ return p.codigoFabricante && p.codigoFabricante.toLowerCase() === v; }) || null;
+    prod = listaProdutos.find(function(p){ return p.codigoFabricante && p.codigoFabricante.toLowerCase() === descLower; }) || null;
   } else {
     prod = resolveProduto(desc);
   }
@@ -4185,17 +4184,16 @@ function mostrarEstoqueOrcItem(){
   if(!inputVal){ el.style.display='none'; return; }
   var tipo = (document.getElementById('orcItemTipoBusca') ? document.getElementById('orcItemTipoBusca').value : 'nome');
   var prod = null;
+  var inputValLower = inputVal.toLowerCase();
   if(tipo === 'codigo'){
-    var v = inputVal.toLowerCase();
-    prod = listaProdutos.find(function(p){ return p.codigo && p.codigo.toLowerCase() === v; }) || null;
+    prod = listaProdutos.find(function(p){ return p.codigo && p.codigo.toLowerCase() === inputValLower; }) || null;
     if(!prod){
       // partial match: show hint only when exact match found
       el.style.display='none';
       return;
     }
   } else if(tipo === 'fabricante'){
-    var v = inputVal.toLowerCase();
-    prod = listaProdutos.find(function(p){ return p.codigoFabricante && p.codigoFabricante.toLowerCase() === v; }) || null;
+    prod = listaProdutos.find(function(p){ return p.codigoFabricante && p.codigoFabricante.toLowerCase() === inputValLower; }) || null;
     if(!prod){
       el.style.display='none';
       return;
