@@ -446,6 +446,23 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
 .orc-total-item span{font-size:18px;font-weight:800;color:var(--text);}
 /* status badges */
 .b-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+
+/* ── COLLAPSIBLE FISCAL SECTIONS ── */
+.fiscal-section{border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden;}
+.fiscal-section-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 14px;background:linear-gradient(135deg,#f8fafc,#f1f5f9);
+  cursor:pointer;user-select:none;
+  border-bottom:1.5px solid transparent;transition:background .15s;
+}
+.fiscal-section-hdr:hover{background:linear-gradient(135deg,#f1f5f9,#e8edf2);}
+.fiscal-section-hdr.aberto{border-bottom-color:var(--border);}
+.fiscal-section-title{font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:7px;}
+.fiscal-section-icon{font-size:14px;}
+.fiscal-toggle{font-size:13px;color:var(--text-3);transition:transform .2s;}
+.fiscal-toggle.aberto{transform:rotate(180deg);}
+.fiscal-section-body{padding:14px;display:none;}
+.fiscal-section-body.aberto{display:block;}
 </style>
 </head>
 <body>
@@ -822,6 +839,112 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
             <label>Observações</label>
             <input id="prodObs" placeholder="Aplicação, referência cruzada, observações...">
           </div>
+
+          <!-- ── DADOS FISCAIS ── -->
+          <div class="fiscal-section">
+            <div class="fiscal-section-hdr" onclick="toggleFiscal('fiscal-geral')">
+              <span class="fiscal-section-title"><span class="fiscal-section-icon">🧾</span>Dados Fiscais</span>
+              <span class="fiscal-toggle" id="fiscal-geral-arrow">▼</span>
+            </div>
+            <div class="fiscal-section-body" id="fiscal-geral">
+              <div class="fgrid">
+                <div class="fg" style="grid-column:1/-1;">
+                  <label>Origem</label>
+                  <select id="prodOrigem">
+                    <option value="">Selecione</option>
+                    <option value="0">0 - Nacional, exceto as indicadas nos códigos 3, 4, 5 e 8</option>
+                    <option value="1">1 - Estrangeira - Importação direta, exceto a indicada no código 6</option>
+                    <option value="2">2 - Estrangeira - Adquirida no mercado interno, exceto a indicada no código 7</option>
+                    <option value="3">3 - Nacional, mercadoria ou bem com conteúdo de importação superior a 40% e inferior ou igual a 70%</option>
+                    <option value="4">4 - Nacional, cuja produção tenha sido feita em conformidade com os processos produtivos básicos</option>
+                    <option value="5">5 - Nacional, mercadoria ou bem com conteúdo de importação inferior ou igual a 40%</option>
+                    <option value="6">6 - Estrangeira - Importação direta, sem similar nacional, constante em lista da CAMEX e gás natural</option>
+                    <option value="7">7 - Estrangeira - Adquirida no mercado interno, sem similar nacional, constante em lista da CAMEX e gás natural</option>
+                    <option value="8">8 - Nacional, mercadoria ou bem com conteúdo de importação superior a 70%</option>
+                  </select>
+                </div>
+                <div class="fg"><label>NCM</label><input id="prodNcm" placeholder="Ex: 8481.80.92" maxlength="10"></div>
+                <div class="fg"><label>CEST</label><input id="prodCest" placeholder="Ex: 01.048.00" maxlength="9"></div>
+                <div class="fg">
+                  <label>Tipo do Item</label>
+                  <select id="prodTipoItem">
+                    <option value="">Selecione</option>
+                    <option value="00">00 - Mercadoria para Revenda</option>
+                    <option value="01">01 - Matéria-Prima</option>
+                    <option value="02">02 - Embalagem</option>
+                    <option value="03">03 - Produto em Processo</option>
+                    <option value="04">04 - Produto Acabado</option>
+                    <option value="05">05 - Subproduto</option>
+                    <option value="06">06 - Produto Intermediário</option>
+                    <option value="07">07 - Material de Uso e Consumo</option>
+                    <option value="08">08 - Ativo Imobilizado</option>
+                    <option value="09">09 - Serviços</option>
+                    <option value="10">10 - Outros Insumos</option>
+                    <option value="99">99 - Outras</option>
+                  </select>
+                </div>
+                <div class="fg"><label>% Tributos</label><input id="prodPctTributos" type="number" placeholder="0,00" min="0" max="100" step="0.01"></div>
+                <div class="fg"><label>Grupo de Produtos</label><input id="prodGrupo" placeholder="Ex: Peças Importadas"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── ICMS ── -->
+          <div class="fiscal-section">
+            <div class="fiscal-section-hdr" onclick="toggleFiscal('fiscal-icms')">
+              <span class="fiscal-section-title"><span class="fiscal-section-icon">💰</span>ICMS</span>
+              <span class="fiscal-toggle" id="fiscal-icms-arrow">▼</span>
+            </div>
+            <div class="fiscal-section-body" id="fiscal-icms">
+              <div class="fgrid">
+                <div class="fg"><label>Valor Base ICMS ST - Retenção</label><input id="prodIcmsStBase" type="number" placeholder="0,0000" min="0" step="0.0001"></div>
+                <div class="fg"><label>Valor ICMS ST para Retenção</label><input id="prodIcmsStRetencao" type="number" placeholder="0,0000" min="0" step="0.0001"></div>
+                <div class="fg"><label>Valor ICMS Próprio do Substituto</label><input id="prodIcmsStSubstituto" type="number" placeholder="0,0000" min="0" step="0.0001"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── IPI ── -->
+          <div class="fiscal-section">
+            <div class="fiscal-section-hdr" onclick="toggleFiscal('fiscal-ipi')">
+              <span class="fiscal-section-title"><span class="fiscal-section-icon">🏷</span>IPI</span>
+              <span class="fiscal-toggle" id="fiscal-ipi-arrow">▼</span>
+            </div>
+            <div class="fiscal-section-body" id="fiscal-ipi">
+              <div class="fgrid">
+                <div class="fg"><label>Código Exceção da TIPI</label><input id="prodIpiExcecao" type="number" placeholder="0" min="0" step="1"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PIS / COFINS ── -->
+          <div class="fiscal-section">
+            <div class="fiscal-section-hdr" onclick="toggleFiscal('fiscal-piscofins')">
+              <span class="fiscal-section-title"><span class="fiscal-section-icon">📋</span>PIS / COFINS</span>
+              <span class="fiscal-toggle" id="fiscal-piscofins-arrow">▼</span>
+            </div>
+            <div class="fiscal-section-body" id="fiscal-piscofins">
+              <div class="fgrid">
+                <div class="fg"><label>Valor PIS Fixo</label><input id="prodPisFixo" type="number" placeholder="0,0000" min="0" step="0.0001"></div>
+                <div class="fg"><label>Valor COFINS Fixo</label><input id="prodCofinsFixo" type="number" placeholder="0,0000" min="0" step="0.0001"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── DADOS ADICIONAIS ── -->
+          <div class="fiscal-section" style="margin-bottom:14px;">
+            <div class="fiscal-section-hdr" onclick="toggleFiscal('fiscal-adicionais')">
+              <span class="fiscal-section-title"><span class="fiscal-section-icon">📝</span>Dados Adicionais</span>
+              <span class="fiscal-toggle" id="fiscal-adicionais-arrow">▼</span>
+            </div>
+            <div class="fiscal-section-body" id="fiscal-adicionais">
+              <div class="fg">
+                <label>Informações Adicionais</label>
+                <textarea id="prodInfoAdicionais" placeholder="Informações adicionais do produto..." rows="3" style="width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13.5px;color:var(--text);background:var(--surface);outline:none;transition:border-color .18s,box-shadow .18s;font-family:inherit;resize:vertical;" onfocus="this.style.borderColor='var(--brand)';this.style.boxShadow='0 0 0 3px rgba(245,158,11,.14)'" onblur="this.style.borderColor='';this.style.boxShadow=''"></textarea>
+              </div>
+            </div>
+          </div>
+
           <div id="prodMargemPreview" style="margin-bottom:12px;"></div>
           <div style="display:flex;gap:8px;">
             <button class="btn-add" id="prodBtnSalvar" onclick="salvarProduto()">+ Adicionar Produto</button>
@@ -2042,6 +2165,16 @@ function renderClientes(){
 // ============================================================
 var produtoEmEdicao = null;
 
+function toggleFiscal(id){
+  var body  = document.getElementById(id);
+  var arrow = document.getElementById(id+'-arrow');
+  var hdr   = body ? body.previousElementSibling : null;
+  if(!body) return;
+  var open = body.classList.toggle('aberto');
+  if(arrow) arrow.classList.toggle('aberto', open);
+  if(hdr)   hdr.classList.toggle('aberto', open);
+}
+
 function margemProduto(custo, venda){
   if(!custo || custo <= 0) return null;
   return ((venda - custo) / custo) * 100;
@@ -2128,6 +2261,20 @@ function salvarProduto(){
     fornecedor:   document.getElementById('prodFornecedor').value.trim(),
     localizacao:  document.getElementById('prodLocalizacao').value.trim(),
     obs:          document.getElementById('prodObs').value.trim(),
+    // Fiscal
+    origem:           document.getElementById('prodOrigem').value,
+    ncm:              document.getElementById('prodNcm').value.trim(),
+    cest:             document.getElementById('prodCest').value.trim(),
+    tipoItem:         document.getElementById('prodTipoItem').value,
+    pctTributos:      parseFloat(document.getElementById('prodPctTributos').value) || 0,
+    grupo:            document.getElementById('prodGrupo').value.trim(),
+    icmsStBase:       parseFloat(document.getElementById('prodIcmsStBase').value) || 0,
+    icmsStRetencao:   parseFloat(document.getElementById('prodIcmsStRetencao').value) || 0,
+    icmsStSubstituto: parseFloat(document.getElementById('prodIcmsStSubstituto').value) || 0,
+    ipiExcecao:       document.getElementById('prodIpiExcecao').value.trim(),
+    pisFixo:          parseFloat(document.getElementById('prodPisFixo').value) || 0,
+    cofinsFixo:       parseFloat(document.getElementById('prodCofinsFixo').value) || 0,
+    infoAdicionais:   document.getElementById('prodInfoAdicionais').value.trim(),
     atualizadoEm: new Date().toISOString()
   };
 
@@ -2170,6 +2317,20 @@ function editarProduto(id){
   document.getElementById('prodFornecedor').value   = p.fornecedor || '';
   document.getElementById('prodLocalizacao').value  = p.localizacao || '';
   document.getElementById('prodObs').value          = p.obs || '';
+  // Fiscal
+  document.getElementById('prodOrigem').value           = p.origem || '';
+  document.getElementById('prodNcm').value              = p.ncm || '';
+  document.getElementById('prodCest').value             = p.cest || '';
+  document.getElementById('prodTipoItem').value         = p.tipoItem || '';
+  document.getElementById('prodPctTributos').value      = p.pctTributos || '';
+  document.getElementById('prodGrupo').value            = p.grupo || '';
+  document.getElementById('prodIcmsStBase').value       = p.icmsStBase || '';
+  document.getElementById('prodIcmsStRetencao').value   = p.icmsStRetencao || '';
+  document.getElementById('prodIcmsStSubstituto').value = p.icmsStSubstituto || '';
+  document.getElementById('prodIpiExcecao').value       = p.ipiExcecao || '';
+  document.getElementById('prodPisFixo').value          = p.pisFixo || '';
+  document.getElementById('prodCofinsFixo').value       = p.cofinsFixo || '';
+  document.getElementById('prodInfoAdicionais').value   = p.infoAdicionais || '';
   document.getElementById('prodFormTitulo').textContent = '✏ Editando: ' + p.nome;
   document.getElementById('prodBtnSalvar').textContent  = '✓ Salvar Alterações';
   document.getElementById('prodBtnCancelarEdicao').style.display = 'inline-block';
@@ -2211,9 +2372,13 @@ function ajustarEstoque(id){
 
 function limparFormProduto(){
   produtoEmEdicao = null;
-  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
+   'prodNcm','prodCest','prodPctTributos','prodGrupo','prodIcmsStBase','prodIcmsStRetencao','prodIcmsStSubstituto','prodIpiExcecao','prodPisFixo','prodCofinsFixo','prodInfoAdicionais'
+  ].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('prodCategoria').value = 'Peças Mecânicas';
   document.getElementById('prodUnidade').value   = 'Peça';
+  document.getElementById('prodOrigem').value    = '';
+  document.getElementById('prodTipoItem').value  = '';
   document.getElementById('prodMargemPreview').innerHTML = '';
   document.getElementById('prodFormTitulo').textContent  = 'Cadastrar Produto';
   document.getElementById('prodBtnSalvar').textContent   = '+ Adicionar Produto';
@@ -3380,6 +3545,20 @@ async function sincronizarBling(){
           fornecedor:   (p.fornecedor && p.fornecedor.nome) || '',
           localizacao:  (p.estoque && p.estoque.localizacao) || '',
           obs:          p.descricaoCurta || '',
+          // Fiscal — mapeado da tributação do Bling V3
+          origem:           p.tributacao && p.tributacao.origem !== undefined ? String(p.tributacao.origem) : '',
+          ncm:              (p.tributacao && p.tributacao.ncm) || '',
+          cest:             (p.tributacao && p.tributacao.cest) || '',
+          tipoItem:         (p.tributacao && p.tributacao.tipoItem !== undefined) ? String(p.tributacao.tipoItem) : '',
+          pctTributos:      (p.tributacao && parseFloat(p.tributacao.percentualTributos)) || 0,
+          grupo:            (p.grupoProduto && p.grupoProduto.nome) || '',
+          icmsStBase:       (p.tributacao && parseFloat(p.tributacao.valorBaseStRetencao))   || 0,
+          icmsStRetencao:   (p.tributacao && parseFloat(p.tributacao.valorStRetencao))       || 0,
+          icmsStSubstituto: (p.tributacao && parseFloat(p.tributacao.valorIcmsProprio))      || 0,
+          ipiExcecao:       (p.tributacao && p.tributacao.codigoExcecaoTipi !== undefined) ? String(p.tributacao.codigoExcecaoTipi) : '',
+          pisFixo:          (p.tributacao && parseFloat(p.tributacao.valorPisFixo))          || 0,
+          cofinsFixo:       (p.tributacao && parseFloat(p.tributacao.valorCofinsFixo))       || 0,
+          infoAdicionais:   p.informacoesAdicionais || '',
         };
 
         if(existente){
