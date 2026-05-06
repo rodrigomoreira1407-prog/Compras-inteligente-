@@ -1173,7 +1173,7 @@ body.dark-mode .item-list-wrap{background:#0f172a;}
           <div id="clienteHistoricoOrc" style="display:none;margin-bottom:14px;">
             <div class="cli-hist-box">
               <div class="cli-hist-hdr">
-                <span class="cli-hist-title">🛒 Itens que <span id="clienteHistoricoNome" style="font-style:italic;"></span> mais compra</span>
+                <span class="cli-hist-title">🛒 Itens que <span id="clienteHistoricoNome" style="font-style:italic;"></span> mais comprou</span>
                 <span id="clienteHistoricoQtd" class="chip" style="font-size:10px;"></span>
               </div>
               <div id="clienteHistoricoBody" class="cli-hist-body"></div>
@@ -3090,19 +3090,19 @@ function proximoNumOrc(){
   return orcNumSequencial;
 }
 
-// ── Resolve product by name, internal code, or manufacturer code ──
+// ── Resolve product by name, internal code, or manufacturer code (single pass) ──
 function resolveProduto(valor) {
   var v = (valor||'').trim().toLowerCase();
   if(!v) return null;
-  // 1. Exact name match
-  var p = listaProdutos.find(function(x){ return x.nome.toLowerCase() === v; });
-  if(p) return p;
-  // 2. Internal code match
-  p = listaProdutos.find(function(x){ return x.codigo && x.codigo.toLowerCase() === v; });
-  if(p) return p;
-  // 3. Manufacturer code match
-  p = listaProdutos.find(function(x){ return x.codigoFabricante && x.codigoFabricante.toLowerCase() === v; });
-  return p || null;
+  var byName = null, byCode = null, byFab = null;
+  for(var i = 0; i < listaProdutos.length; i++){
+    var p = listaProdutos[i];
+    if(!byName && p.nome.toLowerCase() === v) byName = p;
+    if(!byCode && p.codigo && p.codigo.toLowerCase() === v) byCode = p;
+    if(!byFab  && p.codigoFabricante && p.codigoFabricante.toLowerCase() === v) byFab = p;
+    if(byName && byCode && byFab) break;
+  }
+  return byName || byCode || byFab || null;
 }
 
 function popularSugestoesOrc(){
