@@ -137,15 +137,15 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-// Parâmetros extras por endpoint.
-// criterio=3 → retorna todos os produtos independente de estoque.
-// situacao=A → somente produtos ativos (evita ter que filtrar inativos no cliente).
+// Parâmetros extras fixos por endpoint Bling.
+// criterio=3 → retorna todos os produtos independente de estoque (ativo/inativo filtrado no cliente).
 const ENDPOINT_EXTRA_PARAMS = {
-  'produtos': '&criterio=3&situacao=A',
+  'produtos': '&criterio=3',
 };
 
-function fetchBlingPage(endpoint, token, pagina, callback) {
-  const extra = ENDPOINT_EXTRA_PARAMS[endpoint] || '';
+// additionalParams: string extra de query já codificada (ex: "&idsProdutos=1,2,3") vinda da requisição do cliente.
+function fetchBlingPage(endpoint, token, pagina, additionalParams, callback) {
+  const extra = (ENDPOINT_EXTRA_PARAMS[endpoint] || '') + (additionalParams || '');
   const blingUrl = `${BLING_BASE}/${endpoint}?pagina=${pagina}&limite=100${extra}`;
   const opts = url.parse(blingUrl);
   opts.headers = {
@@ -174,8 +174,8 @@ const MAX_RETRIES = 3;
 const DEFAULT_RETRY_DELAY_MS = 2000;
 
 // Faz a requisição e tenta novamente em caso de erro 429 (Too Many Requests)
-function fetchBlingPageWithRetry(endpoint, token, pagina, retriesLeft, callback) {
-  fetchBlingPage(endpoint, token, pagina, (err, statusCode, json, headers) => {
+function fetchBlingPageWithRetry(endpoint, token, pagina, additionalParams, retriesLeft, callback) {
+  fetchBlingPage(endpoint, token, pagina, additionalParams, (err, statusCode, json, headers) => {
     if (err) return callback(err);
     if (statusCode === 429 && retriesLeft > 0) {
       const retryAfterHeader = headers && headers['retry-after'];
@@ -184,18 +184,20 @@ function fetchBlingPageWithRetry(endpoint, token, pagina, retriesLeft, callback)
         ? Math.min(retryAfterSec * 1000, 30000)
         : DEFAULT_RETRY_DELAY_MS;
       console.log(`[BLING] Rate limited (429) on /${endpoint} página ${pagina}, aguardando ${waitMs}ms (${retriesLeft} tentativa(s) restante(s))...`);
-      setTimeout(() => fetchBlingPageWithRetry(endpoint, token, pagina, retriesLeft - 1, callback), waitMs);
+      setTimeout(() => fetchBlingPageWithRetry(endpoint, token, pagina, additionalParams, retriesLeft - 1, callback), waitMs);
       return;
     }
     callback(null, statusCode, json);
   });
 }
 
-function proxyBling(endpoint, token, res) {
+// additionalParams: string extra de query para este endpoint (ex: "&idsProdutos=1,2,3").
+function proxyBling(endpoint, token, res, additionalParams) {
+  additionalParams = additionalParams || '';
   const allItems = [];
 
   function fetchPage(pagina) {
-    fetchBlingPageWithRetry(endpoint, token, pagina, MAX_RETRIES, (err, statusCode, json) => {
+    fetchBlingPageWithRetry(endpoint, token, pagina, additionalParams, MAX_RETRIES, (err, statusCode, json) => {
       if (err) {
         setCORS(res);
         res.writeHead(502, { 'Content-Type': 'application/json' });
@@ -368,8 +370,16 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ erro: 'Não autenticado. Conecte-se ao Bling primeiro.', naoAutenticado: true }));
         return;
       }
+
+      // Para estoques/saldos o Bling V3 exige o parâmetro idsProdutos.
+      // O cliente deve enviá-lo como query param e aqui repassamos ao Bling.
+      let additionalParams = '';
+      if (endpoint === 'estoques' && parsed.query.idsProdutos) {
+        additionalParams = '&idsProdutos=' + encodeURIComponent(parsed.query.idsProdutos);
+      }
+
       console.log(`[BLING] GET /${blingEndpoint}`);
-      proxyBling(blingEndpoint, token, res);
+      proxyBling(blingEndpoint, token, res, additionalParams);
     });
     return;
   }

@@ -3274,8 +3274,9 @@ async function desconectarBling(){
   } catch(e) { mostrarStatusBling('error','Erro ao desconectar: '+e.message); }
 }
 
-async function fetchBling(endpoint){
-  var r = await fetch(API_BASE+'/'+endpoint);
+async function fetchBling(endpoint, params){
+  var qs = (params && Object.keys(params).length) ? '?' + new URLSearchParams(params).toString() : '';
+  var r = await fetch(API_BASE+'/'+endpoint+qs);
   var j = await r.json();
   if(r.status === 401 || j.naoAutenticado){
     throw new Error('Não autenticado. Conecte-se ao Bling primeiro em ⚙ Configurações.');
@@ -3331,17 +3332,23 @@ async function sincronizarBling(){
     try {
       var produtosBling = await fetchBling('produtos');
 
-      // Buscar saldos de estoque (pode não existir em todos os planos)
+      // Buscar saldos de estoque (pode não existir em todos os planos).
+      // O Bling V3 exige o parâmetro idsProdutos — enviamos os IDs em lotes de até 100.
       var saldosMap = {};
       try {
-        var saldos = await fetchBling('estoques');
-        (Array.isArray(saldos) ? saldos : []).forEach(function(s){
-          var bId = s.produto && String(s.produto.id || s.produto);
-          if(bId) {
-            saldosMap[bId] = (saldosMap[bId] || 0) + (parseFloat(s.saldoFisico) || 0);
-            totalSaldos++;
-          }
-        });
+        var prodIds = (Array.isArray(produtosBling) ? produtosBling : []).map(function(p){ return p.id; }).filter(Boolean);
+        var BATCH = 100;
+        for(var bi = 0; bi < prodIds.length; bi += BATCH){
+          var lote = prodIds.slice(bi, bi + BATCH);
+          var saldos = await fetchBling('estoques', { idsProdutos: lote.join(',') });
+          (Array.isArray(saldos) ? saldos : []).forEach(function(s){
+            var bId = s.produto && String(s.produto.id || s.produto);
+            if(bId) {
+              saldosMap[bId] = (saldosMap[bId] || 0) + (parseFloat(s.saldoFisico) || 0);
+              totalSaldos++;
+            }
+          });
+        }
       } catch(e){ erros.push('Estoque: '+e.message+' (os saldos não foram carregados)'); }
 
       totalBlingProd = Array.isArray(produtosBling) ? produtosBling.length : 0;
