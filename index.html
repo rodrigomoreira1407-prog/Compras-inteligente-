@@ -429,6 +429,24 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
   .hamburger{display:none;}
   .overlay{display:none !important;}
 }
+
+/* ── ORÇAMENTOS / PEDIDOS — ITEM EDITOR ── */
+.item-row{display:grid;gap:8px;align-items:end;padding:8px 0;border-bottom:1px solid #f4f6f8;}
+.item-row:last-child{border-bottom:none;}
+.item-row-cols{grid-template-columns:2fr 1fr 1fr 1fr auto;}
+.item-row label{font-size:10px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;}
+.item-row input,
+.item-row select{padding:7px 10px;font-size:13px;}
+.item-list-wrap{background:#f9fafb;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:12px;min-height:54px;}
+.item-list-empty{color:var(--text-3);font-size:12px;text-align:center;padding:16px 0;}
+.item-subtotal{font-size:12px;font-weight:700;color:var(--text-2);text-align:right;padding-top:4px;}
+.orc-total-row{display:flex;justify-content:flex-end;gap:32px;padding:10px 0;border-top:2px solid var(--border);margin-top:8px;}
+.orc-total-item{text-align:right;}
+.orc-total-item label{font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;display:block;}
+.orc-total-item span{font-size:18px;font-weight:800;color:var(--text);}
+/* status badges */
+.b-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.b-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;}
 </style>
 </head>
 <body>
@@ -449,6 +467,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
     <button id="btnSimulador" class="sb-btn" onclick="irPara('simulador',this)">✦ Simulador</button>
     <button class="sb-btn" onclick="irPara('alertas',this)">⚑ Alertas <span id="qtdAlertas" style="margin-left:auto;background:#dc2626;color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 6px;display:none;">0</span></button>
     <button class="sb-btn" onclick="irPara('sugestao',this)">🛒 Sugestão de Compras</button>
+    <button class="sb-btn" onclick="irPara('orcamentos',this)">📋 Orçamentos</button>
+    <button class="sb-btn" onclick="irPara('pedidos',this)">📦 Pedidos</button>
     <button class="sb-btn" onclick="irPara('produtos',this)">📦 Produtos</button>
     <button class="sb-btn" onclick="irPara('config',this)">⚙ Configurações</button>
   </nav>
@@ -860,6 +880,256 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
       </div>
     </div>
 
+    <!-- ORÇAMENTOS -->
+    <div class="pg" id="pg-orcamentos">
+      <!-- KPIs -->
+      <div class="kpi-grid" style="margin-bottom:14px;">
+        <div class="kpi"><div class="kpi-l">Total de Orçamentos</div><div class="kpi-v" id="kpiOrcTotal" style="color:#2563eb;">0</div><div class="kpi-s" id="kpiOrcTotalS">cadastrados</div></div>
+        <div class="kpi"><div class="kpi-l">Aguardando Aprovação</div><div class="kpi-v" id="kpiOrcPend" style="color:#d97706;">0</div><div class="kpi-s">enviados / rascunhos</div></div>
+        <div class="kpi"><div class="kpi-l">Aprovados</div><div class="kpi-v" id="kpiOrcAprov" style="color:#16a34a;">0</div><div class="kpi-s" id="kpiOrcAprovS">R$ 0,00</div></div>
+        <div class="kpi"><div class="kpi-l">Valor Total (Abertos)</div><div class="kpi-v" id="kpiOrcValor" style="color:#7c3aed;">R$ 0,00</div><div class="kpi-s">orçamentos em aberto</div></div>
+      </div>
+
+      <!-- Formulário -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h">
+          <span class="card-t" id="orcFormTitulo">Novo Orçamento</span>
+          <button id="orcBtnCancelar" class="btn-sec" onclick="cancelarEdicaoOrc()" style="display:none;font-size:12px;padding:5px 12px;">✕ Cancelar edição</button>
+        </div>
+        <div class="card-b">
+          <input type="hidden" id="orcId">
+          <div class="fgrid">
+            <div class="fg"><label>Cliente *</label><input id="orcCliente" placeholder="Nome do cliente"></div>
+            <div class="fg"><label>Data *</label><input id="orcData" type="date"></div>
+            <div class="fg"><label>Validade até</label><input id="orcValidade" type="date"></div>
+            <div class="fg"><label>Condição de Pagamento</label>
+              <select id="orcCondicao">
+                <option>À vista</option>
+                <option>30 dias</option>
+                <option>30/60 dias</option>
+                <option>30/60/90 dias</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="fg"><label>Status</label>
+              <select id="orcStatus">
+                <option value="rascunho">Rascunho</option>
+                <option value="enviado">Enviado</option>
+                <option value="aprovado">Aprovado</option>
+                <option value="recusado">Recusado</option>
+              </select>
+            </div>
+          </div>
+          <!-- Adicionar item -->
+          <div class="card" style="margin-bottom:12px;background:#f9fafb;">
+            <div class="card-h" style="background:transparent;border-bottom:1px solid var(--border);padding:10px 14px;">
+              <span class="card-t" style="font-size:12px;">Adicionar Item</span>
+            </div>
+            <div class="card-b" style="padding:12px 14px;">
+              <div class="fgrid" style="margin-bottom:8px;">
+                <div class="fg" style="grid-column:span 2"><label>Produto / Descrição *</label>
+                  <input id="orcItemDesc" placeholder="Nome do produto ou serviço" list="orcProdSuggest">
+                  <datalist id="orcProdSuggest"></datalist>
+                </div>
+                <div class="fg"><label>Qtd *</label><input id="orcItemQtd" type="number" placeholder="1" min="0.01" step="0.01"></div>
+                <div class="fg"><label>Preço Unitário R$ *</label><input id="orcItemPreco" type="number" placeholder="0,00" min="0" step="0.01" oninput="calcOrcItemSubtotal()"></div>
+                <div class="fg"><label>Desconto %</label><input id="orcItemDesc2" type="number" placeholder="0" min="0" max="100" step="0.01" oninput="calcOrcItemSubtotal()"></div>
+              </div>
+              <div id="orcItemSubtotal" style="font-size:12px;color:var(--text-2);margin-bottom:8px;"></div>
+              <button class="btn-sec" style="font-size:12px;padding:6px 14px;" onclick="adicionarItemOrc()">+ Adicionar Item</button>
+            </div>
+          </div>
+          <!-- Lista de itens -->
+          <div id="orcItensWrap" class="item-list-wrap">
+            <div class="item-list-empty" id="orcItensEmpty">Nenhum item adicionado. Use o formulário acima.</div>
+            <table id="orcItensTbl" style="display:none;width:100%;border-collapse:collapse;">
+              <thead><tr>
+                <th style="text-align:left;font-size:10px;color:var(--text-3);padding:6px 8px;">Descrição</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Qtd</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Unitário</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Desc%</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Subtotal</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="orcItensTblBody"></tbody>
+            </table>
+          </div>
+          <!-- Totais -->
+          <div class="orc-total-row">
+            <div class="orc-total-item"><label>Desconto total</label><span id="orcTotalDesc" style="color:#dc2626;">R$ 0,00</span></div>
+            <div class="orc-total-item"><label>Total do orçamento</label><span id="orcTotalGeral" style="color:#16a34a;">R$ 0,00</span></div>
+          </div>
+          <div class="fg" style="margin-top:10px;margin-bottom:12px;">
+            <label>Observações</label>
+            <input id="orcObs" placeholder="Prazo de entrega, garantia, condições especiais...">
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-add" id="orcBtnSalvar" onclick="salvarOrcamento()">+ Salvar Orçamento</button>
+            <button class="btn-sec" onclick="limparFormOrc()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista -->
+      <div class="card">
+        <div class="card-h">
+          <span class="card-t">Orçamentos</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="chip" id="cntOrc">0</span>
+            <input id="orcBusca" placeholder="🔍 Buscar cliente..." oninput="renderOrcamentos()" style="width:180px;padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <select id="orcFiltroStatus" onchange="renderOrcamentos()" style="padding:5px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+              <option value="">Todos os status</option>
+              <option value="rascunho">Rascunho</option>
+              <option value="enviado">Enviado</option>
+              <option value="aprovado">Aprovado</option>
+              <option value="recusado">Recusado</option>
+              <option value="convertido">Convertido em Pedido</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Nº</th>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Itens</th>
+              <th>Total</th>
+              <th>Validade</th>
+              <th>Cond. Pgto</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="tbOrc"><tr class="empty-row"><td colspan="9">Nenhum orçamento cadastrado.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="pg" id="pg-pedidos">
+      <!-- KPIs -->
+      <div class="kpi-grid" style="margin-bottom:14px;">
+        <div class="kpi"><div class="kpi-l">Total de Pedidos</div><div class="kpi-v" id="kpiPedTotal" style="color:#2563eb;">0</div><div class="kpi-s" id="kpiPedTotalS">cadastrados</div></div>
+        <div class="kpi"><div class="kpi-l">Pendentes / Confirmados</div><div class="kpi-v" id="kpiPedPend" style="color:#d97706;">0</div><div class="kpi-s">aguardando recebimento</div></div>
+        <div class="kpi"><div class="kpi-l">Recebidos</div><div class="kpi-v" id="kpiPedReceb" style="color:#16a34a;">0</div><div class="kpi-s" id="kpiPedRecebS">R$ 0,00</div></div>
+        <div class="kpi"><div class="kpi-l">Valor Total (Abertos)</div><div class="kpi-v" id="kpiPedValor" style="color:#7c3aed;">R$ 0,00</div><div class="kpi-s">pedidos em aberto</div></div>
+      </div>
+
+      <!-- Formulário -->
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-h">
+          <span class="card-t" id="pedFormTitulo">Novo Pedido de Compra</span>
+          <button id="pedBtnCancelar" class="btn-sec" onclick="cancelarEdicaoPed()" style="display:none;font-size:12px;padding:5px 12px;">✕ Cancelar edição</button>
+        </div>
+        <div class="card-b">
+          <input type="hidden" id="pedId">
+          <div class="fgrid">
+            <div class="fg"><label>Fornecedor *</label><input id="pedFornecedor" placeholder="Nome do fornecedor"></div>
+            <div class="fg"><label>Data do Pedido *</label><input id="pedData" type="date"></div>
+            <div class="fg"><label>Previsão de Entrega</label><input id="pedEntrega" type="date"></div>
+            <div class="fg"><label>Condição de Pagamento</label>
+              <select id="pedCondicao">
+                <option>À vista</option>
+                <option>30 dias</option>
+                <option>30/60 dias</option>
+                <option>30/60/90 dias</option>
+                <option>45/90 dias</option>
+                <option>60/90/120 dias</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="fg"><label>Status</label>
+              <select id="pedStatus">
+                <option value="pendente">Pendente</option>
+                <option value="confirmado">Confirmado</option>
+                <option value="recebido">Recebido</option>
+                <option value="cancelado">Cancelado</option>
+              </select>
+            </div>
+          </div>
+          <!-- Adicionar item -->
+          <div class="card" style="margin-bottom:12px;background:#f9fafb;">
+            <div class="card-h" style="background:transparent;border-bottom:1px solid var(--border);padding:10px 14px;">
+              <span class="card-t" style="font-size:12px;">Adicionar Item</span>
+            </div>
+            <div class="card-b" style="padding:12px 14px;">
+              <div class="fgrid" style="margin-bottom:8px;">
+                <div class="fg" style="grid-column:span 2"><label>Produto / Descrição *</label>
+                  <input id="pedItemDesc" placeholder="Nome do produto" list="pedProdSuggest" oninput="autoPreencherCustoPed()">
+                  <datalist id="pedProdSuggest"></datalist>
+                </div>
+                <div class="fg"><label>Qtd *</label><input id="pedItemQtd" type="number" placeholder="1" min="0.01" step="0.01"></div>
+                <div class="fg"><label>Preço Unitário R$ *</label><input id="pedItemPreco" type="number" placeholder="0,00" min="0" step="0.01" oninput="calcPedItemSubtotal()"></div>
+              </div>
+              <div id="pedItemSubtotal" style="font-size:12px;color:var(--text-2);margin-bottom:8px;"></div>
+              <button class="btn-sec" style="font-size:12px;padding:6px 14px;" onclick="adicionarItemPed()">+ Adicionar Item</button>
+            </div>
+          </div>
+          <!-- Lista de itens -->
+          <div id="pedItensWrap" class="item-list-wrap">
+            <div class="item-list-empty" id="pedItensEmpty">Nenhum item adicionado. Use o formulário acima.</div>
+            <table id="pedItensTbl" style="display:none;width:100%;border-collapse:collapse;">
+              <thead><tr>
+                <th style="text-align:left;font-size:10px;color:var(--text-3);padding:6px 8px;">Produto</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Qtd</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Unitário</th>
+                <th style="text-align:right;font-size:10px;color:var(--text-3);padding:6px 8px;">Subtotal</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="pedItensTblBody"></tbody>
+            </table>
+          </div>
+          <!-- Totais -->
+          <div class="orc-total-row">
+            <div class="orc-total-item"><label>Total do pedido</label><span id="pedTotalGeral" style="color:#dc2626;">R$ 0,00</span></div>
+          </div>
+          <div class="fg" style="margin-top:10px;margin-bottom:12px;">
+            <label>Observações</label>
+            <input id="pedObs" placeholder="Número do pedido do fornecedor, referências, observações...">
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-add" id="pedBtnSalvar" onclick="salvarPedido()">+ Salvar Pedido</button>
+            <button class="btn-sec" onclick="limparFormPed()">Limpar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista -->
+      <div class="card">
+        <div class="card-h">
+          <span class="card-t">Pedidos de Compra</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="chip" id="cntPed">0</span>
+            <input id="pedBusca" placeholder="🔍 Buscar fornecedor..." oninput="renderPedidos()" style="width:180px;padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <select id="pedFiltroStatus" onchange="renderPedidos()" style="padding:5px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+              <option value="">Todos os status</option>
+              <option value="pendente">Pendente</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="recebido">Recebido</option>
+              <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Nº</th>
+              <th>Data</th>
+              <th>Fornecedor</th>
+              <th>Itens</th>
+              <th>Total</th>
+              <th>Prev. Entrega</th>
+              <th>Cond. Pgto</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="tbPed"><tr class="empty-row"><td colspan="9">Nenhum pedido cadastrado.</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- CONFIGURAÇÕES -->
     <div class="pg" id="pg-config">
       <!-- BLING -->
@@ -955,6 +1225,8 @@ let listaReceber  = lerLS('rec')  || [];
 let listaPagar    = lerLS('pag')  || [];
 let listaClientes = lerLS('cli')  || [];
 let listaProdutos = lerLS('prod') || [];
+let listaOrcamentos = lerLS('orc') || [];
+let listaPedidos    = lerLS('ped') || [];
 let parcelasAtivas = [];
 let calAno  = HOJE.getFullYear();
 let calMes  = HOJE.getMonth();
@@ -990,7 +1262,7 @@ function margem(){ return Math.max(0, totalRec()-totalPag()); }
 // ============================================================
 // NAVEGAÇÃO
 // ============================================================
-const titulosPagina = {painel:'Painel',calendario:'Calendário',receber:'A Receber',pagar:'A Pagar',clientes:'Clientes',simulador:'Simulador de Compra',alertas:'Alertas',sugestao:'Sugestão de Compras',produtos:'Cadastro de Produtos',config:'Configurações'};
+const titulosPagina = {painel:'Painel',calendario:'Calendário',receber:'A Receber',pagar:'A Pagar',clientes:'Clientes',simulador:'Simulador de Compra',alertas:'Alertas',sugestao:'Sugestão de Compras',orcamentos:'Orçamentos',pedidos:'Pedidos',produtos:'Cadastro de Produtos',config:'Configurações'};
 function irPara(nome, btn){
   document.querySelectorAll('.pg').forEach(p=>p.classList.remove('ativo'));
   document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('ativo'));
@@ -1005,6 +1277,8 @@ function irPara(nome, btn){
   if(nome==='sugestao') renderSugestao();
   if(nome==='clientes') renderClientes();
   if(nome==='produtos') renderProdutos();
+  if(nome==='orcamentos') renderOrcamentos();
+  if(nome==='pedidos') renderPedidos();
 }
 
 // ============================================================
@@ -2381,6 +2655,520 @@ function renderSugestao(){
 }
 
 // ============================================================
+// ORÇAMENTOS
+// ============================================================
+var orcItensAtual   = [];  // itens do orçamento em edição
+var orcEmEdicao     = null;
+var orcNumSequencial = 0; // incremented on first render
+
+function proximoNumOrc(){
+  orcNumSequencial = listaOrcamentos.length
+    ? Math.max.apply(null, listaOrcamentos.map(function(o){ return o.num||0; })) + 1
+    : 1;
+  return orcNumSequencial;
+}
+
+function popularSugestoesOrc(){
+  var dl = document.getElementById('orcProdSuggest');
+  if(!dl) return;
+  dl.innerHTML = listaProdutos.map(function(p){
+    return '<option value="'+p.nome+'" data-preco="'+p.venda+'">';
+  }).join('');
+}
+
+function calcOrcItemSubtotal(){
+  var qtd   = parseFloat(document.getElementById('orcItemQtd').value)||0;
+  var preco = parseFloat(document.getElementById('orcItemPreco').value)||0;
+  var desc  = parseFloat(document.getElementById('orcItemDesc2').value)||0;
+  var sub   = qtd * preco * (1 - desc/100);
+  document.getElementById('orcItemSubtotal').textContent = sub>0 ? 'Subtotal: '+brl(sub) : '';
+}
+
+function adicionarItemOrc(){
+  var desc  = document.getElementById('orcItemDesc').value.trim();
+  var qtd   = parseFloat(document.getElementById('orcItemQtd').value)||0;
+  var preco = parseFloat(document.getElementById('orcItemPreco').value)||0;
+  var descP = parseFloat(document.getElementById('orcItemDesc2').value)||0;
+  if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário do item.'); return; }
+  // Auto-fill price from product list
+  if(!preco){
+    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
+    if(prod) preco = prod.venda;
+  }
+  orcItensAtual.push({ desc:desc, qtd:qtd, preco:preco, descPct:descP });
+  document.getElementById('orcItemDesc').value='';
+  document.getElementById('orcItemQtd').value='';
+  document.getElementById('orcItemPreco').value='';
+  document.getElementById('orcItemDesc2').value='';
+  document.getElementById('orcItemSubtotal').textContent='';
+  renderItensOrc();
+}
+
+function removerItemOrc(idx){
+  orcItensAtual.splice(idx, 1);
+  renderItensOrc();
+}
+
+function renderItensOrc(){
+  var tbody  = document.getElementById('orcItensTblBody');
+  var tbl    = document.getElementById('orcItensTbl');
+  var empty  = document.getElementById('orcItensEmpty');
+  var totalBruto = 0, totalDesc = 0;
+  if(!orcItensAtual.length){
+    empty.style.display='block'; tbl.style.display='none';
+    document.getElementById('orcTotalDesc').textContent = brl(0);
+    document.getElementById('orcTotalGeral').textContent = brl(0);
+    return;
+  }
+  empty.style.display='none'; tbl.style.display='table';
+  tbody.innerHTML = orcItensAtual.map(function(item, i){
+    var bruto = item.qtd * item.preco;
+    var descVal = bruto * (item.descPct/100);
+    var sub   = bruto - descVal;
+    totalBruto += bruto; totalDesc += descVal;
+    return '<tr>'
+      +'<td>'+item.desc+'</td>'
+      +'<td style="text-align:right;">'+item.qtd+'</td>'
+      +'<td style="text-align:right;">'+brl(item.preco)+'</td>'
+      +'<td style="text-align:right;">'+(item.descPct?item.descPct+'%':'—')+'</td>'
+      +'<td style="text-align:right;font-weight:700;color:#16a34a;">'+brl(sub)+'</td>'
+      +'<td><button class="btn-del" onclick="removerItemOrc('+i+')" title="Remover item">✕</button></td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('orcTotalDesc').textContent  = brl(totalDesc);
+  document.getElementById('orcTotalGeral').textContent = brl(totalBruto - totalDesc);
+}
+
+function salvarOrcamento(){
+  var cliente = document.getElementById('orcCliente').value.trim();
+  var data    = document.getElementById('orcData').value;
+  if(!cliente||!data){ alert('Preencha o Cliente e a Data.'); return; }
+  if(!orcItensAtual.length){ alert('Adicione ao menos um item ao orçamento.'); return; }
+
+  var totalBruto = orcItensAtual.reduce(function(s,i){ return s+i.qtd*i.preco; }, 0);
+  var totalDesc  = orcItensAtual.reduce(function(s,i){ return s+i.qtd*i.preco*(i.descPct/100); }, 0);
+  var totalLiq   = totalBruto - totalDesc;
+
+  var dados = {
+    cliente:  cliente,
+    data:     data,
+    validade: document.getElementById('orcValidade').value,
+    condicao: document.getElementById('orcCondicao').value,
+    status:   document.getElementById('orcStatus').value,
+    obs:      document.getElementById('orcObs').value.trim(),
+    itens:    orcItensAtual.slice(),
+    total:    totalLiq,
+    totalDesconto: totalDesc
+  };
+
+  if(orcEmEdicao !== null){
+    var idx = listaOrcamentos.findIndex(function(o){ return o.id===orcEmEdicao; });
+    if(idx !== -1){
+      dados.id = orcEmEdicao;
+      dados.num = listaOrcamentos[idx].num;
+      dados.criadoEm = listaOrcamentos[idx].criadoEm;
+      listaOrcamentos[idx] = dados;
+    }
+    orcEmEdicao = null;
+  } else {
+    dados.id = novoID();
+    dados.num = proximoNumOrc();
+    dados.criadoEm = new Date().toISOString();
+    listaOrcamentos.push(dados);
+  }
+  gravarLS('orc', listaOrcamentos);
+  renderOrcamentos();
+  limparFormOrc();
+}
+
+function editarOrcamento(id){
+  var o = listaOrcamentos.find(function(x){ return x.id===id; });
+  if(!o) return;
+  orcEmEdicao = id;
+  document.getElementById('orcId').value     = id;
+  document.getElementById('orcCliente').value = o.cliente||'';
+  document.getElementById('orcData').value    = o.data||'';
+  document.getElementById('orcValidade').value= o.validade||'';
+  document.getElementById('orcCondicao').value= o.condicao||'À vista';
+  document.getElementById('orcStatus').value  = o.status||'rascunho';
+  document.getElementById('orcObs').value     = o.obs||'';
+  orcItensAtual = (o.itens||[]).slice();
+  renderItensOrc();
+  document.getElementById('orcFormTitulo').textContent = '✏ Editando Orçamento Nº '+o.num;
+  document.getElementById('orcBtnSalvar').textContent  = '✓ Salvar Alterações';
+  document.getElementById('orcBtnCancelar').style.display = 'inline-block';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function cancelarEdicaoOrc(){
+  orcEmEdicao = null;
+  limparFormOrc();
+}
+
+function excluirOrcamento(id){
+  var o = listaOrcamentos.find(function(x){ return x.id===id; });
+  if(!o) return;
+  if(!confirm('Excluir o Orçamento Nº '+o.num+'?')) return;
+  listaOrcamentos = listaOrcamentos.filter(function(x){ return x.id!==id; });
+  gravarLS('orc', listaOrcamentos);
+  if(orcEmEdicao===id) cancelarEdicaoOrc();
+  renderOrcamentos();
+}
+
+function converterParaPedido(id){
+  var o = listaOrcamentos.find(function(x){ return x.id===id; });
+  if(!o) return;
+  if(!confirm('Converter Orçamento Nº '+o.num+' em Pedido de Compra?')) return;
+  // Mark orc as converted
+  o.status = 'convertido';
+  gravarLS('orc', listaOrcamentos);
+
+  // Create pedido
+  var hoje = chaveData(HOJE);
+  var ped = {
+    id: novoID(),
+    num: (listaPedidos.length ? Math.max.apply(null,listaPedidos.map(function(p){ return p.num||0; }))+1 : 1),
+    fornecedor: o.cliente,
+    data: hoje,
+    entrega: '',
+    condicao: o.condicao,
+    status: 'pendente',
+    obs: 'Gerado do Orçamento Nº '+o.num+(o.obs?' — '+o.obs:''),
+    itens: (o.itens||[]).map(function(i){ return {desc:i.desc, qtd:i.qtd, preco:i.preco}; }),
+    total: o.total,
+    criadoEm: new Date().toISOString()
+  };
+  listaPedidos.push(ped);
+  gravarLS('ped', listaPedidos);
+  renderOrcamentos();
+  renderPedidos();
+  // Navigate to pedidos
+  var btnPed = document.querySelector('.sb-btn[onclick*="pedidos"]');
+  if(btnPed) irPara('pedidos', btnPed);
+}
+
+function limparFormOrc(){
+  orcEmEdicao = null;
+  orcItensAtual = [];
+  ['orcId','orcCliente','orcData','orcValidade','orcObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('orcCondicao').value = 'À vista';
+  document.getElementById('orcStatus').value   = 'rascunho';
+  renderItensOrc();
+  document.getElementById('orcFormTitulo').textContent = 'Novo Orçamento';
+  document.getElementById('orcBtnSalvar').textContent  = '+ Salvar Orçamento';
+  document.getElementById('orcBtnCancelar').style.display = 'none';
+}
+
+function renderOrcamentos(){
+  popularSugestoesOrc();
+  var total = listaOrcamentos.length;
+  var pend  = listaOrcamentos.filter(function(o){ return o.status==='rascunho'||o.status==='enviado'; }).length;
+  var aprov = listaOrcamentos.filter(function(o){ return o.status==='aprovado'; });
+  var vAberto = listaOrcamentos.filter(function(o){ return o.status!=='recusado'&&o.status!=='convertido'; })
+                               .reduce(function(s,o){ return s+(o.total||0); }, 0);
+
+  document.getElementById('kpiOrcTotal').textContent  = total;
+  document.getElementById('kpiOrcTotalS').textContent = total===1?'cadastrado':'cadastrados';
+  document.getElementById('kpiOrcPend').textContent   = pend;
+  document.getElementById('kpiOrcAprov').textContent  = aprov.length;
+  document.getElementById('kpiOrcAprovS').textContent = brl(aprov.reduce(function(s,o){ return s+(o.total||0); },0));
+  document.getElementById('kpiOrcValor').textContent  = brl(vAberto);
+  document.getElementById('cntOrc').textContent = total;
+
+  var busca  = (document.getElementById('orcBusca')||{}).value||'';
+  var fSt    = (document.getElementById('orcFiltroStatus')||{}).value||'';
+  var lista  = listaOrcamentos.filter(function(o){
+    if(fSt && o.status!==fSt) return false;
+    if(busca && o.cliente.toLowerCase().indexOf(busca.toLowerCase())===-1) return false;
+    return true;
+  });
+
+  var tb = document.getElementById('tbOrc');
+  if(!listaOrcamentos.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum orçamento cadastrado. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum orçamento encontrado com os filtros aplicados.</td></tr>'; return; }
+
+  var stMap = {
+    rascunho:   {cls:'b-gray',   l:'Rascunho'},
+    enviado:    {cls:'b-blue',   l:'Enviado'},
+    aprovado:   {cls:'b-green',  l:'Aprovado'},
+    recusado:   {cls:'b-red',    l:'Recusado'},
+    convertido: {cls:'b-purple', l:'Convertido'}
+  };
+
+  tb.innerHTML = lista.slice().reverse().map(function(o){
+    var st = stMap[o.status]||{cls:'b-gray',l:o.status};
+    var nItens = (o.itens||[]).length;
+    var valStr = '<span style="font-weight:700;color:#16a34a;">'+brl(o.total||0)+'</span>'
+      +(o.totalDesconto>0?'<br><span class="td-m" style="font-size:10px;color:#dc2626;">-'+brl(o.totalDesconto)+' desc.</span>':'');
+    var acoes = '<div style="display:flex;gap:4px;white-space:nowrap;">';
+    if(o.status!=='convertido'){
+      acoes += '<button class="btn-del" onclick="editarOrcamento('+o.id+')" title="Editar" style="color:#d97706;">✎</button>';
+      acoes += '<button class="btn-del" onclick="converterParaPedido('+o.id+')" title="Converter em Pedido" style="color:#7c3aed;">⇒</button>';
+    }
+    acoes += '<button class="btn-del" onclick="excluirOrcamento('+o.id+')" title="Excluir">✕</button>';
+    acoes += '</div>';
+    return '<tr>'
+      +'<td class="td-m"><strong>#'+o.num+'</strong></td>'
+      +'<td class="td-m">'+fmtData(o.data)+'</td>'
+      +'<td><strong>'+o.cliente+'</strong></td>'
+      +'<td class="td-m">'+nItens+' item(ns)</td>'
+      +'<td>'+valStr+'</td>'
+      +'<td class="td-m">'+(o.validade?fmtData(o.validade):'—')+'</td>'
+      +'<td class="td-m">'+(o.condicao||'—')+'</td>'
+      +'<td><span class="badge '+st.cls+'">'+st.l+'</span></td>'
+      +'<td>'+acoes+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ============================================================
+// PEDIDOS
+// ============================================================
+var pedItensAtual = [];
+var pedEmEdicao   = null;
+
+function popularSugestoesPed(){
+  var dl = document.getElementById('pedProdSuggest');
+  if(!dl) return;
+  dl.innerHTML = listaProdutos.map(function(p){
+    return '<option value="'+p.nome+'" data-custo="'+p.custo+'">';
+  }).join('');
+}
+
+function autoPreencherCustoPed(){
+  var desc = document.getElementById('pedItemDesc').value.trim();
+  if(!desc) return;
+  var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
+  if(prod && prod.custo>0){
+    var precoEl = document.getElementById('pedItemPreco');
+    if(!precoEl.value) precoEl.value = prod.custo;
+    calcPedItemSubtotal();
+  }
+}
+
+function calcPedItemSubtotal(){
+  var qtd   = parseFloat(document.getElementById('pedItemQtd').value)||0;
+  var preco = parseFloat(document.getElementById('pedItemPreco').value)||0;
+  var sub   = qtd * preco;
+  document.getElementById('pedItemSubtotal').textContent = sub>0 ? 'Subtotal: '+brl(sub) : '';
+}
+
+function adicionarItemPed(){
+  var desc  = document.getElementById('pedItemDesc').value.trim();
+  var qtd   = parseFloat(document.getElementById('pedItemQtd').value)||0;
+  var preco = parseFloat(document.getElementById('pedItemPreco').value)||0;
+  if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário.'); return; }
+  pedItensAtual.push({ desc:desc, qtd:qtd, preco:preco });
+  document.getElementById('pedItemDesc').value='';
+  document.getElementById('pedItemQtd').value='';
+  document.getElementById('pedItemPreco').value='';
+  document.getElementById('pedItemSubtotal').textContent='';
+  renderItensPed();
+}
+
+function removerItemPed(idx){
+  pedItensAtual.splice(idx, 1);
+  renderItensPed();
+}
+
+function renderItensPed(){
+  var tbody = document.getElementById('pedItensTblBody');
+  var tbl   = document.getElementById('pedItensTbl');
+  var empty = document.getElementById('pedItensEmpty');
+  var total = 0;
+  if(!pedItensAtual.length){
+    empty.style.display='block'; tbl.style.display='none';
+    document.getElementById('pedTotalGeral').textContent = brl(0);
+    return;
+  }
+  empty.style.display='none'; tbl.style.display='table';
+  tbody.innerHTML = pedItensAtual.map(function(item, i){
+    var sub = item.qtd * item.preco;
+    total += sub;
+    return '<tr>'
+      +'<td>'+item.desc+'</td>'
+      +'<td style="text-align:right;">'+item.qtd+'</td>'
+      +'<td style="text-align:right;">'+brl(item.preco)+'</td>'
+      +'<td style="text-align:right;font-weight:700;color:#dc2626;">'+brl(sub)+'</td>'
+      +'<td><button class="btn-del" onclick="removerItemPed('+i+')" title="Remover">✕</button></td>'
+      +'</tr>';
+  }).join('');
+  document.getElementById('pedTotalGeral').textContent = brl(total);
+}
+
+function salvarPedido(){
+  var forn = document.getElementById('pedFornecedor').value.trim();
+  var data = document.getElementById('pedData').value;
+  if(!forn||!data){ alert('Preencha o Fornecedor e a Data.'); return; }
+  if(!pedItensAtual.length){ alert('Adicione ao menos um item ao pedido.'); return; }
+
+  var total = pedItensAtual.reduce(function(s,i){ return s+i.qtd*i.preco; }, 0);
+
+  var dados = {
+    fornecedor: forn,
+    data:     data,
+    entrega:  document.getElementById('pedEntrega').value,
+    condicao: document.getElementById('pedCondicao').value,
+    status:   document.getElementById('pedStatus').value,
+    obs:      document.getElementById('pedObs').value.trim(),
+    itens:    pedItensAtual.slice(),
+    total:    total
+  };
+
+  if(pedEmEdicao !== null){
+    var idx = listaPedidos.findIndex(function(p){ return p.id===pedEmEdicao; });
+    if(idx !== -1){
+      dados.id = pedEmEdicao;
+      dados.num = listaPedidos[idx].num;
+      dados.criadoEm = listaPedidos[idx].criadoEm;
+      // If transitioning to recebido now, handle stock
+      if(listaPedidos[idx].status!=='recebido' && dados.status==='recebido'){
+        atualizarEstoquePedido(dados);
+      }
+      listaPedidos[idx] = dados;
+    }
+    pedEmEdicao = null;
+  } else {
+    dados.id = novoID();
+    dados.num = listaPedidos.length ? Math.max.apply(null,listaPedidos.map(function(p){ return p.num||0; }))+1 : 1;
+    dados.criadoEm = new Date().toISOString();
+    if(dados.status==='recebido') atualizarEstoquePedido(dados);
+    listaPedidos.push(dados);
+  }
+  gravarLS('ped', listaPedidos);
+  renderPedidos();
+  limparFormPed();
+}
+
+function atualizarEstoquePedido(ped){
+  // Increment stock for each item that matches a product
+  (ped.itens||[]).forEach(function(item){
+    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===item.desc.toLowerCase() || (p.codigo && p.codigo===item.desc); });
+    if(prod){
+      prod.estoqueAtual = (parseFloat(prod.estoqueAtual)||0) + (parseFloat(item.qtd)||0);
+      prod.atualizadoEm = new Date().toISOString();
+    }
+  });
+  gravarLS('prod', listaProdutos);
+  renderProdutos();
+}
+
+function marcarPedidoRecebido(id){
+  var p = listaPedidos.find(function(x){ return x.id===id; });
+  if(!p) return;
+  if(!confirm('Marcar Pedido Nº '+p.num+' como Recebido?\nIsso irá atualizar o estoque dos produtos correspondentes.')) return;
+  atualizarEstoquePedido(p);
+  p.status = 'recebido';
+  gravarLS('ped', listaPedidos);
+  renderPedidos();
+}
+
+function editarPedido(id){
+  var p = listaPedidos.find(function(x){ return x.id===id; });
+  if(!p) return;
+  pedEmEdicao = id;
+  document.getElementById('pedId').value         = id;
+  document.getElementById('pedFornecedor').value  = p.fornecedor||'';
+  document.getElementById('pedData').value        = p.data||'';
+  document.getElementById('pedEntrega').value     = p.entrega||'';
+  document.getElementById('pedCondicao').value    = p.condicao||'À vista';
+  document.getElementById('pedStatus').value      = p.status||'pendente';
+  document.getElementById('pedObs').value         = p.obs||'';
+  pedItensAtual = (p.itens||[]).slice();
+  renderItensPed();
+  document.getElementById('pedFormTitulo').textContent = '✏ Editando Pedido Nº '+p.num;
+  document.getElementById('pedBtnSalvar').textContent  = '✓ Salvar Alterações';
+  document.getElementById('pedBtnCancelar').style.display = 'inline-block';
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function cancelarEdicaoPed(){
+  pedEmEdicao = null;
+  limparFormPed();
+}
+
+function excluirPedido(id){
+  var p = listaPedidos.find(function(x){ return x.id===id; });
+  if(!p) return;
+  if(!confirm('Excluir o Pedido Nº '+p.num+'?')) return;
+  listaPedidos = listaPedidos.filter(function(x){ return x.id!==id; });
+  gravarLS('ped', listaPedidos);
+  if(pedEmEdicao===id) cancelarEdicaoPed();
+  renderPedidos();
+}
+
+function limparFormPed(){
+  pedEmEdicao = null;
+  pedItensAtual = [];
+  ['pedId','pedFornecedor','pedData','pedEntrega','pedObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('pedCondicao').value = 'À vista';
+  document.getElementById('pedStatus').value   = 'pendente';
+  renderItensPed();
+  document.getElementById('pedFormTitulo').textContent = 'Novo Pedido de Compra';
+  document.getElementById('pedBtnSalvar').textContent  = '+ Salvar Pedido';
+  document.getElementById('pedBtnCancelar').style.display = 'none';
+}
+
+function renderPedidos(){
+  popularSugestoesPed();
+  var total  = listaPedidos.length;
+  var pend   = listaPedidos.filter(function(p){ return p.status==='pendente'||p.status==='confirmado'; }).length;
+  var receb  = listaPedidos.filter(function(p){ return p.status==='recebido'; });
+  var vAberto= listaPedidos.filter(function(p){ return p.status!=='cancelado'&&p.status!=='recebido'; })
+                           .reduce(function(s,p){ return s+(p.total||0); }, 0);
+
+  document.getElementById('kpiPedTotal').textContent  = total;
+  document.getElementById('kpiPedTotalS').textContent = total===1?'cadastrado':'cadastrados';
+  document.getElementById('kpiPedPend').textContent   = pend;
+  document.getElementById('kpiPedReceb').textContent  = receb.length;
+  document.getElementById('kpiPedRecebS').textContent = brl(receb.reduce(function(s,p){ return s+(p.total||0); },0));
+  document.getElementById('kpiPedValor').textContent  = brl(vAberto);
+  document.getElementById('cntPed').textContent = total;
+
+  var busca = (document.getElementById('pedBusca')||{}).value||'';
+  var fSt   = (document.getElementById('pedFiltroStatus')||{}).value||'';
+  var lista = listaPedidos.filter(function(p){
+    if(fSt && p.status!==fSt) return false;
+    if(busca && p.fornecedor.toLowerCase().indexOf(busca.toLowerCase())===-1) return false;
+    return true;
+  });
+
+  var tb = document.getElementById('tbPed');
+  if(!listaPedidos.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum pedido cadastrado. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum pedido encontrado com os filtros aplicados.</td></tr>'; return; }
+
+  var stMap = {
+    pendente:   {cls:'b-amber', l:'Pendente'},
+    confirmado: {cls:'b-blue',  l:'Confirmado'},
+    recebido:   {cls:'b-green', l:'Recebido'},
+    cancelado:  {cls:'b-gray',  l:'Cancelado'}
+  };
+
+  tb.innerHTML = lista.slice().reverse().map(function(p){
+    var st = stMap[p.status]||{cls:'b-gray',l:p.status};
+    var nItens = (p.itens||[]).length;
+    var acoes = '<div style="display:flex;gap:4px;white-space:nowrap;">';
+    if(p.status!=='recebido'&&p.status!=='cancelado'){
+      acoes += '<button class="btn-del" onclick="editarPedido('+p.id+')" title="Editar" style="color:#d97706;">✎</button>';
+      acoes += '<button class="btn-del" onclick="marcarPedidoRecebido('+p.id+')" title="Marcar como Recebido" style="color:#16a34a;">✓</button>';
+    }
+    acoes += '<button class="btn-del" onclick="excluirPedido('+p.id+')" title="Excluir">✕</button>';
+    acoes += '</div>';
+    return '<tr>'
+      +'<td class="td-m"><strong>#'+p.num+'</strong></td>'
+      +'<td class="td-m">'+fmtData(p.data)+'</td>'
+      +'<td><strong>'+p.fornecedor+'</strong></td>'
+      +'<td class="td-m">'+nItens+' item(ns)</td>'
+      +'<td style="font-weight:700;color:#dc2626;">'+brl(p.total||0)+'</td>'
+      +'<td class="td-m">'+(p.entrega?fmtData(p.entrega):'—')+'</td>'
+      +'<td class="td-m">'+(p.condicao||'—')+'</td>'
+      +'<td><span class="badge '+st.cls+'">'+st.l+'</span></td>'
+      +'<td>'+acoes+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ============================================================
 // GLOBAL UPDATE
 // ============================================================
 function atualizarGlobal(){
@@ -2414,6 +3202,8 @@ renderReceber();
 renderPagar();
 renderClientes();
 renderProdutos();
+renderOrcamentos();
+renderPedidos();
 renderPainel();
 
 // ============================================================
@@ -2629,12 +3419,14 @@ if(window.location.search.indexOf('bling=ok') !== -1){
 // ============================================================
 function exportarDados(){
   var dados = {
-    versao: '1.1',
+    versao: '1.2',
     exportadoEm: new Date().toISOString(),
     receber: listaReceber,
     pagar: listaPagar,
     clientes: listaClientes,
-    produtos: listaProdutos
+    produtos: listaProdutos,
+    orcamentos: listaOrcamentos,
+    pedidos: listaPedidos
   };
   var json = JSON.stringify(dados, null, 2);
   var blob = new Blob([json], {type:'application/json'});
@@ -2659,12 +3451,16 @@ function importarDados(event){
       listaPagar    = dados.pagar    || [];
       listaClientes = dados.clientes || [];
       listaProdutos = dados.produtos || [];
+      listaOrcamentos = dados.orcamentos || [];
+      listaPedidos    = dados.pedidos    || [];
       gravarLS('rec', listaReceber);
       gravarLS('pag', listaPagar);
       gravarLS('cli', listaClientes);
       gravarLS('prod', listaProdutos);
-      renderReceber(); renderPagar(); renderClientes(); renderProdutos(); atualizarGlobal();
-      alert('✓ Dados importados com sucesso!\n- '+listaReceber.length+' recebimentos\n- '+listaPagar.length+' contas a pagar\n- '+listaClientes.length+' clientes\n- '+listaProdutos.length+' produtos');
+      gravarLS('orc', listaOrcamentos);
+      gravarLS('ped', listaPedidos);
+      renderReceber(); renderPagar(); renderClientes(); renderProdutos(); renderOrcamentos(); renderPedidos(); atualizarGlobal();
+      alert('✓ Dados importados com sucesso!\n- '+listaReceber.length+' recebimentos\n- '+listaPagar.length+' contas a pagar\n- '+listaClientes.length+' clientes\n- '+listaProdutos.length+' produtos\n- '+listaOrcamentos.length+' orçamentos\n- '+listaPedidos.length+' pedidos');
     } catch(err) {
       alert('Erro ao ler o arquivo: '+err.message);
     }
@@ -2676,9 +3472,9 @@ function importarDados(event){
 function limparTodosDados(){
   if(!confirm('ATENÇÃO: Isso vai apagar TODOS os dados do sistema. Não tem como desfazer. Continuar?')) return;
   if(!confirm('Tem certeza? Todos os recebimentos, pagamentos e clientes serão excluídos.')) return;
-  listaReceber=[]; listaPagar=[]; listaClientes=[]; listaProdutos=[];
-  gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]); gravarLS('prod',[]);
-  renderReceber(); renderPagar(); renderClientes(); renderProdutos(); atualizarGlobal();
+  listaReceber=[]; listaPagar=[]; listaClientes=[]; listaProdutos=[]; listaOrcamentos=[]; listaPedidos=[];
+  gravarLS('rec',[]); gravarLS('pag',[]); gravarLS('cli',[]); gravarLS('prod',[]); gravarLS('orc',[]); gravarLS('ped',[]);
+  renderReceber(); renderPagar(); renderClientes(); renderProdutos(); renderOrcamentos(); renderPedidos(); atualizarGlobal();
   alert('Dados apagados.');
 }
 
