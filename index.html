@@ -446,7 +446,6 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
 .orc-total-item span{font-size:18px;font-weight:800;color:var(--text);}
 /* status badges */
 .b-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
-.b-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;}
 </style>
 </head>
 <body>
@@ -2689,12 +2688,15 @@ function adicionarItemOrc(){
   var qtd   = parseFloat(document.getElementById('orcItemQtd').value)||0;
   var preco = parseFloat(document.getElementById('orcItemPreco').value)||0;
   var descP = parseFloat(document.getElementById('orcItemDesc2').value)||0;
-  if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário do item.'); return; }
-  // Auto-fill price from product list
+  // Auto-fill price from product list when not yet entered
   if(!preco){
     var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
-    if(prod) preco = prod.venda;
+    if(prod && prod.venda>0){
+      preco = prod.venda;
+      document.getElementById('orcItemPreco').value = preco;
+    }
   }
+  if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário do item.'); return; }
   orcItensAtual.push({ desc:desc, qtd:qtd, preco:preco, descPct:descP });
   document.getElementById('orcItemDesc').value='';
   document.getElementById('orcItemQtd').value='';
@@ -2823,17 +2825,17 @@ function converterParaPedido(id){
   o.status = 'convertido';
   gravarLS('orc', listaOrcamentos);
 
-  // Create pedido
+  // Create pedido — supplier must be filled by user; obs records the source quote and customer
   var hoje = chaveData(HOJE);
   var ped = {
     id: novoID(),
     num: (listaPedidos.length ? Math.max.apply(null,listaPedidos.map(function(p){ return p.num||0; }))+1 : 1),
-    fornecedor: o.cliente,
+    fornecedor: '',
     data: hoje,
     entrega: '',
     condicao: o.condicao,
     status: 'pendente',
-    obs: 'Gerado do Orçamento Nº '+o.num+(o.obs?' — '+o.obs:''),
+    obs: 'Gerado do Orçamento Nº '+o.num+' (cliente: '+o.cliente+')'+(o.obs?' — '+o.obs:''),
     itens: (o.itens||[]).map(function(i){ return {desc:i.desc, qtd:i.qtd, preco:i.preco}; }),
     total: o.total,
     criadoEm: new Date().toISOString()
@@ -3043,7 +3045,7 @@ function salvarPedido(){
 function atualizarEstoquePedido(ped){
   // Increment stock for each item that matches a product
   (ped.itens||[]).forEach(function(item){
-    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===item.desc.toLowerCase() || (p.codigo && p.codigo===item.desc); });
+    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===item.desc.toLowerCase() || (p.codigo && item.desc && p.codigo.toLowerCase()===item.desc.toLowerCase()); });
     if(prod){
       prod.estoqueAtual = (parseFloat(prod.estoqueAtual)||0) + (parseFloat(item.qtd)||0);
       prod.atualizadoEm = new Date().toISOString();
