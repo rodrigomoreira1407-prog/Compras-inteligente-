@@ -863,8 +863,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
                     <option value="8">8 - Nacional, mercadoria ou bem com conteúdo de importação superior a 70%</option>
                   </select>
                 </div>
-                <div class="fg"><label>NCM</label><input id="prodNcm" placeholder="Ex: 8481.80.92" maxlength="10"></div>
-                <div class="fg"><label>CEST</label><input id="prodCest" placeholder="Ex: 01.048.00" maxlength="9"></div>
+                <div class="fg"><label>NCM</label><input id="prodNcm" placeholder="Ex: 8481.80.92" maxlength="10" pattern="\d{4}\.\d{2}\.\d{2}" title="Formato: XXXX.XX.XX"></div>
+                <div class="fg"><label>CEST</label><input id="prodCest" placeholder="Ex: 01.048.00" maxlength="9" pattern="\d{2}\.\d{3}\.\d{2}" title="Formato: XX.XXX.XX"></div>
                 <div class="fg">
                   <label>Tipo do Item</label>
                   <select id="prodTipoItem">
@@ -912,7 +912,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
             </div>
             <div class="fiscal-section-body" id="fiscal-ipi">
               <div class="fgrid">
-                <div class="fg"><label>Código Exceção da TIPI</label><input id="prodIpiExcecao" type="number" placeholder="0" min="0" step="1"></div>
+                <div class="fg"><label>Código Exceção da TIPI</label><input id="prodIpiExcecao" type="text" placeholder="Ex: 001" maxlength="3" pattern="\d{0,3}" title="Código numérico de até 3 dígitos"></div>
               </div>
             </div>
           </div>
@@ -2373,12 +2373,10 @@ function ajustarEstoque(id){
 function limparFormProduto(){
   produtoEmEdicao = null;
   ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
-   'prodNcm','prodCest','prodPctTributos','prodGrupo','prodIcmsStBase','prodIcmsStRetencao','prodIcmsStSubstituto','prodIpiExcecao','prodPisFixo','prodCofinsFixo','prodInfoAdicionais'
+   'prodOrigem','prodNcm','prodCest','prodTipoItem','prodPctTributos','prodGrupo','prodIcmsStBase','prodIcmsStRetencao','prodIcmsStSubstituto','prodIpiExcecao','prodPisFixo','prodCofinsFixo','prodInfoAdicionais'
   ].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('prodCategoria').value = 'Peças Mecânicas';
   document.getElementById('prodUnidade').value   = 'Peça';
-  document.getElementById('prodOrigem').value    = '';
-  document.getElementById('prodTipoItem').value  = '';
   document.getElementById('prodMargemPreview').innerHTML = '';
   document.getElementById('prodFormTitulo').textContent  = 'Cadastrar Produto';
   document.getElementById('prodBtnSalvar').textContent   = '+ Adicionar Produto';
