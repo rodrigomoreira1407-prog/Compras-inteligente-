@@ -3525,30 +3525,35 @@ function importarPlanilhaBling(event){
         return result;
       }
 
-      var headers = parseCSVLine(lines[0], sep).map(function(h){ return h.toLowerCase().replace(/[^\w]/g,''); });
+      // Normalize column names: lowercase, remove accents (NFD decompose + strip combining marks), strip non-word chars
+      function normCol(s){
+        return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w]/g,'');
+      }
+
+      var headers = parseCSVLine(lines[0], sep).map(normCol);
 
       // Column name mapping (flexible)
       function findCol(aliases){
         for(var i=0; i<aliases.length; i++){
-          var idx = headers.indexOf(aliases[i].toLowerCase().replace(/[^\w]/g,''));
+          var idx = headers.indexOf(normCol(aliases[i]));
           if(idx !== -1) return idx;
         }
         return -1;
       }
 
-      var colCodigo   = findCol(['codigo','code','sku','codigoproduto']);
-      var colNome     = findCol(['descricao','nome','produto','descricaoproduto','name']);
-      var colCusto    = findCol(['preocdecusto','precodecusto','custounid','custo','precoadicusto','precoCusto','preco_custo']);
-      var colVenda    = findCol(['preo','preco','precovenda','preo1','price','valor','venda']);
-      var colUnidade  = findCol(['unidade','un','unit','und']);
-      var colSaldo    = findCol(['saldofisico','saldoemestoque','saldo','qtd','quantidade','estoque','saldoatual','saldofsico']);
-      var colEstMin   = findCol(['estoqueminimo','minimo','estoquemin','saldominimo','min']);
-      var colCateg    = findCol(['categoria','category','grupo','ncm']);
-      var colFornec   = findCol(['fornecedor','supplier','fornecedornome']);
-      var colLoc      = findCol(['localizacao','localizao','galpao','deposito','estante']);
-      var colSitua    = findCol(['situacao','situacao','status','ativo']);
+      var colCodigo   = findCol(['Código','codigo','code','sku','codigoproduto','referencia','ref']);
+      var colNome     = findCol(['Descrição','descricao','Descrição do Produto','descricaodoproduto','nome','produto','descricaoproduto','name']);
+      var colCusto    = findCol(['Preço de Custo','precodecusto','preocdecusto','custounid','custo','precoadicusto','precoCusto','preco_custo']);
+      var colVenda    = findCol(['Preço','preco','precovenda','preo','preo1','price','valor','venda']);
+      var colUnidade  = findCol(['Unidade','unidade','un','unit','und']);
+      var colSaldo    = findCol(['Saldo Físico','saldofisico','saldoemestoque','saldo','qtd','quantidade','estoque','saldoatual','saldofsico']);
+      var colEstMin   = findCol(['Estoque Mínimo','estoqueminimo','minimo','estoquemin','saldominimo','min']);
+      var colCateg    = findCol(['Categoria','categoria','category','grupo','ncm']);
+      var colFornec   = findCol(['Fornecedor','fornecedor','supplier','fornecedornome']);
+      var colLoc      = findCol(['Localização','localizacao','localizao','galpao','deposito','estante']);
+      var colSitua    = findCol(['Situação','situacao','status','ativo']);
 
-      if(colNome === -1){ showStatus('error','❌ Coluna de nome/descrição do produto não encontrada.<br>Verifique se o arquivo é uma exportação de produtos do Bling.'); return; }
+      if(colNome === -1){ showStatus('error','❌ Coluna de nome/descrição do produto não encontrada.<br>Verifique se o arquivo é uma exportação de produtos do Bling.<br><small>Colunas detectadas: '+headers.join(', ')+'</small>'); return; }
 
       var importados = 0, atualizados = 0, ignorados = 0;
       var erros = [];
