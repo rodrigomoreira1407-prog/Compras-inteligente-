@@ -3293,7 +3293,7 @@ async function sincronizarBling(){
   mostrarStatusBling('info','🔄 Sincronizando com o Bling... aguarde.');
   try {
     var erros = [];
-    var importadosRec = 0, importadosPag = 0, importadosProd = 0, atualizadosProd = 0, ignoradosProd = 0, totalBlingProd = 0;
+    var importadosRec = 0, importadosPag = 0, importadosProd = 0, atualizadosProd = 0, ignoradosProd = 0, totalBlingProd = 0, totalSaldos = 0;
 
     // Contas a receber
     try {
@@ -3336,10 +3336,13 @@ async function sincronizarBling(){
       try {
         var saldos = await fetchBling('estoques');
         (Array.isArray(saldos) ? saldos : []).forEach(function(s){
-          var bId = s.produto && (s.produto.id || s.produto);
-          if(bId) saldosMap[bId] = (saldosMap[bId] || 0) + (parseFloat(s.saldoFisico) || 0);
+          var bId = s.produto && String(s.produto.id || s.produto);
+          if(bId) {
+            saldosMap[bId] = (saldosMap[bId] || 0) + (parseFloat(s.saldoFisico) || 0);
+            totalSaldos++;
+          }
         });
-      } catch(e){ /* saldos opcionais */ }
+      } catch(e){ erros.push('Estoque: '+e.message+' (os saldos não foram carregados)'); }
 
       totalBlingProd = Array.isArray(produtosBling) ? produtosBling.length : 0;
       (Array.isArray(produtosBling) ? produtosBling : []).forEach(function(p){
@@ -3353,7 +3356,7 @@ async function sincronizarBling(){
           return (lp.blingId && lp.blingId === p.id) ||
                  (!lp.blingId && p.codigo && lp.codigo && lp.codigo === p.codigo);
         });
-        var estoqueAtual = saldosMap[p.id] !== undefined ? saldosMap[p.id]
+        var estoqueAtual = saldosMap[String(p.id)] !== undefined ? saldosMap[String(p.id)]
           : (p.estoque && p.estoque.saldoFisico !== undefined ? parseFloat(p.estoque.saldoFisico) : 0);
         var estoqueMin = (p.estoque && p.estoque.minimo !== undefined) ? parseFloat(p.estoque.minimo) : 0;
 
@@ -3395,7 +3398,8 @@ async function sincronizarBling(){
       '• '+totalBlingProd+' produto(s) recebido(s) do Bling<br>'+
       '• '+importadosProd+' nova(s) peça(s)/produto(s) importado(s)<br>'+
       '• '+atualizadosProd+' peça(s)/produto(s) atualizado(s)'+
-      (ignoradosProd ? '<br>• '+ignoradosProd+' produto(s) ignorado(s) (inativos)' : '');
+      (ignoradosProd ? '<br>• '+ignoradosProd+' produto(s) ignorado(s) (inativos)' : '')+
+      (totalSaldos > 0 ? '<br>• '+totalSaldos+' saldo(s) de estoque carregado(s) do Bling' : '');
     if(erros.length) msg += '<br>⚠️ Avisos: '+erros.join(', ');
     mostrarStatusBling('ok', msg);
   } catch(e){
