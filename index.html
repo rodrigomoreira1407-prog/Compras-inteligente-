@@ -463,6 +463,114 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
 .fiscal-toggle.aberto{transform:rotate(180deg);}
 .fiscal-section-body{padding:14px;display:none;}
 .fiscal-section-body.aberto{display:block;}
+
+/* ── CLIENT PURCHASE HISTORY ── */
+.cli-hist-box{
+  background:linear-gradient(135deg,#eff6ff,#e0edff);
+  border:1.5px solid var(--blue-border);
+  border-radius:var(--radius-sm);
+  overflow:hidden;
+}
+.cli-hist-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+  background:linear-gradient(135deg,#dbeafe,#eff6ff);
+  border-bottom:1px solid var(--blue-border);
+}
+.cli-hist-title{font-size:12px;font-weight:700;color:#1d4ed8;}
+.cli-hist-body{padding:10px 14px;}
+.cli-hist-item{
+  display:flex;align-items:center;gap:10px;
+  padding:7px 0;border-bottom:1px solid #bfdbfe;
+  font-size:12.5px;
+}
+.cli-hist-item:last-child{border-bottom:none;}
+.cli-hist-rank{
+  width:22px;height:22px;border-radius:50%;
+  background:#2563eb;color:#fff;
+  font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cli-hist-name{flex:1;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cli-hist-count{font-size:11px;color:#3b82f6;font-weight:700;white-space:nowrap;}
+.cli-hist-preco{font-size:11px;color:var(--text-2);white-space:nowrap;}
+.cli-hist-add{
+  padding:4px 10px;border-radius:var(--radius-xs);
+  border:1.5px solid #93c5fd;background:#eff6ff;
+  color:#1d4ed8;font-size:11px;font-weight:700;cursor:pointer;
+  transition:all .15s;font-family:inherit;white-space:nowrap;
+}
+.cli-hist-add:hover{background:#2563eb;color:#fff;border-color:#2563eb;}
+
+/* ── TOAST NOTIFICATION ── */
+#toastContainer{position:fixed;bottom:24px;right:24px;z-index:9000;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:#1e293b;color:#fff;padding:11px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);opacity:0;transform:translateY(12px);transition:opacity .3s,transform .3s;pointer-events:auto;max-width:340px;display:flex;align-items:center;gap:10px;border-left:3px solid transparent;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast-ok{border-color:var(--green);}
+.toast-err{border-color:var(--red);}
+.toast-info{border-color:var(--blue);}
+
+/* ── DARK MODE ── */
+body.dark-mode{
+  --surface:#1e293b;--bg:#0f172a;--border:#334155;
+  --text:#f1f5f9;--text-2:#94a3b8;--text-3:#475569;
+  --brand-light:#1c1400;
+}
+body.dark-mode .sb{background:linear-gradient(175deg,#020617 0%,#0f172a 60%,#0a0f1e 100%);}
+body.dark-mode .topbar{background:#1e293b;border-color:#334155;}
+body.dark-mode .card{background:#1e293b;border-color:#334155;}
+body.dark-mode .card-h{background:linear-gradient(135deg,#1e293b,#1e293b);}
+body.dark-mode .kpi{background:#1e293b;border-color:#334155;}
+body.dark-mode input,body.dark-mode select,body.dark-mode textarea{background:#0f172a;color:#f1f5f9;border-color:#334155;}
+body.dark-mode input::placeholder{color:#475569;}
+body.dark-mode thead th{background:#0f172a;color:#64748b;}
+body.dark-mode tbody tr:hover{background:#263245;}
+body.dark-mode .detail{background:#1e293b;border-color:#334155;}
+body.dark-mode .alerta.al-blue{background:linear-gradient(135deg,#1e3a5f,#172a4a);}
+body.dark-mode .alerta.al-green{background:linear-gradient(135deg,#14532d,#0f3b20);}
+body.dark-mode .alerta.al-amber{background:linear-gradient(135deg,#451a03,#331200);}
+body.dark-mode .alerta.al-red{background:linear-gradient(135deg,#450a0a,#380707);}
+body.dark-mode .cdia{background:#1e293b;border-color:#334155;}
+body.dark-mode .cdia.dia-verde{background:linear-gradient(135deg,#14532d,#0f3b20);}
+body.dark-mode .cdia.dia-vermelho{background:linear-gradient(135deg,#450a0a,#380707);}
+body.dark-mode .cdia.dia-amarelo{background:linear-gradient(135deg,#451a03,#331200);}
+body.dark-mode .item-list-wrap{background:#0f172a;}
+#darkToggle{padding:5px 9px;border-radius:6px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-size:13px;color:var(--text-2);transition:all .18s;font-family:inherit;}
+#darkToggle:hover{border-color:var(--brand);color:var(--brand);}
+
+/* ── MODAL OVERLAY ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal-box{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow-lg);width:100%;max-width:680px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;}
+.modal-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#fafbfc,var(--surface));flex-shrink:0;}
+.modal-title{font-size:14px;font-weight:700;color:var(--text);}
+.modal-close{background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-3);padding:2px 7px;border-radius:4px;line-height:1;}
+.modal-close:hover{background:var(--red-bg);color:var(--red);}
+.modal-body{padding:18px;overflow-y:auto;flex:1;}
+
+/* ── GLOBAL SEARCH ── */
+#buscaGlobalInput{width:100%;padding:11px 14px;font-size:15px;border:2px solid var(--brand);border-radius:var(--radius-sm);margin-bottom:14px;outline:none;font-family:inherit;background:var(--surface);color:var(--text);}
+.search-result-group{margin-bottom:14px;}
+.search-result-group-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-3);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border);}
+.search-result-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:var(--radius-xs);cursor:pointer;transition:background .12s;}
+.search-result-item:hover{background:var(--brand-light);outline:1px solid var(--brand);}
+.search-result-icon{font-size:15px;flex-shrink:0;}
+.search-result-main{flex:1;font-size:13px;font-weight:600;color:var(--text);}
+.search-result-sub{font-size:11px;color:var(--text-3);}
+
+/* ── STOCK INDICATOR ── */
+.stock-inline{font-size:11.5px;padding:4px 9px;border-radius:5px;margin-top:4px;font-weight:600;display:inline-block;}
+.stock-inline-ok{background:#f0fdf4;color:#16a34a;border:1px solid #86efac;}
+.stock-inline-low{background:#fffbeb;color:#d97706;border:1px solid #fcd34d;}
+.stock-inline-zero{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+
+/* ── TOP CLIENTS BAR ── */
+.top-cli-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f4f6f8;}
+.top-cli-row:last-child{border-bottom:none;}
+.top-cli-rank{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.top-cli-name{flex:1;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.top-cli-bar-wrap{width:100px;height:6px;background:var(--bg);border-radius:4px;overflow:hidden;flex-shrink:0;}
+.top-cli-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--brand),var(--brand-dark));}
+.top-cli-val{width:80px;text-align:right;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -500,7 +608,11 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
       <span></span><span></span><span></span>
     </button>
     <span class="topbar-title" id="tituloPagina">Painel</span>
-    <span style="font-size:12px;color:#94a3b8;" id="dataHoje"></span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:12px;color:#94a3b8;" id="dataHoje"></span>
+      <button id="darkToggle" onclick="toggleDarkMode()" title="Modo escuro / claro">🌙</button>
+      <button onclick="abrirBuscaGlobal()" title="Busca global (Ctrl+K)" style="padding:5px 10px;border-radius:6px;border:1.5px solid var(--border);background:transparent;cursor:pointer;font-size:12px;color:var(--text-2);font-family:inherit;">🔍 Ctrl+K</button>
+    </div>
   </div>
   <div class="pages">
 
@@ -525,6 +637,16 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
         <div class="card">
           <div class="card-h"><span class="card-t">Receber vs Pagar por semana</span></div>
           <div class="card-b"><div style="position:relative;height:190px;"><canvas id="grafPainel"></canvas></div></div>
+        </div>
+      </div>
+      <!-- Top clientes do mês -->
+      <div class="card" style="margin-top:0;">
+        <div class="card-h">
+          <span class="card-t">🏆 Top Clientes do Mês (Orçamentos Aprovados)</span>
+          <span class="chip" id="kpiTopCli" style="font-size:10px;"></span>
+        </div>
+        <div class="card-b" id="topClientesPainel">
+          <div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum orçamento aprovado neste mês.</div>
         </div>
       </div>
     </div>
@@ -694,6 +816,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
             <div class="fg"><label>Prazo usual</label><select id="cPrazo"><option value="0">À vista</option><option value="30">30 dias</option><option value="60">60 dias</option><option value="90">90 dias</option></select></div>
             <div class="fg"><label>Média de atraso (dias)</label><input id="cAtr" type="number" placeholder="0" min="0"></div>
             <div class="fg"><label>Telefone</label><input id="cTel" placeholder="(11) 9 9999-9999"></div>
+            <div class="fg"><label>CNPJ / CPF</label><input id="cCnpj" placeholder="00.000.000/0001-00"></div>
+            <div class="fg" style="grid-column:span 2"><label>Endereço</label><input id="cEndereco" placeholder="Rua, número, cidade"></div>
           </div>
           <div style="display:flex;gap:8px;"><button class="btn-add" onclick="adicionarCliente()">+ Adicionar</button><button class="btn-sec" onclick="limparFormCli()">Limpar</button></div>
         </div>
@@ -706,8 +830,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
         <div class="card">
           <div class="card-h"><span class="card-t">Todos os Clientes</span></div>
           <div class="tbl-wrap">
-            <table><thead><tr><th>Cliente</th><th>Limite</th><th>Prazo</th><th>Atraso Médio</th><th>Risco</th><th>Telefone</th><th></th></tr></thead>
-            <tbody id="tbCli"><tr class="empty-row"><td colspan="7">Nenhum cliente cadastrado.</td></tr></tbody></table>
+            <table><thead><tr><th>Cliente</th><th>Limite</th><th>Prazo</th><th>Atraso Médio</th><th>Risco</th><th>Telefone</th><th>CNPJ/CPF</th><th></th></tr></thead>
+            <tbody id="tbCli"><tr class="empty-row"><td colspan="8">Nenhum cliente cadastrado.</td></tr></tbody></table>
           </div>
         </div>
       </div>
@@ -802,7 +926,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
         <div class="card-b">
           <input type="hidden" id="prodId">
           <div class="fgrid">
-            <div class="fg"><label>Código do Produto</label><input id="prodCodigo" placeholder="Ex: PEC-001"></div>
+            <div class="fg"><label>Código do Produto (Interno)</label><input id="prodCodigo" placeholder="Ex: PEC-001"></div>
+            <div class="fg"><label>Código do Fabricante</label><input id="prodCodigoFab" placeholder="Ex: BOSCH-0451103300"></div>
             <div class="fg"><label>Nome do Produto *</label><input id="prodNome" placeholder="Nome do produto"></div>
             <div class="fg"><label>Categoria</label>
               <select id="prodCategoria">
@@ -982,7 +1107,8 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
           <table>
             <thead>
               <tr>
-                <th>Código</th>
+                <th>Cód. Interno</th>
+                <th>Cód. Fabricante</th>
                 <th>Nome</th>
                 <th>Categoria</th>
                 <th>Un.</th>
@@ -996,7 +1122,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
                 <th></th>
               </tr>
             </thead>
-            <tbody id="tbProd"><tr class="empty-row"><td colspan="12">Nenhum produto cadastrado. Adicione acima.</td></tr></tbody>
+            <tbody id="tbProd"><tr class="empty-row"><td colspan="13">Nenhum produto cadastrado. Adicione acima.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1021,7 +1147,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
         <div class="card-b">
           <input type="hidden" id="orcId">
           <div class="fgrid">
-            <div class="fg"><label>Cliente *</label><input id="orcCliente" placeholder="Nome do cliente"></div>
+            <div class="fg"><label>Cliente *</label><input id="orcCliente" placeholder="Nome do cliente" oninput="atualizarHistoricoClienteOrc()"></div>
             <div class="fg"><label>Data *</label><input id="orcData" type="date"></div>
             <div class="fg"><label>Validade até</label><input id="orcValidade" type="date"></div>
             <div class="fg"><label>Condição de Pagamento</label>
@@ -1041,6 +1167,17 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
                 <option value="recusado">Recusado</option>
               </select>
             </div>
+            <div class="fg"><label>Vendedor</label><input id="orcVendedor" placeholder="Nome do vendedor"></div>
+          </div>
+          <!-- Histórico de itens mais comprados pelo cliente -->
+          <div id="clienteHistoricoOrc" style="display:none;margin-bottom:14px;">
+            <div class="cli-hist-box">
+              <div class="cli-hist-hdr">
+                <span class="cli-hist-title">🛒 Itens que <span id="clienteHistoricoNome" style="font-style:italic;"></span> mais comprou</span>
+                <span id="clienteHistoricoQtd" class="chip" style="font-size:10px;"></span>
+              </div>
+              <div id="clienteHistoricoBody" class="cli-hist-body"></div>
+            </div>
           </div>
           <!-- Adicionar item -->
           <div class="card" style="margin-bottom:12px;background:#f9fafb;">
@@ -1050,8 +1187,9 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
             <div class="card-b" style="padding:12px 14px;">
               <div class="fgrid" style="margin-bottom:8px;">
                 <div class="fg" style="grid-column:span 2"><label>Produto / Descrição *</label>
-                  <input id="orcItemDesc" placeholder="Nome do produto ou serviço" list="orcProdSuggest">
+                  <input id="orcItemDesc" placeholder="Nome do produto ou serviço" list="orcProdSuggest" oninput="mostrarEstoqueOrcItem()">
                   <datalist id="orcProdSuggest"></datalist>
+                  <div id="orcItemEstoque" style="display:none;"></div>
                 </div>
                 <div class="fg"><label>Qtd *</label><input id="orcItemQtd" type="number" placeholder="1" min="0.01" step="0.01"></div>
                 <div class="fg"><label>Preço Unitário R$ *</label><input id="orcItemPreco" type="number" placeholder="0,00" min="0" step="0.01" oninput="calcOrcItemSubtotal()"></div>
@@ -1096,9 +1234,9 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
       <div class="card">
         <div class="card-h">
           <span class="card-t">Orçamentos</span>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span class="chip" id="cntOrc">0</span>
-            <input id="orcBusca" placeholder="🔍 Buscar cliente..." oninput="renderOrcamentos()" style="width:180px;padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+            <input id="orcBusca" placeholder="🔍 Buscar cliente..." oninput="renderOrcamentos()" style="width:160px;padding:5px 10px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
             <select id="orcFiltroStatus" onchange="renderOrcamentos()" style="padding:5px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
               <option value="">Todos os status</option>
               <option value="rascunho">Rascunho</option>
@@ -1107,6 +1245,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
               <option value="recusado">Recusado</option>
               <option value="convertido">Convertido em Pedido</option>
             </select>
+            <button onclick="exportarOrcamentosCSV()" title="Exportar lista filtrada como CSV" style="padding:5px 10px;border-radius:6px;border:1.5px solid #86efac;background:#f0fdf4;color:#16a34a;cursor:pointer;font-size:11px;font-weight:700;font-family:inherit;">⬇ CSV</button>
           </div>
         </div>
         <div class="tbl-wrap">
@@ -1115,6 +1254,7 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
               <th>Nº</th>
               <th>Data</th>
               <th>Cliente</th>
+              <th>Vendedor</th>
               <th>Itens</th>
               <th>Total</th>
               <th>Validade</th>
@@ -1122,8 +1262,22 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
               <th>Status</th>
               <th></th>
             </tr></thead>
-            <tbody id="tbOrc"><tr class="empty-row"><td colspan="9">Nenhum orçamento cadastrado.</td></tr></tbody>
+            <tbody id="tbOrc"><tr class="empty-row"><td colspan="10">Nenhum orçamento cadastrado.</td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Comissões de vendedores -->
+      <div class="card" id="cardComissoesOrc">
+        <div class="card-h">
+          <span class="card-t">💼 Comissões por Vendedor</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:12px;color:var(--text-2);">% Comissão:</label>
+            <input id="pctComissao" type="number" value="5" min="0" max="100" step="0.5" oninput="renderComissoesOrc()" style="width:65px;padding:4px 8px;font-size:12px;border-radius:6px;border:1.5px solid #e2e8f0;">
+          </div>
+        </div>
+        <div class="card-b" id="comissoesBody">
+          <div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum orçamento com vendedor cadastrado.</div>
         </div>
       </div>
     </div>
@@ -1332,6 +1486,47 @@ td{padding:11px 16px;font-size:13px;color:var(--text);vertical-align:middle;}
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<!-- GLOBAL SEARCH MODAL -->
+<div id="modalBusca" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharBuscaGlobal()">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-hdr">
+      <span class="modal-title">🔍 Busca Global</span>
+      <button class="modal-close" onclick="fecharBuscaGlobal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input id="buscaGlobalInput" placeholder="Buscar clientes, produtos, orçamentos, pedidos..." oninput="executarBuscaGlobal()" autocomplete="off">
+      <div id="buscaGlobalResultados"><div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Digite pelo menos 2 caracteres para buscar.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CRM PANEL MODAL -->
+<div id="modalCRM" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharCRMPanel()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-title" id="crmModalTitle">Orçamentos do Cliente</span>
+      <button class="modal-close" onclick="fecharCRMPanel()">✕</button>
+    </div>
+    <div class="modal-body" id="crmModalBody"></div>
+  </div>
+</div>
+
+<!-- PRICE HISTORY MODAL -->
+<div id="modalHistPreco" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharHistPrecoModal()">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-title" id="histPrecoTitle">Histórico de Preços</span>
+      <button class="modal-close" onclick="fecharHistPrecoModal()">✕</button>
+    </div>
+    <div class="modal-body" id="histPrecoBody">
+      <div style="position:relative;height:260px;"><canvas id="grafHistPreco"></canvas></div>
+    </div>
   </div>
 </div>
 
@@ -2109,11 +2304,14 @@ function adicionarCliente(){
   var prz  = parseInt(document.getElementById('cPrazo').value) || 0;
   var atr  = parseInt(document.getElementById('cAtr').value) || 0;
   var tel  = document.getElementById('cTel').value.trim();
+  var cnpj = document.getElementById('cCnpj').value.trim();
+  var end  = document.getElementById('cEndereco').value.trim();
   listaClientes = listaClientes.filter(function(c){ return c.nome.toLowerCase() !== nome.toLowerCase(); });
-  listaClientes.push({ id:novoID(), nome:nome, limite:lim, prazo:prz, atraso:atr, telefone:tel });
+  listaClientes.push({ id:novoID(), nome:nome, limite:lim, prazo:prz, atraso:atr, telefone:tel, cnpj:cnpj, endereco:end });
   gravarLS('cli', listaClientes);
   renderClientes();
   limparFormCli();
+  showToast('✓ Cliente "'+nome+'" salvo', 'ok');
 }
 
 function excluirCliente(id){
@@ -2123,7 +2321,7 @@ function excluirCliente(id){
 }
 
 function limparFormCli(){
-  ['cNome','cLim','cAtr','cTel'].forEach(function(i){ document.getElementById(i).value=''; });
+  ['cNome','cLim','cAtr','cTel','cCnpj','cEndereco'].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('cPrazo').value = '30';
 }
 
@@ -2134,7 +2332,7 @@ function renderClientes(){
   var tb = document.getElementById('tbCli');
   var barras = document.getElementById('cliBarras');
   if(!listaClientes.length){
-    tb.innerHTML='<tr class="empty-row"><td colspan="7">Nenhum cliente cadastrado.</td></tr>';
+    tb.innerHTML='<tr class="empty-row"><td colspan="8">Nenhum cliente cadastrado.</td></tr>';
     barras.innerHTML='<div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum cliente cadastrado.</div>';
     return;
   }
@@ -2150,13 +2348,17 @@ function renderClientes(){
   }).join('');
   tb.innerHTML = listaClientes.map(function(c){
     var ri = riscoCliente(c.atraso);
-    return '<tr><td><strong>'+c.nome+'</strong></td>'
+    return '<tr><td><strong>'+escHTML(c.nome)+'</strong></td>'
       +'<td>'+(c.limite?brl(c.limite):'—')+'</td>'
       +'<td>'+(c.prazo?c.prazo+'d':'Vista')+'</td>'
       +'<td style="color:'+ri.c+';font-weight:700;">'+(c.atraso?c.atraso+' dias':'Pontual')+'</td>'
       +'<td><span class="badge '+ri.cls+'">'+ri.l+'</span></td>'
       +'<td class="td-m">'+(c.telefone||'—')+'</td>'
-      +'<td><button class="btn-del" onclick="excluirCliente('+c.id+')">✕</button></td></tr>';
+      +'<td class="td-m">'+(c.cnpj||'—')+'</td>'
+      +'<td style="white-space:nowrap;">'
+        +'<button class="btn-del" onclick="verOrcamentosCliente('+c.id+')" title="Ver orçamentos" style="color:#2563eb;">📊</button>'
+        +'<button class="btn-del" onclick="excluirCliente('+c.id+')">✕</button>'
+      +'</td></tr>';
   }).join('');
 }
 
@@ -2249,7 +2451,8 @@ function salvarProduto(){
   if(isNaN(estoqueAtual) || estoqueAtual < 0){ alert('Informe o Estoque Atual (pode ser 0).'); return; }
 
   var dados = {
-    codigo:       document.getElementById('prodCodigo').value.trim(),
+    codigo:            document.getElementById('prodCodigo').value.trim(),
+    codigoFabricante:  document.getElementById('prodCodigoFab').value.trim(),
     nome:         nome,
     categoria:    document.getElementById('prodCategoria').value,
     unidade:      document.getElementById('prodUnidade').value,
@@ -2306,6 +2509,7 @@ function editarProduto(id){
   produtoEmEdicao = id;
   document.getElementById('prodId').value          = id;
   document.getElementById('prodCodigo').value      = p.codigo || '';
+  document.getElementById('prodCodigoFab').value   = p.codigoFabricante || '';
   document.getElementById('prodNome').value         = p.nome || '';
   document.getElementById('prodCategoria').value    = p.categoria || 'Peças Mecânicas';
   document.getElementById('prodUnidade').value      = p.unidade || 'Peça';
@@ -2372,7 +2576,7 @@ function ajustarEstoque(id){
 
 function limparFormProduto(){
   produtoEmEdicao = null;
-  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
+  ['prodId','prodCodigo','prodCodigoFab','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
    'prodOrigem','prodNcm','prodCest','prodTipoItem','prodPctTributos','prodGrupo','prodIcmsStBase','prodIcmsStRetencao','prodIcmsStSubstituto','prodIpiExcecao','prodPisFixo','prodCofinsFixo','prodInfoAdicionais'
   ].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('prodCategoria').value = 'Peças Mecânicas';
@@ -2391,10 +2595,11 @@ function renderProdutos(){
 
   var lista = listaProdutos.filter(function(p){
     if(busca){
-      var nomeLower  = p.nome.toLowerCase();
+      var nomeLower   = p.nome.toLowerCase();
       var codigoLower = (p.codigo||'').toLowerCase();
+      var fabLower    = (p.codigoFabricante||'').toLowerCase();
       var fornLower   = (p.fornecedor||'').toLowerCase();
-      if(nomeLower.indexOf(busca)===-1 && codigoLower.indexOf(busca)===-1 && fornLower.indexOf(busca)===-1) return false;
+      if(nomeLower.indexOf(busca)===-1 && codigoLower.indexOf(busca)===-1 && fabLower.indexOf(busca)===-1 && fornLower.indexOf(busca)===-1) return false;
     }
     if(filtCat && p.categoria !== filtCat) return false;
     if(filtSt  && statusEstoque(p).code !== filtSt) return false;
@@ -2404,7 +2609,7 @@ function renderProdutos(){
   document.getElementById('cntProd').textContent = listaProdutos.length;
   var tb = document.getElementById('tbProd');
   if(!lista.length){
-    tb.innerHTML = '<tr class="empty-row"><td colspan="12">'+(listaProdutos.length ? 'Nenhum produto encontrado com os filtros aplicados.' : 'Nenhum produto cadastrado. Adicione acima.')+'</td></tr>';
+    tb.innerHTML = '<tr class="empty-row"><td colspan="13">'+(listaProdutos.length ? 'Nenhum produto encontrado com os filtros aplicados.' : 'Nenhum produto cadastrado. Adicione acima.')+'</td></tr>';
     return;
   }
 
@@ -2418,6 +2623,7 @@ function renderProdutos(){
     var estMin = p.estoqueMin > 0 ? '<span class="td-m" style="font-size:10px;"> (mín: '+p.estoqueMin+')</span>' : '';
     return '<tr>'
       +'<td class="td-m">'+(p.codigo||'—')+'</td>'
+      +'<td class="td-m">'+(p.codigoFabricante||'—')+'</td>'
       +'<td><strong>'+p.nome+'</strong>'+(p.obs?'<br><span class="td-m" style="font-size:10px;">'+p.obs+'</span>':'')+'</td>'
       +'<td class="td-m">'+p.categoria+'</td>'
       +'<td class="td-m">'+p.unidade+'</td>'
@@ -2430,6 +2636,7 @@ function renderProdutos(){
       +'<td class="td-m">'+(p.fornecedor||'—')+'</td>'
       +'<td style="white-space:nowrap;">'
         +'<button class="btn-del" onclick="ajustarEstoque('+p.id+')" title="Ajustar estoque" style="color:#2563eb;margin-right:2px;">±</button>'
+        +'<button class="btn-del" onclick="verHistoricoPreco('+p.id+')" title="Histórico de preços" style="color:#7c3aed;margin-right:2px;">📈</button>'
         +'<button class="btn-del" onclick="editarProduto('+p.id+')" title="Editar produto" style="color:#d97706;margin-right:2px;">✎</button>'
         +'<button class="btn-del" onclick="excluirProduto('+p.id+')" title="Excluir produto">✕</button>'
       +'</td></tr>';
@@ -2512,11 +2719,43 @@ function renderPainel(){
     });
   }
   atualizarGlobal();
-}
 
-// ============================================================
-// ALERTAS
-// ============================================================
+  // Feature 5: Top clientes do mês (orçamentos aprovados)
+  var mesAtual = HOJE.getMonth(), anoAtual = HOJE.getFullYear();
+  var orcMes = listaOrcamentos.filter(function(o){
+    if(o.status !== 'aprovado') return false;
+    var d = new Date(o.data+'T00:00:00');
+    return d.getFullYear() === anoAtual && d.getMonth() === mesAtual;
+  });
+  var cliMap = {};
+  orcMes.forEach(function(o){
+    var k = o.cliente;
+    if(!cliMap[k]) cliMap[k] = { nome:k, total:0, qtd:0 };
+    cliMap[k].total += (o.total||0);
+    cliMap[k].qtd   += 1;
+  });
+  var topCli = Object.values(cliMap).sort(function(a,b){ return b.total-a.total; }).slice(0,7);
+  var topWrap = document.getElementById('topClientesPainel');
+  var kpiTopCli = document.getElementById('kpiTopCli');
+  if(kpiTopCli) kpiTopCli.textContent = topCli.length + ' cliente(s)';
+  if(topWrap){
+    if(!topCli.length){
+      topWrap.innerHTML='<div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum orçamento aprovado neste mês.</div>';
+    } else {
+      var maxVal = topCli[0].total || 1;
+      topWrap.innerHTML = topCli.map(function(c, i){
+        var pct = Math.max(4, (c.total / maxVal) * 100);
+        return '<div class="top-cli-row">'
+          +'<div class="top-cli-rank">'+(i+1)+'</div>'
+          +'<div class="top-cli-name" title="'+escHTML(c.nome)+'">'+escHTML(c.nome)+'</div>'
+          +'<span class="chip" style="font-size:10px;flex-shrink:0;">'+c.qtd+' orc.</span>'
+          +'<div class="top-cli-bar-wrap"><div class="top-cli-bar" style="width:'+pct+'%;"></div></div>'
+          +'<div class="top-cli-val">'+brl(c.total)+'</div>'
+          +'</div>';
+      }).join('');
+    }
+  }
+}
 function gerarAlertas(){
   var als = [];
   var mg = margem(), tr = totalRec(), tp = totalPag();
@@ -2541,6 +2780,27 @@ function gerarAlertas(){
   if(estoqueB.length){ als.push({t:'al-amber',h:estoqueB.length+' produto(s) com estoque abaixo do mínimo',p:'Produtos com baixo estoque: '+estoqueB.map(function(p){ return p.nome+' (atual: '+p.estoqueAtual+', mín: '+p.estoqueMin+')'; }).join(', ')+'.'}); }
 
   if(mg > 0){ als.push({t:'al-green',h:'Margem positiva: '+brl(mg)+' — compra segura até '+brl(mg*0.20)+'/mês',p:'Parcelas mensais abaixo de '+brl(mg*0.20)+' estão dentro do limite saudável de 20% da margem operacional.'}); }
+
+  // Alertas de orçamentos prestes a vencer
+  var orcVencendo = listaOrcamentos.filter(function(o){
+    if(o.status==='recusado'||o.status==='convertido'||o.status==='aprovado') return false;
+    if(!o.validade) return false;
+    var d = diasAte(o.validade);
+    return d >= 0 && d <= 3;
+  });
+  if(orcVencendo.length){
+    als.push({t:'al-amber',h:orcVencendo.length+' orçamento(s) vence(m) em até 3 dias',p:'Orçamentos: '+orcVencendo.map(function(o){ return '#'+o.num+' ('+o.cliente+', vence: '+fmtData(o.validade)+')'; }).join(', ')+'. Contate o cliente ou prorrogue a validade.'});
+  }
+  // Alertas de orçamentos já vencidos (e não fechados)
+  var orcVencidos = listaOrcamentos.filter(function(o){
+    if(o.status==='recusado'||o.status==='convertido'||o.status==='aprovado') return false;
+    if(!o.validade) return false;
+    return diasAte(o.validade) < 0;
+  });
+  if(orcVencidos.length){
+    als.push({t:'al-red',h:orcVencidos.length+' orçamento(s) com validade expirada',p:'Orçamentos vencidos: '+orcVencidos.map(function(o){ return '#'+o.num+' ('+o.cliente+')'; }).join(', ')+'. Atualize a validade ou marque como recusado.'});
+  }
+
   return als;
 }
 
@@ -2830,12 +3090,31 @@ function proximoNumOrc(){
   return orcNumSequencial;
 }
 
+// ── Resolve product by name, internal code, or manufacturer code (single pass) ──
+function resolveProduto(valor) {
+  var v = (valor||'').trim().toLowerCase();
+  if(!v) return null;
+  var byName = null, byCode = null, byFab = null;
+  for(var i = 0; i < listaProdutos.length; i++){
+    var p = listaProdutos[i];
+    if(!byName && p.nome.toLowerCase() === v) byName = p;
+    if(!byCode && p.codigo && p.codigo.toLowerCase() === v) byCode = p;
+    if(!byFab  && p.codigoFabricante && p.codigoFabricante.toLowerCase() === v) byFab = p;
+    if(byName && byCode && byFab) break;
+  }
+  return byName || byCode || byFab || null;
+}
+
 function popularSugestoesOrc(){
   var dl = document.getElementById('orcProdSuggest');
   if(!dl) return;
-  dl.innerHTML = listaProdutos.map(function(p){
-    return '<option value="'+p.nome+'" data-preco="'+p.venda+'">';
-  }).join('');
+  var opts = [];
+  listaProdutos.forEach(function(p){
+    opts.push('<option value="'+escAttr(p.nome)+'" data-preco="'+p.venda+'">');
+    if(p.codigo) opts.push('<option value="'+escAttr(p.codigo)+'" data-preco="'+p.venda+'" label="'+escAttr(p.codigo+' — '+p.nome)+'">');
+    if(p.codigoFabricante) opts.push('<option value="'+escAttr(p.codigoFabricante)+'" data-preco="'+p.venda+'" label="'+escAttr(p.codigoFabricante+' — '+p.nome)+'">');
+  });
+  dl.innerHTML = opts.join('');
 }
 
 function calcOrcItemSubtotal(){
@@ -2847,25 +3126,40 @@ function calcOrcItemSubtotal(){
 }
 
 function adicionarItemOrc(){
-  var desc  = document.getElementById('orcItemDesc').value.trim();
+  var descInput = document.getElementById('orcItemDesc');
+  var desc  = descInput.value.trim();
   var qtd   = parseFloat(document.getElementById('orcItemQtd').value)||0;
   var preco = parseFloat(document.getElementById('orcItemPreco').value)||0;
   var descP = parseFloat(document.getElementById('orcItemDesc2').value)||0;
-  // Auto-fill price from product list when not yet entered
-  if(!preco){
-    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
-    if(prod && prod.venda>0){
+  // Resolve by name, internal code, or manufacturer code
+  var prod = resolveProduto(desc);
+  if(prod){
+    // If user typed a code, replace with product name
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      desc = prod.nome;
+      descInput.value = desc;
+    }
+    if(!preco && prod.venda > 0){
       preco = prod.venda;
+      document.getElementById('orcItemPreco').value = preco;
+    }
+  } else if(!preco){
+    // Fallback: search by name only (partial from datalist)
+    var prodFallback = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
+    if(prodFallback && prodFallback.venda>0){
+      preco = prodFallback.venda;
       document.getElementById('orcItemPreco').value = preco;
     }
   }
   if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário do item.'); return; }
   orcItensAtual.push({ desc:desc, qtd:qtd, preco:preco, descPct:descP });
-  document.getElementById('orcItemDesc').value='';
+  descInput.value='';
   document.getElementById('orcItemQtd').value='';
   document.getElementById('orcItemPreco').value='';
   document.getElementById('orcItemDesc2').value='';
   document.getElementById('orcItemSubtotal').textContent='';
+  var estEl = document.getElementById('orcItemEstoque');
+  if(estEl) estEl.style.display='none';
   renderItensOrc();
 }
 
@@ -2904,6 +3198,89 @@ function renderItensOrc(){
   document.getElementById('orcTotalGeral').textContent = brl(totalBruto - totalDesc);
 }
 
+// ============================================================
+// HISTÓRICO DE ITENS MAIS COMPRADOS POR CLIENTE
+// ============================================================
+var _histTopItens = []; // cache dos top-itens exibidos, para acesso por índice
+
+function escHTML(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function atualizarHistoricoClienteOrc(){
+  var nome = document.getElementById('orcCliente').value.trim();
+  var el   = document.getElementById('clienteHistoricoOrc');
+  if(!nome || nome.length < 2){ el.style.display='none'; return; }
+
+  // Coleta todos os orçamentos do cliente (exceto o que está sendo editado)
+  var normNome = nome.toLowerCase();
+  var historico = listaOrcamentos.filter(function(o){
+    return o.cliente && o.cliente.toLowerCase().indexOf(normNome) !== -1
+        && (orcEmEdicao === null ? true : o.id !== orcEmEdicao);
+  });
+
+  if(!historico.length){ el.style.display='none'; return; }
+
+  // Agrega a quantidade total de cada item comprado
+  var itemMap = {};
+  historico.forEach(function(o){
+    (o.itens||[]).forEach(function(item){
+      var key = item.desc.trim().toLowerCase();
+      if(!itemMap[key]){
+        itemMap[key] = { desc: item.desc.trim(), qtdTotal: 0, vezes: 0, ultimoPreco: 0 };
+      }
+      itemMap[key].qtdTotal += parseFloat(item.qtd) || 0;
+      itemMap[key].vezes    += 1;
+      var p = parseFloat(item.preco);
+      if(!isNaN(p)) itemMap[key].ultimoPreco = p;
+    });
+  });
+
+  var itens = Object.values(itemMap).sort(function(a,b){ return b.qtdTotal - a.qtdTotal; });
+  if(!itens.length){ el.style.display='none'; return; }
+
+  _histTopItens = itens.slice(0, 8);
+  document.getElementById('clienteHistoricoNome').textContent = nome;
+  document.getElementById('clienteHistoricoQtd').textContent =
+    historico.length + ' pedido(s) • ' + itens.length + ' produto(s) diferentes';
+
+  var body = document.getElementById('clienteHistoricoBody');
+  body.innerHTML = _histTopItens.map(function(item, idx){
+    var precoStr = item.ultimoPreco > 0 ? ' • último preço: '+brl(item.ultimoPreco) : '';
+    var qtdFmt   = item.qtdTotal.toLocaleString('pt-BR',{maximumFractionDigits:0});
+    return '<div class="cli-hist-item">'
+      +'<div class="cli-hist-rank">'+(idx+1)+'</div>'
+      +'<div class="cli-hist-name" title="'+escHTML(item.desc)+'">'+escHTML(item.desc)+'</div>'
+      +'<div class="cli-hist-count">'+qtdFmt+'x</div>'
+      +'<div class="cli-hist-preco">'+precoStr+'</div>'
+      +'<button class="cli-hist-add" data-hist-idx="'+idx+'" title="Adicionar ao orçamento">+ Adicionar</button>'
+      +'</div>';
+  }).join('');
+
+  // Bind add buttons via event delegation (avoids inline onclick with unescaped data)
+  body.querySelectorAll('.cli-hist-add').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var i = parseInt(this.getAttribute('data-hist-idx'), 10);
+      if(_histTopItens[i]) adicionarItemHistoricoOrc(_histTopItens[i].desc, _histTopItens[i].ultimoPreco);
+    });
+  });
+
+  el.style.display = 'block';
+}
+
+function adicionarItemHistoricoOrc(desc, preco){
+  document.getElementById('orcItemDesc').value  = desc;
+  document.getElementById('orcItemQtd').value   = 1;
+  document.getElementById('orcItemPreco').value = preco > 0 ? preco : '';
+  document.getElementById('orcItemDesc2').value = '';
+  calcOrcItemSubtotal();
+  document.getElementById('orcItemDesc').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  document.getElementById('orcItemQtd').focus();
+}
+
 function salvarOrcamento(){
   var cliente = document.getElementById('orcCliente').value.trim();
   var data    = document.getElementById('orcData').value;
@@ -2913,25 +3290,31 @@ function salvarOrcamento(){
   var totalBruto = orcItensAtual.reduce(function(s,i){ return s+i.qtd*i.preco; }, 0);
   var totalDesc  = orcItensAtual.reduce(function(s,i){ return s+i.qtd*i.preco*(i.descPct/100); }, 0);
   var totalLiq   = totalBruto - totalDesc;
+  var novoStatus = document.getElementById('orcStatus').value;
 
   var dados = {
     cliente:  cliente,
     data:     data,
     validade: document.getElementById('orcValidade').value,
     condicao: document.getElementById('orcCondicao').value,
-    status:   document.getElementById('orcStatus').value,
+    status:   novoStatus,
+    vendedor: document.getElementById('orcVendedor').value.trim(),
     obs:      document.getElementById('orcObs').value.trim(),
     itens:    orcItensAtual.slice(),
     total:    totalLiq,
-    totalDesconto: totalDesc
+    totalDesconto: totalDesc,
+    contaRecId: null
   };
 
+  var prevStatus = null;
   if(orcEmEdicao !== null){
     var idx = listaOrcamentos.findIndex(function(o){ return o.id===orcEmEdicao; });
     if(idx !== -1){
+      prevStatus = listaOrcamentos[idx].status;
       dados.id = orcEmEdicao;
       dados.num = listaOrcamentos[idx].num;
       dados.criadoEm = listaOrcamentos[idx].criadoEm;
+      dados.contaRecId = listaOrcamentos[idx].contaRecId || null;
       listaOrcamentos[idx] = dados;
     }
     orcEmEdicao = null;
@@ -2942,8 +3325,34 @@ function salvarOrcamento(){
     listaOrcamentos.push(dados);
   }
   gravarLS('orc', listaOrcamentos);
+
+  // Feature 1: Aprovação → gera conta a receber automaticamente
+  if(novoStatus === 'aprovado' && prevStatus !== 'aprovado' && !dados.contaRecId){
+    var vencRec = calcVencOrc(dados.data, dados.condicao);
+    if(confirm('💰 Orçamento #'+dados.num+' aprovado!\n\nCriar automaticamente uma Conta a Receber?\n  Cliente: '+dados.cliente+'\n  Valor: '+brl(dados.total)+'\n  Vencimento: '+fmtData(vencRec))){
+      var novaRec = {
+        id: novoID(), blingId: null,
+        cliente: dados.cliente,
+        descricao: 'Orçamento Nº '+dados.num,
+        valor: dados.total,
+        vencimento: vencRec,
+        status: 'aberto',
+        criadoEm: new Date().toISOString()
+      };
+      listaReceber.push(novaRec);
+      gravarLS('rec', listaReceber);
+      renderReceber();
+      var savedOrc = listaOrcamentos.find(function(o){ return o.id === dados.id; });
+      if(savedOrc) savedOrc.contaRecId = novaRec.id;
+      gravarLS('orc', listaOrcamentos);
+      atualizarGlobal();
+      showToast('✓ Conta a receber criada para '+dados.cliente, 'ok');
+    }
+  }
+
   renderOrcamentos();
   limparFormOrc();
+  showToast('✓ Orçamento #'+dados.num+' salvo', 'ok');
 }
 
 function editarOrcamento(id){
@@ -2956,12 +3365,14 @@ function editarOrcamento(id){
   document.getElementById('orcValidade').value= o.validade||'';
   document.getElementById('orcCondicao').value= o.condicao||'À vista';
   document.getElementById('orcStatus').value  = o.status||'rascunho';
+  document.getElementById('orcVendedor').value= o.vendedor||'';
   document.getElementById('orcObs').value     = o.obs||'';
   orcItensAtual = (o.itens||[]).slice();
   renderItensOrc();
   document.getElementById('orcFormTitulo').textContent = '✏ Editando Orçamento Nº '+o.num;
   document.getElementById('orcBtnSalvar').textContent  = '✓ Salvar Alterações';
   document.getElementById('orcBtnCancelar').style.display = 'inline-block';
+  atualizarHistoricoClienteOrc();
   window.scrollTo({ top:0, behavior:'smooth' });
 }
 
@@ -3015,13 +3426,16 @@ function converterParaPedido(id){
 function limparFormOrc(){
   orcEmEdicao = null;
   orcItensAtual = [];
-  ['orcId','orcCliente','orcData','orcValidade','orcObs'].forEach(function(i){ document.getElementById(i).value=''; });
+  ['orcId','orcCliente','orcData','orcValidade','orcObs','orcVendedor'].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('orcCondicao').value = 'À vista';
   document.getElementById('orcStatus').value   = 'rascunho';
   renderItensOrc();
   document.getElementById('orcFormTitulo').textContent = 'Novo Orçamento';
   document.getElementById('orcBtnSalvar').textContent  = '+ Salvar Orçamento';
   document.getElementById('orcBtnCancelar').style.display = 'none';
+  document.getElementById('clienteHistoricoOrc').style.display = 'none';
+  var estel = document.getElementById('orcItemEstoque');
+  if(estel) estel.style.display = 'none';
 }
 
 function renderOrcamentos(){
@@ -3049,8 +3463,8 @@ function renderOrcamentos(){
   });
 
   var tb = document.getElementById('tbOrc');
-  if(!listaOrcamentos.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum orçamento cadastrado. Adicione acima.</td></tr>'; return; }
-  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="9">Nenhum orçamento encontrado com os filtros aplicados.</td></tr>'; return; }
+  if(!listaOrcamentos.length){ tb.innerHTML='<tr class="empty-row"><td colspan="10">Nenhum orçamento cadastrado. Adicione acima.</td></tr>'; return; }
+  if(!lista.length){ tb.innerHTML='<tr class="empty-row"><td colspan="10">Nenhum orçamento encontrado com os filtros aplicados.</td></tr>'; return; }
 
   var stMap = {
     rascunho:   {cls:'b-gray',   l:'Rascunho'},
@@ -3070,12 +3484,15 @@ function renderOrcamentos(){
       acoes += '<button class="btn-del" onclick="editarOrcamento('+o.id+')" title="Editar" style="color:#d97706;">✎</button>';
       acoes += '<button class="btn-del" onclick="converterParaPedido('+o.id+')" title="Converter em Pedido" style="color:#7c3aed;">⇒</button>';
     }
+    acoes += '<button class="btn-del" onclick="duplicarOrcamento('+o.id+')" title="Duplicar orçamento" style="color:#2563eb;">⎘</button>';
+    acoes += '<button class="btn-del" onclick="imprimirOrcamento('+o.id+')" title="Imprimir / PDF" style="color:#16a34a;">🖨</button>';
     acoes += '<button class="btn-del" onclick="excluirOrcamento('+o.id+')" title="Excluir">✕</button>';
     acoes += '</div>';
     return '<tr>'
       +'<td class="td-m"><strong>#'+o.num+'</strong></td>'
       +'<td class="td-m">'+fmtData(o.data)+'</td>'
-      +'<td><strong>'+o.cliente+'</strong></td>'
+      +'<td><strong>'+escHTML(o.cliente)+'</strong></td>'
+      +'<td class="td-m">'+(o.vendedor?escHTML(o.vendedor):'—')+'</td>'
       +'<td class="td-m">'+nItens+' item(ns)</td>'
       +'<td>'+valStr+'</td>'
       +'<td class="td-m">'+(o.validade?fmtData(o.validade):'—')+'</td>'
@@ -3084,6 +3501,7 @@ function renderOrcamentos(){
       +'<td>'+acoes+'</td>'
       +'</tr>';
   }).join('');
+  renderComissoesOrc();
 }
 
 // ============================================================
@@ -3095,19 +3513,30 @@ var pedEmEdicao   = null;
 function popularSugestoesPed(){
   var dl = document.getElementById('pedProdSuggest');
   if(!dl) return;
-  dl.innerHTML = listaProdutos.map(function(p){
-    return '<option value="'+p.nome+'" data-custo="'+p.custo+'">';
-  }).join('');
+  var opts = [];
+  listaProdutos.forEach(function(p){
+    opts.push('<option value="'+escAttr(p.nome)+'" data-custo="'+p.custo+'">');
+    if(p.codigo) opts.push('<option value="'+escAttr(p.codigo)+'" data-custo="'+p.custo+'" label="'+escAttr(p.codigo+' — '+p.nome)+'">');
+    if(p.codigoFabricante) opts.push('<option value="'+escAttr(p.codigoFabricante)+'" data-custo="'+p.custo+'" label="'+escAttr(p.codigoFabricante+' — '+p.nome)+'">');
+  });
+  dl.innerHTML = opts.join('');
 }
 
 function autoPreencherCustoPed(){
-  var desc = document.getElementById('pedItemDesc').value.trim();
+  var inputEl = document.getElementById('pedItemDesc');
+  var desc = inputEl.value.trim();
   if(!desc) return;
-  var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
-  if(prod && prod.custo>0){
-    var precoEl = document.getElementById('pedItemPreco');
-    if(!precoEl.value) precoEl.value = prod.custo;
-    calcPedItemSubtotal();
+  var prod = resolveProduto(desc);
+  if(prod){
+    // If user typed a code, replace with product name
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      inputEl.value = prod.nome;
+    }
+    if(prod.custo > 0){
+      var precoEl = document.getElementById('pedItemPreco');
+      if(!precoEl.value) precoEl.value = prod.custo;
+      calcPedItemSubtotal();
+    }
   }
 }
 
@@ -3119,12 +3548,25 @@ function calcPedItemSubtotal(){
 }
 
 function adicionarItemPed(){
-  var desc  = document.getElementById('pedItemDesc').value.trim();
+  var inputEl = document.getElementById('pedItemDesc');
+  var desc  = inputEl.value.trim();
   var qtd   = parseFloat(document.getElementById('pedItemQtd').value)||0;
   var preco = parseFloat(document.getElementById('pedItemPreco').value)||0;
+  // Resolve by name, internal code, or manufacturer code
+  var prod = resolveProduto(desc);
+  if(prod){
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      desc = prod.nome;
+      inputEl.value = desc;
+    }
+    if(!preco && prod.custo > 0){
+      preco = prod.custo;
+      document.getElementById('pedItemPreco').value = preco;
+    }
+  }
   if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário.'); return; }
   pedItensAtual.push({ desc:desc, qtd:qtd, preco:preco });
-  document.getElementById('pedItemDesc').value='';
+  inputEl.value='';
   document.getElementById('pedItemQtd').value='';
   document.getElementById('pedItemPreco').value='';
   document.getElementById('pedItemSubtotal').textContent='';
@@ -3334,6 +3776,384 @@ function renderPedidos(){
 }
 
 // ============================================================
+// NEW FEATURES — FUNCTIONS
+// ============================================================
+
+// Feature 10: Toast notifications
+function showToast(msg, tipo){
+  tipo = tipo || 'info';
+  var container = document.getElementById('toastContainer');
+  if(!container) return;
+  var t = document.createElement('div');
+  t.className = 'toast toast-'+tipo;
+  t.textContent = msg;
+  container.appendChild(t);
+  setTimeout(function(){ t.classList.add('show'); }, 10);
+  setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 320); }, 3200);
+}
+
+// Feature 12: Dark mode toggle
+function toggleDarkMode(){
+  var isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('cai5_darkMode', isDark ? '1' : '0');
+  var btn = document.getElementById('darkToggle');
+  if(btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+
+// Helper: calculate vencimento date from orçamento data + condition
+function calcVencOrc(dataStr, condicao){
+  var d = new Date(dataStr+'T00:00:00');
+  var prazo = 30;
+  if(condicao === 'À vista')              prazo = 0;
+  else if(condicao === '30 dias')         prazo = 30;
+  else if(condicao === '30/60 dias')      prazo = 60;
+  else if(condicao === '30/60/90 dias')   prazo = 90;
+  d.setDate(d.getDate() + prazo);
+  return chaveData(d);
+}
+
+// Feature 9: Duplicar orçamento
+function duplicarOrcamento(id){
+  var o = listaOrcamentos.find(function(x){ return x.id===id; });
+  if(!o) return;
+  var novoNum = proximoNumOrc();
+  var copia = JSON.parse(JSON.stringify(o));
+  copia.id = novoID();
+  copia.num = novoNum;
+  copia.status = 'rascunho';
+  copia.data = chaveData(HOJE);
+  copia.validade = '';
+  copia.criadoEm = new Date().toISOString();
+  copia.contaRecId = null;
+  listaOrcamentos.push(copia);
+  gravarLS('orc', listaOrcamentos);
+  renderOrcamentos();
+  showToast('✓ Orçamento #'+o.num+' duplicado como #'+novoNum, 'ok');
+}
+
+// Feature 4: Imprimir / PDF do orçamento
+function imprimirOrcamento(id){
+  var o = listaOrcamentos.find(function(x){ return x.id===id; });
+  if(!o) return;
+  var itensHTML = (o.itens||[]).map(function(item, i){
+    var sub = item.qtd * item.preco * (1 - (item.descPct||0)/100);
+    return '<tr style="border-bottom:1px solid #e2e8f0;">'
+      +'<td style="padding:7px 10px;">'+(i+1)+'</td>'
+      +'<td style="padding:7px 10px;">'+escHTML(item.desc)+'</td>'
+      +'<td style="padding:7px 10px;text-align:right;">'+Number(item.qtd).toLocaleString('pt-BR')+'</td>'
+      +'<td style="padding:7px 10px;text-align:right;">'+brl(item.preco)+'</td>'
+      +(item.descPct>0?'<td style="padding:7px 10px;text-align:right;color:#dc2626;">'+item.descPct+'%</td>':'<td style="padding:7px 10px;text-align:right;">—</td>')
+      +'<td style="padding:7px 10px;text-align:right;font-weight:700;">'+brl(sub)+'</td>'
+      +'</tr>';
+  }).join('');
+  var w = window.open('','_blank','width=800,height=600');
+  w.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
+    +'<title>Orçamento #'+o.num+'</title>'
+    +'<style>body{font-family:Arial,sans-serif;font-size:13px;color:#111;margin:0;padding:0;} '
+    +'.hdr{background:#0f172a;color:#fff;padding:20px 30px;display:flex;justify-content:space-between;align-items:center;} '
+    +'.hdr h1{margin:0;font-size:20px;color:#f59e0b;} .hdr .num{font-size:14px;opacity:.7;margin-top:4px;} '
+    +'.body{padding:24px 30px;} table{width:100%;border-collapse:collapse;} '
+    +'th{background:#f1f5f9;padding:8px 10px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#64748b;border-bottom:2px solid #e2e8f0;} '
+    +'.total-row{font-size:15px;font-weight:700;padding:10px;text-align:right;} '
+    +'.footer{padding:16px 30px;background:#f8fafc;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;} '
+    +'@media print{.no-print{display:none}}</style></head><body>'
+    +'<div class="hdr"><div><h1>⚡ ComprasAI</h1><div class="num">Orçamento Nº #'+o.num+'</div></div>'
+    +'<div style="text-align:right;font-size:13px;"><div>Data: '+fmtData(o.data)+'</div>'
+    +(o.validade?'<div>Válido até: '+fmtData(o.validade)+'</div>':'')
+    +'</div></div>'
+    +'<div class="body">'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">'
+    +'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">'
+    +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:6px;">Cliente</div>'
+    +'<div style="font-size:15px;font-weight:700;">'+escHTML(o.cliente)+'</div>'
+    +'</div>'
+    +'<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px;">'
+    +'<div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:4px;">Condição de Pagamento</div>'
+    +'<div style="font-weight:700;">'+(o.condicao||'—')+'</div>'
+    +(o.vendedor?'<div style="font-size:11px;color:#64748b;margin-top:6px;">Vendedor: '+escHTML(o.vendedor)+'</div>':'')
+    +'</div></div>'
+    +'<table><thead><tr><th>#</th><th>Descrição</th><th>Qtd</th><th>Unit.</th><th>Desc.%</th><th>Subtotal</th></tr></thead>'
+    +'<tbody>'+itensHTML+'</tbody></table>'
+    +'<div style="text-align:right;margin-top:12px;padding-top:12px;border-top:2px solid #e2e8f0;">'
+    +(o.totalDesconto>0?'<div style="color:#dc2626;font-size:12px;margin-bottom:4px;">Desconto total: -'+brl(o.totalDesconto)+'</div>':'')
+    +'<div style="font-size:18px;font-weight:800;color:#16a34a;">Total: '+brl(o.total||0)+'</div>'
+    +'</div>'
+    +(o.obs?'<div style="margin-top:16px;padding:12px;background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;font-size:12px;color:#92400e;"><strong>Observações:</strong> '+escHTML(o.obs)+'</div>':'')
+    +'</div>'
+    +'<div class="footer">Este orçamento foi gerado pelo ComprasAI. Validade: '+(o.validade?fmtData(o.validade):'não especificada')+'.</div>'
+    +'<div class="no-print" style="text-align:center;padding:16px;"><button onclick="window.print()" style="padding:10px 28px;background:#f59e0b;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">🖨 Imprimir / Salvar PDF</button></div>'
+    +'</body></html>');
+  w.document.close();
+}
+
+// Feature 13: Exportar orçamentos como CSV
+function exportarOrcamentosCSV(){
+  var busca = (document.getElementById('orcBusca')||{}).value||'';
+  var fSt   = (document.getElementById('orcFiltroStatus')||{}).value||'';
+  var lista = listaOrcamentos.filter(function(o){
+    if(fSt && o.status!==fSt) return false;
+    if(busca && o.cliente.toLowerCase().indexOf(busca.toLowerCase())===-1) return false;
+    return true;
+  });
+  if(!lista.length){ showToast('Nenhum orçamento para exportar.', 'info'); return; }
+  var linhas = [['Nº','Data','Cliente','Vendedor','Itens','Total','Desconto','Validade','Condição','Status','Obs']];
+  lista.slice().reverse().forEach(function(o){
+    linhas.push([
+      o.num, o.data, o.cliente, o.vendedor||'',
+      (o.itens||[]).length, (o.total||0).toFixed(2).replace('.',','),
+      (o.totalDesconto||0).toFixed(2).replace('.',','),
+      o.validade||'', o.condicao||'', o.status, o.obs||''
+    ]);
+  });
+  var csv = linhas.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(';'); }).join('\r\n');
+  var blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a'); a.href=url; a.download='orcamentos.csv'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ CSV exportado ('+lista.length+' registros)', 'ok');
+}
+
+// Feature 7: Relatório de comissões por vendedor
+function renderComissoesOrc(){
+  var body = document.getElementById('comissoesBody');
+  if(!body) return;
+  var pct = parseFloat((document.getElementById('pctComissao')||{}).value) || 5;
+  var orcVend = listaOrcamentos.filter(function(o){ return o.vendedor && o.status==='aprovado'; });
+  if(!orcVend.length){
+    body.innerHTML='<div style="color:#cbd5e1;font-size:12px;text-align:center;padding:20px;">Nenhum orçamento aprovado com vendedor cadastrado.</div>';
+    return;
+  }
+  var vMap = {};
+  orcVend.forEach(function(o){
+    var v = o.vendedor;
+    if(!vMap[v]) vMap[v] = { nome:v, total:0, qtd:0 };
+    vMap[v].total += (o.total||0);
+    vMap[v].qtd   += 1;
+  });
+  var vendedores = Object.values(vMap).sort(function(a,b){ return b.total-a.total; });
+  var maxV = vendedores[0].total || 1;
+  body.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+    +'<thead><tr><th style="text-align:left;font-size:10px;color:var(--text-3);padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);">Vendedor</th>'
+    +'<th style="text-align:right;font-size:10px;color:var(--text-3);padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);">Orçamentos</th>'
+    +'<th style="text-align:right;font-size:10px;color:var(--text-3);padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);">Total Aprovado</th>'
+    +'<th style="text-align:right;font-size:10px;color:var(--text-3);padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);">Comissão ('+pct+'%)</th>'
+    +'<th style="padding:7px 12px;background:var(--bg);border-bottom:2px solid var(--border);"></th>'
+    +'</tr></thead><tbody>'
+    + vendedores.map(function(v){
+        var com = v.total * (pct / 100);
+        var barW = Math.max(4, (v.total / maxV) * 100);
+        return '<tr style="border-bottom:1px solid var(--border);">'
+          +'<td style="padding:10px 12px;font-weight:600;">'+escHTML(v.nome)+'</td>'
+          +'<td style="padding:10px 12px;text-align:right;color:var(--text-2);">'+v.qtd+'</td>'
+          +'<td style="padding:10px 12px;text-align:right;font-weight:700;color:#16a34a;">'+brl(v.total)+'</td>'
+          +'<td style="padding:10px 12px;text-align:right;font-weight:700;color:#7c3aed;">'+brl(com)+'</td>'
+          +'<td style="padding:10px 12px;width:100px;"><div style="height:6px;background:var(--border);border-radius:4px;"><div style="height:100%;width:'+barW+'%;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:4px;"></div></div></td>'
+          +'</tr>';
+      }).join('')
+    +'</tbody></table></div>';
+}
+
+// Feature 2: CRM panel — orçamentos por cliente
+function verOrcamentosCliente(cliId){
+  var cli = listaClientes.find(function(c){ return c.id === cliId; });
+  if(!cli) return;
+  var nome = cli.nome;
+  var orcs = listaOrcamentos.filter(function(o){
+    return o.cliente && o.cliente.toLowerCase() === nome.toLowerCase();
+  });
+  var totalFechado = orcs.filter(function(o){ return o.status==='aprovado'||o.status==='convertido'; })
+                         .reduce(function(s,o){ return s+(o.total||0); }, 0);
+  var totalOrcs    = orcs.length;
+  var aprovados    = orcs.filter(function(o){ return o.status==='aprovado'||o.status==='convertido'; }).length;
+  var ticketMedio  = aprovados ? totalFechado / aprovados : 0;
+  var taxaConv     = totalOrcs ? Math.round((aprovados/totalOrcs)*100) : 0;
+  var ultimoOrc    = orcs.length ? orcs.reduce(function(a,b){ return a.criadoEm > b.criadoEm ? a : b; }) : null;
+  var stMap = {rascunho:{cls:'b-gray',l:'Rascunho'},enviado:{cls:'b-blue',l:'Enviado'},aprovado:{cls:'b-green',l:'Aprovado'},recusado:{cls:'b-red',l:'Recusado'},convertido:{cls:'b-purple',l:'Convertido'}};
+  document.getElementById('crmModalTitle').textContent = '📊 Painel CRM — '+nome;
+  document.getElementById('crmModalBody').innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:16px;">'
+    +'<div class="kpi" style="padding:12px;"><div class="kpi-l">Orçamentos</div><div class="kpi-v" style="color:#2563eb;font-size:18px;">'+totalOrcs+'</div></div>'
+    +'<div class="kpi" style="padding:12px;"><div class="kpi-l">Total Fechado</div><div class="kpi-v" style="color:#16a34a;font-size:18px;">'+brl(totalFechado)+'</div></div>'
+    +'<div class="kpi" style="padding:12px;"><div class="kpi-l">Ticket Médio</div><div class="kpi-v" style="color:#d97706;font-size:18px;">'+brl(ticketMedio)+'</div></div>'
+    +'<div class="kpi" style="padding:12px;"><div class="kpi-l">Taxa Conversão</div><div class="kpi-v" style="color:'+(taxaConv>=50?'#16a34a':'#d97706')+';font-size:18px;">'+taxaConv+'%</div></div>'
+    +'</div>'
+    +(ultimoOrc?'<div style="font-size:12px;color:var(--text-2);margin-bottom:14px;">Último orçamento: <strong>#'+ultimoOrc.num+'</strong> em '+fmtData(ultimoOrc.data)+' — '+brl(ultimoOrc.total||0)+'</div>':'')
+    +(cli.cnpj?'<div style="font-size:12px;color:var(--text-2);margin-bottom:8px;">CNPJ/CPF: <strong>'+escHTML(cli.cnpj)+'</strong></div>':'')
+    +(cli.endereco?'<div style="font-size:12px;color:var(--text-2);margin-bottom:14px;">Endereço: <strong>'+escHTML(cli.endereco)+'</strong></div>':'')
+    +'<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px;">Histórico de Orçamentos</div>'
+    +(orcs.length ? '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;">'
+      +'<thead><tr><th style="text-align:left;font-size:10px;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border);">Nº</th>'
+      +'<th style="text-align:left;font-size:10px;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border);">Data</th>'
+      +'<th style="text-align:right;font-size:10px;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border);">Total</th>'
+      +'<th style="text-align:left;font-size:10px;color:var(--text-3);padding:7px 10px;border-bottom:2px solid var(--border);">Status</th></tr></thead>'
+      +'<tbody>'+orcs.slice().reverse().map(function(o){
+          var st = stMap[o.status]||{cls:'b-gray',l:o.status};
+          return '<tr style="border-bottom:1px solid var(--border);">'
+            +'<td style="padding:8px 10px;font-size:12px;"><strong>#'+o.num+'</strong></td>'
+            +'<td style="padding:8px 10px;font-size:12px;color:var(--text-2);">'+fmtData(o.data)+'</td>'
+            +'<td style="padding:8px 10px;font-size:12px;text-align:right;font-weight:700;color:#16a34a;">'+brl(o.total||0)+'</td>'
+            +'<td style="padding:8px 10px;"><span class="badge '+st.cls+'">'+st.l+'</span></td>'
+            +'</tr>';
+        }).join('')+'</tbody></table></div>'
+      : '<div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Nenhum orçamento encontrado para este cliente.</div>');
+  document.getElementById('modalCRM').style.display = 'flex';
+}
+function fecharCRMPanel(){ document.getElementById('modalCRM').style.display = 'none'; }
+
+// Feature 6: Histórico de preços por produto
+var _grafHistPreco = null;
+function verHistoricoPreco(prodId){
+  var prod = listaProdutos.find(function(p){ return p.id === prodId; });
+  if(!prod) return;
+  // Collect prices from pedidos (purchase orders)
+  var pontosCompra = [];
+  listaPedidos.forEach(function(ped){
+    (ped.itens||[]).forEach(function(item){
+      if(item.desc && item.desc.toLowerCase() === prod.nome.toLowerCase() && ped.data){
+        pontosCompra.push({ data: ped.data, preco: item.preco||0 });
+      }
+    });
+  });
+  pontosCompra.sort(function(a,b){ return a.data > b.data ? 1 : -1; });
+  // Also add orçamento prices
+  var pontosOrc = [];
+  listaOrcamentos.forEach(function(orc){
+    (orc.itens||[]).forEach(function(item){
+      if(item.desc && item.desc.toLowerCase() === prod.nome.toLowerCase() && orc.data){
+        pontosOrc.push({ data: orc.data, preco: item.preco||0 });
+      }
+    });
+  });
+  pontosOrc.sort(function(a,b){ return a.data > b.data ? 1 : -1; });
+  document.getElementById('histPrecoTitle').textContent = '📈 Histórico de Preços — '+prod.nome;
+  var modalEl = document.getElementById('modalHistPreco');
+  modalEl.style.display = 'flex';
+  // Destroy previous chart
+  if(_grafHistPreco){ _grafHistPreco.destroy(); _grafHistPreco=null; }
+  var labelsC = pontosCompra.map(function(p){ return fmtData(p.data); });
+  var dataC   = pontosCompra.map(function(p){ return p.preco; });
+  var labelsO = pontosOrc.map(function(p){ return fmtData(p.data); });
+  var dataO   = pontosOrc.map(function(p){ return p.preco; });
+  var bodyEl = document.getElementById('histPrecoBody');
+  if(!pontosCompra.length && !pontosOrc.length){
+    bodyEl.innerHTML='<div style="color:#cbd5e1;font-size:13px;text-align:center;padding:40px;">Nenhum histórico encontrado.<br><small>Preços são registrados a partir de pedidos e orçamentos com o nome exato do produto.</small></div>';
+    return;
+  }
+  bodyEl.innerHTML='<div style="position:relative;height:260px;"><canvas id="grafHistPreco"></canvas></div>';
+  var datasets = [];
+  if(dataC.length) datasets.push({ label:'Preço de Compra (Pedidos)', data:dataC, labels:labelsC, borderColor:'#dc2626', backgroundColor:'rgba(220,38,38,0.1)', tension:.35, pointRadius:5, fill:true });
+  if(dataO.length) datasets.push({ label:'Preço de Venda (Orçamentos)', data:dataO, labels:labelsO, borderColor:'#16a34a', backgroundColor:'rgba(22,163,74,0.08)', tension:.35, pointRadius:5, fill:true });
+  // Merge all labels sorted
+  var allLabels = Array.from(new Set(labelsC.concat(labelsO))).sort();
+  _grafHistPreco = new Chart(document.getElementById('grafHistPreco'), {
+    type:'line',
+    data:{ labels: allLabels, datasets: datasets },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ font:{ size:11 } } } },
+      scales:{ y:{ ticks:{ callback:function(v){ return 'R$'+v.toFixed(2); } }, grid:{ color:'rgba(0,0,0,0.05)' } }, x:{ grid:{ display:false } } } }
+  });
+}
+function fecharHistPrecoModal(){ document.getElementById('modalHistPreco').style.display='none'; if(_grafHistPreco){ _grafHistPreco.destroy(); _grafHistPreco=null; } }
+
+// Feature 8: Busca global (Ctrl+K)
+function navegarParaBusca(pagina){
+  fecharBuscaGlobal();
+  var btn = document.querySelector('.sb-btn[onclick*="\''+pagina+'\'"]');
+  if(btn) irPara(pagina, btn);
+}
+function abrirBuscaGlobal(){
+  document.getElementById('modalBusca').style.display = 'flex';
+  setTimeout(function(){ var inp = document.getElementById('buscaGlobalInput'); if(inp){ inp.value=''; inp.focus(); } executarBuscaGlobal(); }, 30);
+}
+function fecharBuscaGlobal(){ document.getElementById('modalBusca').style.display = 'none'; }
+function executarBuscaGlobal(){
+  var q = (document.getElementById('buscaGlobalInput').value||'').trim().toLowerCase();
+  var res = document.getElementById('buscaGlobalResultados');
+  if(q.length < 2){ res.innerHTML='<div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Digite pelo menos 2 caracteres para buscar.</div>'; return; }
+  var html = '';
+  // Clientes
+  var rCli = listaClientes.filter(function(c){ return c.nome.toLowerCase().indexOf(q)!==-1; });
+  if(rCli.length){
+    html += '<div class="search-result-group"><div class="search-result-group-title">Clientes</div>'
+      + rCli.slice(0,5).map(function(c){
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'clientes\')">'
+            +'<span class="search-result-icon">◎</span>'
+            +'<div><div class="search-result-main">'+escHTML(c.nome)+'</div>'
+            +'<div class="search-result-sub">'+(c.telefone||'')+(c.cnpj?' · '+escHTML(c.cnpj):'')+'</div></div>'
+            +'</div>';
+        }).join('')+'</div>';
+  }
+  // Produtos
+  var rProd = listaProdutos.filter(function(p){ return p.nome.toLowerCase().indexOf(q)!==-1 || (p.codigo&&p.codigo.toLowerCase().indexOf(q)!==-1); });
+  if(rProd.length){
+    html += '<div class="search-result-group"><div class="search-result-group-title">Produtos</div>'
+      + rProd.slice(0,5).map(function(p){
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'produtos\')">'
+            +'<span class="search-result-icon">📦</span>'
+            +'<div><div class="search-result-main">'+escHTML(p.nome)+'</div>'
+            +'<div class="search-result-sub">'+(p.codigo?'#'+escHTML(p.codigo)+' · ':'')+'Estoque: '+(p.estoqueAtual||0)+' · '+brl(p.venda||0)+'</div></div>'
+            +'</div>';
+        }).join('')+'</div>';
+  }
+  // Orçamentos
+  var rOrc = listaOrcamentos.filter(function(o){ return o.cliente.toLowerCase().indexOf(q)!==-1 || String(o.num).indexOf(q)!==-1; });
+  if(rOrc.length){
+    html += '<div class="search-result-group"><div class="search-result-group-title">Orçamentos</div>'
+      + rOrc.slice(0,5).map(function(o){
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'orcamentos\')">'
+            +'<span class="search-result-icon">📋</span>'
+            +'<div><div class="search-result-main">#'+o.num+' — '+escHTML(o.cliente)+'</div>'
+            +'<div class="search-result-sub">'+fmtData(o.data)+' · '+brl(o.total||0)+' · '+o.status+'</div></div>'
+            +'</div>';
+        }).join('')+'</div>';
+  }
+  // Pedidos
+  var rPed = listaPedidos.filter(function(p){ return p.fornecedor.toLowerCase().indexOf(q)!==-1 || String(p.num).indexOf(q)!==-1; });
+  if(rPed.length){
+    html += '<div class="search-result-group"><div class="search-result-group-title">Pedidos</div>'
+      + rPed.slice(0,5).map(function(p){
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'pedidos\')">'
+            +'<span class="search-result-icon">📦</span>'
+            +'<div><div class="search-result-main">#'+p.num+' — '+escHTML(p.fornecedor)+'</div>'
+            +'<div class="search-result-sub">'+fmtData(p.data)+' · '+brl(p.total||0)+' · '+p.status+'</div></div>'
+            +'</div>';
+        }).join('')+'</div>';
+  }
+  if(!html) html='<div style="color:var(--text-3);font-size:12px;text-align:center;padding:20px;">Nenhum resultado encontrado para "'+escHTML(q)+'".</div>';
+  res.innerHTML = html;
+}
+
+// Feature 14: Indicador de estoque no formulário de orçamento
+function mostrarEstoqueOrcItem(){
+  var inputEl = document.getElementById('orcItemDesc');
+  var inputVal = inputEl.value.trim();
+  var el = document.getElementById('orcItemEstoque');
+  if(!el) return;
+  if(!inputVal){ el.style.display='none'; return; }
+  var prod = resolveProduto(inputVal);
+  // If resolved by code (not exact name), replace input with product name
+  if(prod && prod.nome.toLowerCase() !== inputVal.toLowerCase()){
+    inputEl.value = prod.nome;
+  }
+  if(!prod){ el.style.display='none'; return; }
+  var est = prod.estoqueAtual || 0;
+  var cls = est <= 0 ? 'stock-inline-zero' : (prod.estoqueMin > 0 && est <= prod.estoqueMin ? 'stock-inline-low' : 'stock-inline-ok');
+  var ico = est <= 0 ? '⚠' : (prod.estoqueMin > 0 && est <= prod.estoqueMin ? '⚠' : '✓');
+  el.className = 'stock-inline '+cls;
+  el.textContent = ico+' Estoque: '+est+' '+(prod.unidade||'un');
+  el.style.display = 'inline-block';
+  // Also auto-fill unit price if empty
+  if(prod.venda > 0){
+    var precoEl = document.getElementById('orcItemPreco');
+    if(precoEl && !precoEl.value) precoEl.value = prod.venda;
+    calcOrcItemSubtotal();
+  }
+}
+
+// Feature 6: Add "Histórico" button to product table (called from renderProdutos row builder)
+// Note: uses verHistoricoPreco(id) defined above
+
+// ============================================================
 // GLOBAL UPDATE
 // ============================================================
 function atualizarGlobal(){
@@ -3370,6 +4190,29 @@ renderProdutos();
 renderOrcamentos();
 renderPedidos();
 renderPainel();
+
+// ── Dark mode init ──
+(function(){
+  var saved = localStorage.getItem('cai5_darkMode');
+  if(saved === '1'){
+    document.body.classList.add('dark-mode');
+    var btn = document.getElementById('darkToggle');
+    if(btn) btn.textContent = '☀️';
+  }
+})();
+
+// ── Keyboard shortcut Ctrl+K for global search ──
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey || e.metaKey) && e.key === 'k'){
+    e.preventDefault();
+    abrirBuscaGlobal();
+  }
+  if(e.key === 'Escape'){
+    fecharBuscaGlobal();
+    fecharCRMPanel();
+    fecharHistPrecoModal();
+  }
+});
 
 // ============================================================
 // BLING INTEGRATION — OAuth2
