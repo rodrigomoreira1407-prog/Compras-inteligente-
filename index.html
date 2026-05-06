@@ -926,7 +926,8 @@ body.dark-mode .item-list-wrap{background:#0f172a;}
         <div class="card-b">
           <input type="hidden" id="prodId">
           <div class="fgrid">
-            <div class="fg"><label>Código do Produto</label><input id="prodCodigo" placeholder="Ex: PEC-001"></div>
+            <div class="fg"><label>Código do Produto (Interno)</label><input id="prodCodigo" placeholder="Ex: PEC-001"></div>
+            <div class="fg"><label>Código do Fabricante</label><input id="prodCodigoFab" placeholder="Ex: BOSCH-0451103300"></div>
             <div class="fg"><label>Nome do Produto *</label><input id="prodNome" placeholder="Nome do produto"></div>
             <div class="fg"><label>Categoria</label>
               <select id="prodCategoria">
@@ -1106,7 +1107,8 @@ body.dark-mode .item-list-wrap{background:#0f172a;}
           <table>
             <thead>
               <tr>
-                <th>Código</th>
+                <th>Cód. Interno</th>
+                <th>Cód. Fabricante</th>
                 <th>Nome</th>
                 <th>Categoria</th>
                 <th>Un.</th>
@@ -1120,7 +1122,7 @@ body.dark-mode .item-list-wrap{background:#0f172a;}
                 <th></th>
               </tr>
             </thead>
-            <tbody id="tbProd"><tr class="empty-row"><td colspan="12">Nenhum produto cadastrado. Adicione acima.</td></tr></tbody>
+            <tbody id="tbProd"><tr class="empty-row"><td colspan="13">Nenhum produto cadastrado. Adicione acima.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -2449,7 +2451,8 @@ function salvarProduto(){
   if(isNaN(estoqueAtual) || estoqueAtual < 0){ alert('Informe o Estoque Atual (pode ser 0).'); return; }
 
   var dados = {
-    codigo:       document.getElementById('prodCodigo').value.trim(),
+    codigo:            document.getElementById('prodCodigo').value.trim(),
+    codigoFabricante:  document.getElementById('prodCodigoFab').value.trim(),
     nome:         nome,
     categoria:    document.getElementById('prodCategoria').value,
     unidade:      document.getElementById('prodUnidade').value,
@@ -2506,6 +2509,7 @@ function editarProduto(id){
   produtoEmEdicao = id;
   document.getElementById('prodId').value          = id;
   document.getElementById('prodCodigo').value      = p.codigo || '';
+  document.getElementById('prodCodigoFab').value   = p.codigoFabricante || '';
   document.getElementById('prodNome').value         = p.nome || '';
   document.getElementById('prodCategoria').value    = p.categoria || 'Peças Mecânicas';
   document.getElementById('prodUnidade').value      = p.unidade || 'Peça';
@@ -2572,7 +2576,7 @@ function ajustarEstoque(id){
 
 function limparFormProduto(){
   produtoEmEdicao = null;
-  ['prodId','prodCodigo','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
+  ['prodId','prodCodigo','prodCodigoFab','prodNome','prodCusto','prodVenda','prodEstoqueAtual','prodEstoqueMin','prodVendasMes','prodFornecedor','prodLocalizacao','prodObs',
    'prodOrigem','prodNcm','prodCest','prodTipoItem','prodPctTributos','prodGrupo','prodIcmsStBase','prodIcmsStRetencao','prodIcmsStSubstituto','prodIpiExcecao','prodPisFixo','prodCofinsFixo','prodInfoAdicionais'
   ].forEach(function(i){ document.getElementById(i).value=''; });
   document.getElementById('prodCategoria').value = 'Peças Mecânicas';
@@ -2591,10 +2595,11 @@ function renderProdutos(){
 
   var lista = listaProdutos.filter(function(p){
     if(busca){
-      var nomeLower  = p.nome.toLowerCase();
+      var nomeLower   = p.nome.toLowerCase();
       var codigoLower = (p.codigo||'').toLowerCase();
+      var fabLower    = (p.codigoFabricante||'').toLowerCase();
       var fornLower   = (p.fornecedor||'').toLowerCase();
-      if(nomeLower.indexOf(busca)===-1 && codigoLower.indexOf(busca)===-1 && fornLower.indexOf(busca)===-1) return false;
+      if(nomeLower.indexOf(busca)===-1 && codigoLower.indexOf(busca)===-1 && fabLower.indexOf(busca)===-1 && fornLower.indexOf(busca)===-1) return false;
     }
     if(filtCat && p.categoria !== filtCat) return false;
     if(filtSt  && statusEstoque(p).code !== filtSt) return false;
@@ -2604,7 +2609,7 @@ function renderProdutos(){
   document.getElementById('cntProd').textContent = listaProdutos.length;
   var tb = document.getElementById('tbProd');
   if(!lista.length){
-    tb.innerHTML = '<tr class="empty-row"><td colspan="12">'+(listaProdutos.length ? 'Nenhum produto encontrado com os filtros aplicados.' : 'Nenhum produto cadastrado. Adicione acima.')+'</td></tr>';
+    tb.innerHTML = '<tr class="empty-row"><td colspan="13">'+(listaProdutos.length ? 'Nenhum produto encontrado com os filtros aplicados.' : 'Nenhum produto cadastrado. Adicione acima.')+'</td></tr>';
     return;
   }
 
@@ -2618,6 +2623,7 @@ function renderProdutos(){
     var estMin = p.estoqueMin > 0 ? '<span class="td-m" style="font-size:10px;"> (mín: '+p.estoqueMin+')</span>' : '';
     return '<tr>'
       +'<td class="td-m">'+(p.codigo||'—')+'</td>'
+      +'<td class="td-m">'+(p.codigoFabricante||'—')+'</td>'
       +'<td><strong>'+p.nome+'</strong>'+(p.obs?'<br><span class="td-m" style="font-size:10px;">'+p.obs+'</span>':'')+'</td>'
       +'<td class="td-m">'+p.categoria+'</td>'
       +'<td class="td-m">'+p.unidade+'</td>'
@@ -3084,12 +3090,31 @@ function proximoNumOrc(){
   return orcNumSequencial;
 }
 
+// ── Resolve product by name, internal code, or manufacturer code ──
+function resolveProduto(valor) {
+  var v = (valor||'').trim().toLowerCase();
+  if(!v) return null;
+  // 1. Exact name match
+  var p = listaProdutos.find(function(x){ return x.nome.toLowerCase() === v; });
+  if(p) return p;
+  // 2. Internal code match
+  p = listaProdutos.find(function(x){ return x.codigo && x.codigo.toLowerCase() === v; });
+  if(p) return p;
+  // 3. Manufacturer code match
+  p = listaProdutos.find(function(x){ return x.codigoFabricante && x.codigoFabricante.toLowerCase() === v; });
+  return p || null;
+}
+
 function popularSugestoesOrc(){
   var dl = document.getElementById('orcProdSuggest');
   if(!dl) return;
-  dl.innerHTML = listaProdutos.map(function(p){
-    return '<option value="'+p.nome+'" data-preco="'+p.venda+'">';
-  }).join('');
+  var opts = [];
+  listaProdutos.forEach(function(p){
+    opts.push('<option value="'+escAttr(p.nome)+'" data-preco="'+p.venda+'">');
+    if(p.codigo) opts.push('<option value="'+escAttr(p.codigo)+'" data-preco="'+p.venda+'" label="'+escAttr(p.codigo+' — '+p.nome)+'">');
+    if(p.codigoFabricante) opts.push('<option value="'+escAttr(p.codigoFabricante)+'" data-preco="'+p.venda+'" label="'+escAttr(p.codigoFabricante+' — '+p.nome)+'">');
+  });
+  dl.innerHTML = opts.join('');
 }
 
 function calcOrcItemSubtotal(){
@@ -3101,25 +3126,40 @@ function calcOrcItemSubtotal(){
 }
 
 function adicionarItemOrc(){
-  var desc  = document.getElementById('orcItemDesc').value.trim();
+  var descInput = document.getElementById('orcItemDesc');
+  var desc  = descInput.value.trim();
   var qtd   = parseFloat(document.getElementById('orcItemQtd').value)||0;
   var preco = parseFloat(document.getElementById('orcItemPreco').value)||0;
   var descP = parseFloat(document.getElementById('orcItemDesc2').value)||0;
-  // Auto-fill price from product list when not yet entered
-  if(!preco){
-    var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
-    if(prod && prod.venda>0){
+  // Resolve by name, internal code, or manufacturer code
+  var prod = resolveProduto(desc);
+  if(prod){
+    // If user typed a code, replace with product name
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      desc = prod.nome;
+      descInput.value = desc;
+    }
+    if(!preco && prod.venda > 0){
       preco = prod.venda;
+      document.getElementById('orcItemPreco').value = preco;
+    }
+  } else if(!preco){
+    // Fallback: search by name only (partial from datalist)
+    var prodFallback = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
+    if(prodFallback && prodFallback.venda>0){
+      preco = prodFallback.venda;
       document.getElementById('orcItemPreco').value = preco;
     }
   }
   if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário do item.'); return; }
   orcItensAtual.push({ desc:desc, qtd:qtd, preco:preco, descPct:descP });
-  document.getElementById('orcItemDesc').value='';
+  descInput.value='';
   document.getElementById('orcItemQtd').value='';
   document.getElementById('orcItemPreco').value='';
   document.getElementById('orcItemDesc2').value='';
   document.getElementById('orcItemSubtotal').textContent='';
+  var estEl = document.getElementById('orcItemEstoque');
+  if(estEl) estEl.style.display='none';
   renderItensOrc();
 }
 
@@ -3165,6 +3205,9 @@ var _histTopItens = []; // cache dos top-itens exibidos, para acesso por índice
 
 function escHTML(str){
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str){
+  return String(str).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function atualizarHistoricoClienteOrc(){
@@ -3470,19 +3513,30 @@ var pedEmEdicao   = null;
 function popularSugestoesPed(){
   var dl = document.getElementById('pedProdSuggest');
   if(!dl) return;
-  dl.innerHTML = listaProdutos.map(function(p){
-    return '<option value="'+p.nome+'" data-custo="'+p.custo+'">';
-  }).join('');
+  var opts = [];
+  listaProdutos.forEach(function(p){
+    opts.push('<option value="'+escAttr(p.nome)+'" data-custo="'+p.custo+'">');
+    if(p.codigo) opts.push('<option value="'+escAttr(p.codigo)+'" data-custo="'+p.custo+'" label="'+escAttr(p.codigo+' — '+p.nome)+'">');
+    if(p.codigoFabricante) opts.push('<option value="'+escAttr(p.codigoFabricante)+'" data-custo="'+p.custo+'" label="'+escAttr(p.codigoFabricante+' — '+p.nome)+'">');
+  });
+  dl.innerHTML = opts.join('');
 }
 
 function autoPreencherCustoPed(){
-  var desc = document.getElementById('pedItemDesc').value.trim();
+  var inputEl = document.getElementById('pedItemDesc');
+  var desc = inputEl.value.trim();
   if(!desc) return;
-  var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase()===desc.toLowerCase(); });
-  if(prod && prod.custo>0){
-    var precoEl = document.getElementById('pedItemPreco');
-    if(!precoEl.value) precoEl.value = prod.custo;
-    calcPedItemSubtotal();
+  var prod = resolveProduto(desc);
+  if(prod){
+    // If user typed a code, replace with product name
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      inputEl.value = prod.nome;
+    }
+    if(prod.custo > 0){
+      var precoEl = document.getElementById('pedItemPreco');
+      if(!precoEl.value) precoEl.value = prod.custo;
+      calcPedItemSubtotal();
+    }
   }
 }
 
@@ -3494,12 +3548,25 @@ function calcPedItemSubtotal(){
 }
 
 function adicionarItemPed(){
-  var desc  = document.getElementById('pedItemDesc').value.trim();
+  var inputEl = document.getElementById('pedItemDesc');
+  var desc  = inputEl.value.trim();
   var qtd   = parseFloat(document.getElementById('pedItemQtd').value)||0;
   var preco = parseFloat(document.getElementById('pedItemPreco').value)||0;
+  // Resolve by name, internal code, or manufacturer code
+  var prod = resolveProduto(desc);
+  if(prod){
+    if(prod.nome.toLowerCase() !== desc.toLowerCase()){
+      desc = prod.nome;
+      inputEl.value = desc;
+    }
+    if(!preco && prod.custo > 0){
+      preco = prod.custo;
+      document.getElementById('pedItemPreco').value = preco;
+    }
+  }
   if(!desc || qtd<=0 || preco<=0){ alert('Preencha descrição, quantidade e preço unitário.'); return; }
   pedItensAtual.push({ desc:desc, qtd:qtd, preco:preco });
-  document.getElementById('pedItemDesc').value='';
+  inputEl.value='';
   document.getElementById('pedItemQtd').value='';
   document.getElementById('pedItemPreco').value='';
   document.getElementById('pedItemSubtotal').textContent='';
@@ -4058,11 +4125,16 @@ function executarBuscaGlobal(){
 
 // Feature 14: Indicador de estoque no formulário de orçamento
 function mostrarEstoqueOrcItem(){
-  var desc = document.getElementById('orcItemDesc').value.trim().toLowerCase();
+  var inputEl = document.getElementById('orcItemDesc');
+  var inputVal = inputEl.value.trim();
   var el = document.getElementById('orcItemEstoque');
   if(!el) return;
-  if(!desc){ el.style.display='none'; return; }
-  var prod = listaProdutos.find(function(p){ return p.nome.toLowerCase() === desc; });
+  if(!inputVal){ el.style.display='none'; return; }
+  var prod = resolveProduto(inputVal);
+  // If resolved by code (not exact name), replace input with product name
+  if(prod && prod.nome.toLowerCase() !== inputVal.toLowerCase()){
+    inputEl.value = prod.nome;
+  }
   if(!prod){ el.style.display='none'; return; }
   var est = prod.estoqueAtual || 0;
   var cls = est <= 0 ? 'stock-inline-zero' : (prod.estoqueMin > 0 && est <= prod.estoqueMin ? 'stock-inline-low' : 'stock-inline-ok');
