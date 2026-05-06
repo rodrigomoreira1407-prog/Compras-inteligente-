@@ -221,8 +221,12 @@ function proxyBling(endpoint, token, res) {
 
       allItems.push(...json.data);
 
-      // Se a página retornou 100 itens, pode haver mais páginas
-      if (json.data.length === 100) {
+      // Usa json.total quando disponível (mais confiável); caso contrário, infere pelo tamanho da página
+      const hasMore = (typeof json.total === 'number')
+        ? allItems.length < json.total
+        : json.data.length === 100;
+
+      if (hasMore && json.data.length > 0) {
         // Pequena pausa entre páginas para evitar disparar o limite de requisições do Bling
         setTimeout(() => fetchPage(pagina + 1), 300);
       } else {
