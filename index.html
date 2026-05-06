@@ -3737,10 +3737,10 @@ function toggleDarkMode(){
 function calcVencOrc(dataStr, condicao){
   var d = new Date(dataStr+'T00:00:00');
   var prazo = 30;
-  if(condicao === 'À vista')          prazo = 0;
-  else if(condicao === '30 dias')     prazo = 30;
-  else if(condicao === '30/60 dias')  prazo = 45;
-  else if(condicao === '30/60/90 dias') prazo = 60;
+  if(condicao === 'À vista')              prazo = 0;
+  else if(condicao === '30 dias')         prazo = 30;
+  else if(condicao === '30/60 dias')      prazo = 60;
+  else if(condicao === '30/60/90 dias')   prazo = 90;
   d.setDate(d.getDate() + prazo);
   return chaveData(d);
 }
@@ -3980,7 +3980,7 @@ function verHistoricoPreco(prodId){
   var allLabels = Array.from(new Set(labelsC.concat(labelsO))).sort();
   _grafHistPreco = new Chart(document.getElementById('grafHistPreco'), {
     type:'line',
-    data:{ labels: allLabels.length ? allLabels : labelsC.concat(labelsO), datasets: datasets },
+    data:{ labels: allLabels, datasets: datasets },
     options:{ responsive:true, maintainAspectRatio:false,
       plugins:{ legend:{ labels:{ font:{ size:11 } } } },
       scales:{ y:{ ticks:{ callback:function(v){ return 'R$'+v.toFixed(2); } }, grid:{ color:'rgba(0,0,0,0.05)' } }, x:{ grid:{ display:false } } } }
@@ -3989,6 +3989,11 @@ function verHistoricoPreco(prodId){
 function fecharHistPrecoModal(){ document.getElementById('modalHistPreco').style.display='none'; if(_grafHistPreco){ _grafHistPreco.destroy(); _grafHistPreco=null; } }
 
 // Feature 8: Busca global (Ctrl+K)
+function navegarParaBusca(pagina){
+  fecharBuscaGlobal();
+  var btn = document.querySelector('.sb-btn[onclick*="\''+pagina+'\'"]');
+  if(btn) irPara(pagina, btn);
+}
 function abrirBuscaGlobal(){
   document.getElementById('modalBusca').style.display = 'flex';
   setTimeout(function(){ var inp = document.getElementById('buscaGlobalInput'); if(inp){ inp.value=''; inp.focus(); } executarBuscaGlobal(); }, 30);
@@ -4004,10 +4009,10 @@ function executarBuscaGlobal(){
   if(rCli.length){
     html += '<div class="search-result-group"><div class="search-result-group-title">Clientes</div>'
       + rCli.slice(0,5).map(function(c){
-          return '<div class="search-result-item" onclick="fecharBuscaGlobal();irPara(\'clientes\',document.querySelector(\'.sb-btn[onclick*=\\\"clientes\\\"]\'))">'
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'clientes\')">'
             +'<span class="search-result-icon">◎</span>'
             +'<div><div class="search-result-main">'+escHTML(c.nome)+'</div>'
-            +'<div class="search-result-sub">'+(c.telefone||'')+(c.cnpj?' · '+c.cnpj:'')+'</div></div>'
+            +'<div class="search-result-sub">'+(c.telefone||'')+(c.cnpj?' · '+escHTML(c.cnpj):'')+'</div></div>'
             +'</div>';
         }).join('')+'</div>';
   }
@@ -4016,10 +4021,10 @@ function executarBuscaGlobal(){
   if(rProd.length){
     html += '<div class="search-result-group"><div class="search-result-group-title">Produtos</div>'
       + rProd.slice(0,5).map(function(p){
-          return '<div class="search-result-item" onclick="fecharBuscaGlobal();irPara(\'produtos\',document.querySelector(\'.sb-btn[onclick*=\\\"produtos\\\"]\'))">'
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'produtos\')">'
             +'<span class="search-result-icon">📦</span>'
             +'<div><div class="search-result-main">'+escHTML(p.nome)+'</div>'
-            +'<div class="search-result-sub">'+(p.codigo?'#'+p.codigo+' · ':'')+'Estoque: '+(p.estoqueAtual||0)+' · '+brl(p.venda||0)+'</div></div>'
+            +'<div class="search-result-sub">'+(p.codigo?'#'+escHTML(p.codigo)+' · ':'')+'Estoque: '+(p.estoqueAtual||0)+' · '+brl(p.venda||0)+'</div></div>'
             +'</div>';
         }).join('')+'</div>';
   }
@@ -4028,7 +4033,7 @@ function executarBuscaGlobal(){
   if(rOrc.length){
     html += '<div class="search-result-group"><div class="search-result-group-title">Orçamentos</div>'
       + rOrc.slice(0,5).map(function(o){
-          return '<div class="search-result-item" onclick="fecharBuscaGlobal();irPara(\'orcamentos\',document.querySelector(\'.sb-btn[onclick*=\\\"orcamentos\\\"]\'))">'
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'orcamentos\')">'
             +'<span class="search-result-icon">📋</span>'
             +'<div><div class="search-result-main">#'+o.num+' — '+escHTML(o.cliente)+'</div>'
             +'<div class="search-result-sub">'+fmtData(o.data)+' · '+brl(o.total||0)+' · '+o.status+'</div></div>'
@@ -4040,7 +4045,7 @@ function executarBuscaGlobal(){
   if(rPed.length){
     html += '<div class="search-result-group"><div class="search-result-group-title">Pedidos</div>'
       + rPed.slice(0,5).map(function(p){
-          return '<div class="search-result-item" onclick="fecharBuscaGlobal();irPara(\'pedidos\',document.querySelector(\'.sb-btn[onclick*=\\\"pedidos\\\"]\'))">'
+          return '<div class="search-result-item" onclick="navegarParaBusca(\'pedidos\')">'
             +'<span class="search-result-icon">📦</span>'
             +'<div><div class="search-result-main">#'+p.num+' — '+escHTML(p.fornecedor)+'</div>'
             +'<div class="search-result-sub">'+fmtData(p.data)+' · '+brl(p.total||0)+' · '+p.status+'</div></div>'
